@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Crown with star - representing presidential leadership -->
+  <path d="M5 16L3 14L7 12L9 14L12 10L15 14L17 12L21 14L19 16L5 16Z" fill="#D97706" stroke="#92400E" stroke-width="1.5"/>
+  <!-- Crown base -->
+  <rect x="4" y="16" width="16" height="3" fill="#D97706"/>
+  <!-- Star on crown -->
+  <path d="M12 6L13.5 9L17 9L14.5 11L15.5 14.5L12 12.5L8.5 14.5L9.5 11L7 9L10.5 9L12 6Z" fill="#F59E0B"/>
+  <!-- Presidential sash -->
+  <path d="M2 18L22 18L20 20L4 20L2 18Z" fill="#F59E0B"/>
+</svg>

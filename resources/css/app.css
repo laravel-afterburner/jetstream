@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+/* Prevent flicker during Livewire navigation */
+[wire\:navigate] {
+    cursor: pointer;
+}
+
+/* Prevent layout shift and flicker during navigation */
+body {
+    min-height: 100vh;
+}
+
+main {
+    min-height: calc(100vh - 4rem);
+    position: relative;
+}
+
+/* Ensure smooth transitions without flicker */
+@layer utilities {
+    .livewire-navigate-transition {
+        transition: opacity 0.15s ease-in-out;
+    }
+}
+
+/* Role Management Drag and Drop Styles */
+#roles-container {
+    position: relative;
+}
+
+.draggable-role {
+    transition: all 0.2s ease;
+    cursor: move;
+}
+
+.draggable-role:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.draggable-role.dragging {
+    opacity: 0.7;
+    transform: rotate(2deg) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.drag-handle {
+    transition: color 0.2s ease;
+}
+
+.drag-handle:hover {
+    color: #6366f1 !important;
+}
+
+/* Drop zone indicator */
+.draggable-role.drag-over {
+    border-top: 3px solid #6366f1;
+    background-color: rgba(99, 102, 241, 0.05);
+    transform: translateY(-2px);
+}
+
+.draggable-role.drag-over::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 2px;
+}
+
+/* Drag placeholder */
+.drag-placeholder {
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 1px;
+    margin: 0;
+    opacity: 0.9;
+    animation: pulse 1.5s ease-in-out infinite;
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}

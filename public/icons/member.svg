@@ -1,0 +1,23 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Building/apartment icon - representing strata property ownership -->
+  <path d="M3 21H21V19L12 10L3 19V21Z" fill="#6B7280" stroke="#4B5563" stroke-width="1.5"/>
+  <!-- Building floors -->
+  <rect x="5" y="12" width="3" height="6" fill="#9CA3AF"/>
+  <rect x="9" y="8" width="3" height="10" fill="#9CA3AF"/>
+  <rect x="13" y="10" width="3" height="8" fill="#9CA3AF"/>
+  <rect x="17" y="6" width="3" height="12" fill="#9CA3AF"/>
+  <!-- Windows -->
+  <rect x="5.5" y="13" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="6.5" y="13" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="9.5" y="9" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="10.5" y="9" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="13.5" y="11" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="14.5" y="11" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="17.5" y="7" width="1" height="1" fill="#D1D5DB"/>
+  <rect x="18.5" y="7" width="1" height="1" fill="#D1D5DB"/>
+  <!-- Door -->
+  <rect x="10" y="16" width="2" height="4" fill="#4B5563"/>
+  <!-- Key representing ownership -->
+  <path d="M8 6L9 7L10 6L11 7L12 6" stroke="#6B7280" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="12" cy="6" r="1" fill="#6B7280"/>
+</svg>

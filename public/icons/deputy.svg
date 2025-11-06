@@ -1,0 +1,11 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Crown with two points - representing vice presidential leadership -->
+  <path d="M5 16L4 15L6 13L8 15L12 11L16 15L18 13L20 15L19 16L5 16Z" fill="#2563EB" stroke="#1D4ED8" stroke-width="1.5"/>
+  <!-- Crown base -->
+  <rect x="4" y="16" width="16" height="3" fill="#2563EB"/>
+  <!-- Two smaller stars representing vice position -->
+  <path d="M9 7L9.5 8.5L11 8.5L9.75 9.5L10.25 11L9 10L7.75 11L8.25 9.5L7 8.5L8.5 8.5L9 7Z" fill="#3B82F6"/>
+  <path d="M15 7L15.5 8.5L17 8.5L15.75 9.5L16.25 11L15 10L13.75 11L14.25 9.5L13 8.5L14.5 8.5L15 7Z" fill="#3B82F6"/>
+  <!-- Leadership sash -->
+  <path d="M2 18L22 18L20 20L4 20L2 18Z" fill="#3B82F6"/>
+</svg>
