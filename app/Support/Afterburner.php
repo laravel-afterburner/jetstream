@@ -129,16 +129,25 @@ class Afterburner
 
     /**
      * Return the permissions in the given list that are actually defined permissions for the application.
-     * Note: API features are disabled, so this always returns an empty array.
      * 
-     * @see NOTE above - this is a stub that needs implementation if API is enabled
+     * For now, if API features are enabled, we filter to only allow common CRUD permissions.
+     * In the future, this can be enhanced to validate against a defined permission list.
      *
      * @param  array  $permissions
      * @return array
      */
     public static function validPermissions(array $permissions)
     {
-        return [];
+        // If API features are disabled, return empty array
+        if (! static::hasApiFeatures()) {
+            return [];
+        }
+        
+        // Define valid permissions (common CRUD operations)
+        $validPermissions = ['create', 'read', 'update', 'delete'];
+        
+        // Filter to only include valid permissions
+        return array_values(array_intersect($permissions, $validPermissions));
     }
 
     /**

@@ -140,126 +140,136 @@
 </div>
 
 <script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('webauthn-register', async ([params]) => {
-        const deviceName = params?.deviceName || '';
-        
-        try {
-            // Check if WebAuthn is supported
-            if (!window.PublicKeyCredential) {
-                @this.call('handleRegistrationError', '{{ __("Your browser does not support WebAuthn. Please use a modern browser.") }}');
-                return;
-            }
-
-            // Get registration options
-            const optionsResponse = await fetch('{{ route("webauthn.register.options") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                },
-                credentials: 'same-origin'
-            });
-
-            if (!optionsResponse.ok) {
-                throw new Error('Failed to get registration options');
-            }
-
-            const options = await optionsResponse.json();
-
-            // Parse the challenge
-            const challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+(function() {
+    function registerWebAuthnListener() {
+        Livewire.on('webauthn-register', async ([params]) => {
+            const deviceName = params?.deviceName || '';
             
-            // Parse user id
-            const userId = Uint8Array.from(atob(options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
-
-            // Parse excludeCredentials if present (to prevent duplicate registrations)
-            let excludeCredentials = null;
-            if (options.excludeCredentials && Array.isArray(options.excludeCredentials)) {
-                excludeCredentials = options.excludeCredentials.map(cred => {
-                    // Convert base64url ID to ArrayBuffer
-                    const id = Uint8Array.from(atob(cred.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
-                    return {
-                        ...cred,
-                        id: id.buffer
-                    };
-                });
-            }
-
-            // Create credential
-            const publicKeyOptions = {
-                ...options,
-                challenge: challenge,
-                user: {
-                    ...options.user,
-                    id: userId
+            try {
+                // Check if WebAuthn is supported
+                if (!window.PublicKeyCredential) {
+                    @this.call('handleRegistrationError', '{{ __("Your browser does not support WebAuthn. Please use a modern browser.") }}');
+                    return;
                 }
-            };
-            
-            if (excludeCredentials) {
-                publicKeyOptions.excludeCredentials = excludeCredentials;
-            }
 
-            const credential = await navigator.credentials.create({
-                publicKey: publicKeyOptions
-            });
-
-            // Convert credential to base64
-            const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
-            const clientDataJSON = btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON)));
-            const attestationObject = btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject)));
-
-            // Send credential to server
-            const registerResponse = await fetch('{{ route("webauthn.register") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    id: credential.id,
-                    rawId: credentialId,
-                    type: credential.type,
-                    response: {
-                        clientDataJSON: clientDataJSON,
-                        attestationObject: attestationObject
+                // Get registration options
+                const optionsResponse = await fetch('{{ route("webauthn.register.options") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                     },
-                    alias: deviceName
-                })
-            });
+                    credentials: 'same-origin'
+                });
 
-            if (!registerResponse.ok) {
-                const error = await registerResponse.json();
-                throw new Error(error.message || 'Registration failed');
-            }
+                if (!optionsResponse.ok) {
+                    throw new Error('Failed to get registration options');
+                }
 
-            // Registration successful - now dispatch saved event
-            // This happens after the biometric prompt is dismissed
-            @this.call('handleRegistrationSuccess');
-            
-        } catch (error) {
-            console.error('WebAuthn registration error:', error);
-            
-            // Check for specific error types
-            let errorMessage = error.message || '{{ __("Failed to register device. Please try again.") }}';
-            
-            // Handle duplicate credential errors
-            if (error.name === 'InvalidStateError' || error.message.includes('excludeCredentials') || error.message.includes('already registered')) {
-                errorMessage = '{{ __("This device is already registered. Please remove the existing registration first if you want to register it again.") }}';
-            } else if (error.name === 'NotAllowedError' || error.name === 'NotSupportedError') {
-                errorMessage = '{{ __("Biometric authentication was cancelled or not available. Please try again.") }}';
-            } else if (error.message.includes('ArrayBuffer')) {
-                errorMessage = '{{ __("This device is already registered. Please remove the existing registration first if you want to register it again.") }}';
+                const options = await optionsResponse.json();
+
+                // Parse the challenge
+                const challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                
+                // Parse user id
+                const userId = Uint8Array.from(atob(options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+
+                // Parse excludeCredentials if present (to prevent duplicate registrations)
+                let excludeCredentials = null;
+                if (options.excludeCredentials && Array.isArray(options.excludeCredentials)) {
+                    excludeCredentials = options.excludeCredentials.map(cred => {
+                        // Convert base64url ID to ArrayBuffer
+                        const id = Uint8Array.from(atob(cred.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                        return {
+                            ...cred,
+                            id: id.buffer
+                        };
+                    });
+                }
+
+                // Create credential
+                const publicKeyOptions = {
+                    ...options,
+                    challenge: challenge,
+                    user: {
+                        ...options.user,
+                        id: userId
+                    }
+                };
+                
+                if (excludeCredentials) {
+                    publicKeyOptions.excludeCredentials = excludeCredentials;
+                }
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyOptions
+                });
+
+                // Convert credential to base64
+                const credentialId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+                const clientDataJSON = btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON)));
+                const attestationObject = btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject)));
+
+                // Send credential to server
+                const registerResponse = await fetch('{{ route("webauthn.register") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        id: credential.id,
+                        rawId: credentialId,
+                        type: credential.type,
+                        response: {
+                            clientDataJSON: clientDataJSON,
+                            attestationObject: attestationObject
+                        },
+                        alias: deviceName
+                    })
+                });
+
+                if (!registerResponse.ok) {
+                    const error = await registerResponse.json();
+                    throw new Error(error.message || 'Registration failed');
+                }
+
+                // Registration successful - now dispatch saved event
+                // This happens after the biometric prompt is dismissed
+                @this.call('handleRegistrationSuccess');
+                
+            } catch (error) {
+                console.error('WebAuthn registration error:', error);
+                
+                // Check for specific error types
+                let errorMessage = error.message || '{{ __("Failed to register device. Please try again.") }}';
+                
+                // Handle duplicate credential errors
+                if (error.name === 'InvalidStateError' || error.message.includes('excludeCredentials') || error.message.includes('already registered')) {
+                    errorMessage = '{{ __("This device is already registered. Please remove the existing registration first if you want to register it again.") }}';
+                } else if (error.name === 'NotAllowedError' || error.name === 'NotSupportedError') {
+                    errorMessage = '{{ __("Biometric authentication was cancelled or not available. Please try again.") }}';
+                } else if (error.message.includes('ArrayBuffer')) {
+                    errorMessage = '{{ __("This device is already registered. Please remove the existing registration first if you want to register it again.") }}';
+                }
+                
+                @this.call('handleRegistrationError', errorMessage);
             }
-            
-            @this.call('handleRegistrationError', errorMessage);
-        }
-    });
-});
+        });
+    }
+
+    // Register listener immediately if Livewire is available, otherwise wait for init
+    if (window.Livewire) {
+        registerWebAuthnListener();
+    }
+    
+    // Also listen for init event as a fallback (in case Livewire loads after this script)
+    document.addEventListener('livewire:init', registerWebAuthnListener);
+})();
 </script>
 

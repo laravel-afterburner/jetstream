@@ -145,7 +145,7 @@ class WebAuthnCredentialsForm extends Component
     /**
      * Delete a WebAuthn credential.
      */
-public function deleteCredential()
+    public function deleteCredential()
     {
         // Check if biometric feature is enabled
         if (!AfterburnerFeatures::hasBiometricFeatures()) {
@@ -175,6 +175,8 @@ public function deleteCredential()
             'bannerStyle' => 'success',
             'banner' => __('Device removed successfully.'),
         ]);
+
+        return redirect()->to(request()->header('Referer'));
     }
 
     /**

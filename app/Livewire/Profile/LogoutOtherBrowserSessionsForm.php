@@ -65,9 +65,11 @@ class LogoutOtherBrowserSessionsForm extends Component
 
         $this->deleteOtherSessionRecords();
 
-        request()->session()->put([
-            'password_hash_'.Auth::getDefaultDriver() => Auth::user()->getAuthPassword(),
-        ]);
+        if (request()->hasSession()) {
+            request()->session()->put([
+                'password_hash_'.Auth::getDefaultDriver() => Auth::user()->getAuthPassword(),
+            ]);
+        }
 
         $this->confirmingLogout = false;
 
@@ -82,6 +84,10 @@ class LogoutOtherBrowserSessionsForm extends Component
     protected function deleteOtherSessionRecords()
     {
         if (config('session.driver') !== 'database') {
+            return;
+        }
+
+        if (! request()->hasSession()) {
             return;
         }
 
@@ -102,6 +108,10 @@ class LogoutOtherBrowserSessionsForm extends Component
             return collect();
         }
 
+        if (! request()->hasSession()) {
+            return collect();
+        }
+
         return collect(
             DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
                     ->where('user_id', Auth::user()->getAuthIdentifier())
@@ -112,7 +122,7 @@ class LogoutOtherBrowserSessionsForm extends Component
             return (object) [
                 'agent' => $this->createAgent($session),
                 'ip_address' => $session->ip_address,
-                'is_current_device' => $session->id === request()->session()->getId(),
+                'is_current_device' => request()->hasSession() && $session->id === request()->session()->getId(),
                 'last_active' => Auth::user()->toUserTimezone($lastActivity)->diffForHumans(),
             ];
         });

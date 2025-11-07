@@ -42,7 +42,6 @@ class TeamDeleted extends Notification implements ShouldQueue
         return (new MailMessage)
             ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)
             ->subject("The {$teamName} {$entityLabel} has been deleted")
-            ->viewData(['team' => $this->team])
             ->greeting("Hello {$notifiable->name},")
             ->line("The {$entityLabel} \"{$teamName}\" has been deleted by its owner, {$ownerName}.")
             ->line("You no longer have access to this {$entityLabel} and its data.")

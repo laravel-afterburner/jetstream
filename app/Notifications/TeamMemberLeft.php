@@ -48,7 +48,6 @@ class TeamMemberLeft extends Notification implements ShouldQueue
         return (new MailMessage)
             ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)
             ->subject("Team member left {$teamName}")
-            ->viewData(['team' => $this->team])
             ->greeting("Hello {$notifiable->name},")
             ->line("{$memberName} has left the {$entityLabel} \"{$teamName}\".")
             ->line("They held the following positions: {$rolesText}")

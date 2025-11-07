@@ -22,7 +22,7 @@
                     {{ $title }}
                 @endif
             @else
-                {{ config('app.name', 'Laravel') }}
+                {{ config('app.name') }}
             @endif
         </title>
 

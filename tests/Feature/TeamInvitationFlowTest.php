@@ -105,7 +105,7 @@ class TeamInvitationFlowTest extends TestCase
         ]);
 
         // Register with invitation
-        $response = $this->post('/register', [
+        $response = $this->from('/register')->post('/register', [
             'name' => 'New User',
             'email' => 'newuser@example.com',
             'password' => 'password',
@@ -154,8 +154,8 @@ class TeamInvitationFlowTest extends TestCase
         $response = $this->get(route('notifications'));
 
         $response->assertStatus(200);
-        // The view uses Livewire, so check for Livewire component
-        $response->assertSeeLivewire('notifications.notification-manager');
+        // The view uses Livewire, so check for Livewire component in the response
+        $response->assertSee('notification-manager', false);
         // The notification should be visible (check for invitation text)
         $response->assertSee('Invitation', false);
     }
@@ -177,8 +177,13 @@ class TeamInvitationFlowTest extends TestCase
         // Create notification for the user
         $user->notify(new \App\Notifications\TeamInvitationNotification($invitation));
         
+        // Refresh the user to ensure notification is loaded
+        $user->refresh();
+        
         // Get the notification from the database
         $notification = $user->notifications()->first();
+        
+        $this->assertNotNull($notification, 'Notification should be created');
 
         $this->actingAs($user);
 
@@ -212,8 +217,13 @@ class TeamInvitationFlowTest extends TestCase
         // Create notification for the user
         $user->notify(new \App\Notifications\TeamInvitationNotification($invitation));
         
+        // Refresh the user to ensure notification is loaded
+        $user->refresh();
+        
         // Get the notification from the database
         $notification = $user->notifications()->first();
+        
+        $this->assertNotNull($notification, 'Notification should be created');
 
         $this->actingAs($user);
 

@@ -52,8 +52,7 @@ class TeamInvitationNotification extends Notification implements ShouldQueue
 
         $mailMessage = (new MailMessage)
             ->from('donotreply@' . $this->sanitizeEmailDomain($team->name), $inviter->name ?? $team->name)
-            ->subject("You've been invited to join {$teamName}")
-            ->viewData(['team' => $team]);
+            ->subject("You've been invited to join {$teamName}");
 
         $mailMessage
             ->greeting("Hello {$notifiable->name}!")

@@ -61,7 +61,7 @@
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    Feature Summary
+                                    Feature Summary <span class="text-xs text-gray-500">(at initial installation)</span>
                                 </h3>
                                 <span class="text-sm text-gray-500 dark:text-gray-400">
                                     {{ $enabledCount }} of {{ $totalCount }} enabled

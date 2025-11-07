@@ -42,7 +42,7 @@ class RegistrationTest extends TestCase
         // Seed roles for the test
         $this->seed(\Database\Seeders\RolesSeeder::class);
 
-        $response = $this->post('/register', [
+        $response = $this->from('/register')->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
