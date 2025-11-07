@@ -164,7 +164,8 @@ After installation, you'll need to:
 
 1. Copy `.env.example` to `.env` and configure your environment
 2. Run migrations: `php artisan migrate`
-3. Seed roles (optional): `php artisan db:seed --class=RolesSeeder`
+3. Seed a System Admin account (optional): `php artisan db:seed --class=SystemAdminSeeder`
+4. Seed roles (optional): `php artisan db:seed --class=RolesSeeder`
 
 **Note:** If you plan to use WebAuthn/Biometric Authentication, ensure your development site is served over HTTPS. WebAuthn APIs are only available in secure contexts (HTTPS or localhost). If you're testing on a non-localhost domain, you'll need to set up SSL/TLS certificates for your development environment.
 
@@ -180,7 +181,7 @@ After installation, you'll need to:
 
 ### Environment Variables
 
-Afterburner uses the following environment variables (see `stubs/.env.example` for details):
+Afterburner uses the following environment variables (see `.env.example` for details):
 
 - `AFTERBURNER_ENTITY_LABEL` - Label for teams/organizations (default: `organization`)
 - `AFTERBURNER_APP_TYPE` - Application type (default: `Management App`)
@@ -202,7 +203,7 @@ Main configuration is in `config/afterburner.php`. This file controls:
 WebAuthn (biometric authentication) requires a secure context to function:
 
 - **HTTPS**: Production and staging environments must use HTTPS
-- **Localhost**: Development on `localhost`, `127.0.0.1`, or `[::1]` works over HTTP
+- **Localhost**: Development on `localhost`, `127.0.0.1`, or `[::1]` may work over HTTP
 - **Non-localhost HTTP**: WebAuthn APIs are disabled by browsers on non-localhost HTTP connections
 
 If users encounter errors when registering biometric devices, ensure your site is served over HTTPS (or use localhost for development). The application will display a helpful error message if WebAuthn is unavailable due to insecure contexts.
@@ -272,7 +273,7 @@ The template includes a default role system that automatically assigns roles to 
    - A user accepts a team invitation
    - A user creates a new team
 
-To set up roles, create a `RolesSeeder`:
+To set up roles, use the templated roles in the `RolesSeeder` or update it with your own:
 
 ```php
 // database/seeders/RolesSeeder.php
@@ -352,7 +353,7 @@ The template includes several utility classes in `App\Support`:
 - `OwnerRole` - Helper class for owner role
 - `Role` - Support class for role definitions
 
-## Documentation
+## Documentation (coming soon)
 
 Full documentation is available in the [docs](docs/) directory of this repository. The documentation includes:
 
@@ -386,9 +387,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 Afterburner is designed to be extensible. Check out our add-on packages:
 
-- **Subscriptions** - Stripe subscription management
+- **Documents** - Document management (coming next!)
 
-- **Documents** - Document management (coming soon)
+- **Subscriptions** - Stripe subscription management (coming soon)
 
 - **Communications** - Enhanced communications (coming soon)
 
