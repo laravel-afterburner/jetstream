@@ -166,6 +166,8 @@ After installation, you'll need to:
 2. Run migrations: `php artisan migrate`
 3. Seed roles (optional): `php artisan db:seed --class=RolesSeeder`
 
+**Note:** If you plan to use WebAuthn/Biometric Authentication, ensure your development site is served over HTTPS. WebAuthn APIs are only available in secure contexts (HTTPS or localhost). If you're testing on a non-localhost domain, you'll need to set up SSL/TLS certificates for your development environment.
+
 ## Requirements
 
 - PHP ^8.2
@@ -194,6 +196,21 @@ Main configuration is in `config/afterburner.php`. This file controls:
 - Feature options (e.g., 2FA configuration)
 - Authentication settings
 - Profile photo storage
+
+### WebAuthn/Biometric Authentication
+
+WebAuthn (biometric authentication) requires a secure context to function:
+
+- **HTTPS**: Production and staging environments must use HTTPS
+- **Localhost**: Development on `localhost`, `127.0.0.1`, or `[::1]` works over HTTP
+- **Non-localhost HTTP**: WebAuthn APIs are disabled by browsers on non-localhost HTTP connections
+
+If users encounter errors when registering biometric devices, ensure your site is served over HTTPS (or use localhost for development). The application will display a helpful error message if WebAuthn is unavailable due to insecure contexts.
+
+WebAuthn configuration is managed in `config/webauthn.php`:
+- `WEBAUTHN_NAME` - Relying party name (defaults to app name)
+- `WEBAUTHN_ID` - Relying party ID (domain)
+- `WEBAUTHN_ORIGINS` - Additional allowed origins (comma-separated)
 
 ### Feature Flags
 

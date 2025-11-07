@@ -148,7 +148,7 @@
             try {
                 // Check if WebAuthn is supported
                 if (!window.PublicKeyCredential) {
-                    @this.call('handleRegistrationError', '{{ __("Your browser does not support WebAuthn. Please use a modern browser.") }}');
+                    @this.call('handleRegistrationError', '{{ __("Your browser does not support WebAuthn, or your site is not secured using HTTPS protocol.") }}');
                     return;
                 }
 
