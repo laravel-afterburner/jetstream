@@ -15,6 +15,21 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @foreach($this->navigationItems as $item)
+                        <x-nav-link
+                            href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                            :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : request()->routeIs($item['route'] . '.*')">
+                            @if(isset($item['icon']))
+                                <x-icon :name="$item['icon']" class="me-1 size-4" />
+                            @endif
+                            {{ $item['label'] }}
+                            @if(isset($item['badge']) && $item['badge'] > 0)
+                                <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                                </span>
+                            @endif
+                        </x-nav-link>
+                    @endforeach
                 </div>
             </div>
 
@@ -231,6 +246,38 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="$this->isDashboardActive">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @foreach($this->navigationItems as $item)
+                @php
+                    // Use cached active state for documents menu item (like other menu items)
+                    // This ensures it persists when mobile menu opens/closes
+                    $isActive = false;
+                    if (($item['route'] ?? '') === 'teams.documents.index') {
+                        $isActive = $this->isDocumentsActive;
+                    } else {
+                        // For other items, evaluate active callback or use route matching
+                        if (isset($item['active']) && is_callable($item['active'])) {
+                            $isActive = (bool) $item['active']();
+                        } else {
+                            $isActive = request()->routeIs($item['route'] . '.*');
+                        }
+                    }
+                @endphp
+                <x-responsive-nav-link
+                    href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                    :active="$isActive">
+                    <div class="flex items-center whitespace-nowrap">
+                        @if(isset($item['icon']))
+                            <x-icon :name="$item['icon']" class="me-1 size-4 flex-shrink-0" />
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        @if(isset($item['badge']) && $item['badge'] > 0)
+                            <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex-shrink-0">
+                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                            </span>
+                        @endif
+                    </div>
+                </x-responsive-nav-link>
+            @endforeach
         </div>
 
         <!-- Responsive Settings Options -->

@@ -4,6 +4,7 @@ namespace App\Livewire\Teams;
 
 use App\Traits\InteractsWithBanner;
 use App\Models\Team;
+use App\Services\FaviconService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -74,22 +75,45 @@ class TeamBranding extends Component
             'logo' => 'logo',
         ]);
 
+        // Store original color values to detect changes
+        $originalPrimaryColor = $this->team->primary_color ?? '';
+        $originalSecondaryColor = $this->team->secondary_color ?? '';
+        $newPrimaryColor = $this->brandingForm['primary_color'] ?: null;
+        $newSecondaryColor = $this->brandingForm['secondary_color'] ?: null;
+        
+        // Normalize empty strings to null for comparison
+        $originalPrimaryColor = $originalPrimaryColor === '' ? null : $originalPrimaryColor;
+        $originalSecondaryColor = $originalSecondaryColor === '' ? null : $originalSecondaryColor;
+        
+        // Check if colors changed
+        $colorsChanged = ($originalPrimaryColor !== $newPrimaryColor) || 
+                        ($originalSecondaryColor !== $newSecondaryColor);
+        
+        // Check if logo is being updated
+        $logoUpdated = $this->logo !== null;
+
+        $faviconService = app(FaviconService::class);
+
         // Handle logo upload
         $logoUrl = $this->team->logo_url;
         if ($this->logo) {
-            // Delete old logo if it exists
+            // Delete old logo and favicon if they exist
             if ($this->team->logo_url && str_starts_with($this->team->logo_url, 'teams/')) {
                 Storage::disk('public')->delete($this->team->logo_url);
+                $faviconService->deleteFavicon($this->team->id);
             }
 
             // Store new logo
             $logoUrl = $this->logo->store('teams/' . $this->team->id, 'public');
+            
+            // Generate favicon from new logo
+            $faviconService->generateFromLogo($logoUrl, $this->team->id);
         }
 
         // Update team branding
         $this->team->forceFill([
-            'primary_color' => $this->brandingForm['primary_color'] ?: null,
-            'secondary_color' => $this->brandingForm['secondary_color'] ?: null,
+            'primary_color' => $newPrimaryColor,
+            'secondary_color' => $newSecondaryColor,
             'logo_url' => $logoUrl,
         ])->save();
 
@@ -98,6 +122,27 @@ class TeamBranding extends Component
 
         $this->dispatch('saved');
         $this->dispatch('team-branding-updated');
+
+        // If colors changed, redirect to refresh the page
+        // This ensures the CSS variables are updated properly
+        if ($colorsChanged) {
+            // Flash success banner message for the redirect
+            $message = $logoUpdated 
+                ? __('Branding updated successfully.') 
+                : __('Branding colors updated successfully.');
+            
+            session()->flash('flash', [
+                'bannerStyle' => 'success',
+                'banner' => $message,
+            ]);
+            
+            return $this->redirect(route('teams.information', $this->team), navigate: true);
+        }
+        
+        // Show success banner if only logo was updated (no redirect)
+        if ($logoUpdated) {
+            $this->banner(__('Branding updated successfully.'));
+        }
     }
 
     /**
@@ -111,8 +156,11 @@ class TeamBranding extends Component
             return;
         }
 
+        $faviconService = app(FaviconService::class);
+
         if ($this->team->logo_url && str_starts_with($this->team->logo_url, 'teams/')) {
             Storage::disk('public')->delete($this->team->logo_url);
+            $faviconService->deleteFavicon($this->team->id);
         }
 
         $this->team->forceFill([

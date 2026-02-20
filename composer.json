@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "laragear/webauthn": "^4.0",
+        "laravel-afterburner/documents": "dev-filepond",
         "laravel/fortify": "^1.20",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
@@ -72,5 +73,18 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": {
+        "documents": {
+            "type": "path",
+            "url": "../afterburner-documents",
+            "options": {
+                "symlink": true
+            }
+        },
+        "afterburner-documents": {
+            "type": "path",
+            "url": "../afterburner-documents"
+        }
+    }
 }

@@ -33,6 +33,7 @@ class NavigationMenu extends Component
     public $isTeamsMembersActive = false;
     public $isTeamsInformationActive = false;
     public $isTeamsCreateActive = false;
+    public $isDocumentsActive = false;
 
     /**
      * Mount the component.
@@ -49,6 +50,7 @@ class NavigationMenu extends Component
         $this->isTeamsMembersActive = request()->routeIs('teams.members');
         $this->isTeamsInformationActive = request()->routeIs('teams.information');
         $this->isTeamsCreateActive = request()->routeIs('teams.create');
+        $this->isDocumentsActive = request()->routeIs('teams.documents.*');
     }
 
     /**
@@ -172,6 +174,20 @@ class NavigationMenu extends Component
         }
         
         return \App\Models\TeamAnnouncement::getUnreadCountForUser($this->user);
+    }
+
+    /**
+     * Get registered navigation items.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    #[Computed]
+    public function navigationItems()
+    {
+        if (!class_exists(\App\Support\Navigation::class)) {
+            return collect();
+        }
+        return \App\Support\Navigation::items();
     }
 
     /**

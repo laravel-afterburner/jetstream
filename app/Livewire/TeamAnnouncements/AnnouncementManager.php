@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\Team;
 use App\Models\TeamAnnouncement;
 use App\Models\User;
+use App\Services\EmailRateLimiter;
 use App\Support\Features;
 use App\Traits\InteractsWithBanner;
 use Illuminate\Support\Facades\Auth;
@@ -429,11 +430,17 @@ class AnnouncementManager extends Component
             return $user && $user->email_verified_at !== null;
         });
 
+        $rateLimiter = app(EmailRateLimiter::class);
+        $sentCount = 0;
+        $skippedCount = 0;
+
         foreach ($users as $user) {
             // Check if user has one of the target roles (or if no roles specified, send to all)
+            $shouldSend = false;
+            
             if ($announcement->target_roles === null || empty($announcement->target_roles)) {
                 // Send to all team users
-                Mail::to($user)->send(new TeamAnnouncementMail($announcement));
+                $shouldSend = true;
             } else {
                 // Check if user has any of the target roles in this team
                 $userRoleSlugs = $user->roles()
@@ -442,9 +449,28 @@ class AnnouncementManager extends Component
                     ->toArray();
 
                 if (array_intersect($announcement->target_roles, $userRoleSlugs)) {
-                    Mail::to($user)->send(new TeamAnnouncementMail($announcement));
+                    $shouldSend = true;
                 }
             }
+
+            if ($shouldSend) {
+                // Check rate limit before sending
+                if ($rateLimiter->canSendToUser($user)) {
+                    Mail::to($user)->send(new TeamAnnouncementMail($announcement));
+                    $sentCount++;
+                    // Increment rate limiters after successful send
+                    $rateLimiter->incrementLimits($user, $user->email);
+                } else {
+                    $skippedCount++;
+                }
+            }
+        }
+
+        if ($skippedCount > 0) {
+            $this->banner(__('Some emails were skipped due to rate limiting. :sent sent, :skipped skipped.', [
+                'sent' => $sentCount,
+                'skipped' => $skippedCount,
+            ]), 'warning');
         }
         
         // Mark emails as sent to prevent duplicate sends by the scheduled command

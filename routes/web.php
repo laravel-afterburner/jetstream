@@ -15,6 +15,10 @@ use App\Http\Controllers\UserProfileController;
 use App\Models\Team;
 use App\Support\Afterburner;
 
+Route::get('/php-info', function () {
+    return phpinfo();
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

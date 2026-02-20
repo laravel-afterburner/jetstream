@@ -60,4 +60,14 @@ class CreateTeam
 
         return $team;
     }
+
+    /**
+     * Get the redirect response after creating a team.
+     *
+     * @return string
+     */
+    public function redirectTo(): string
+    {
+        return route('dashboard');
+    }
 }

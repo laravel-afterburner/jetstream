@@ -59,6 +59,8 @@ class EnsureUserHasTeam
             'two-factor.recovery-codes',
             'two-factor.regenerate-recovery-codes',
             'two-factor.secret-key',
+            'verification.verify',
+            'verification.send',
         ];
 
         foreach ($excludedRoutes as $routeName) {

@@ -26,6 +26,14 @@
             @endif
         </title>
 
+        <!-- Favicons -->
+        <link rel="icon" type="image/x-icon" href="{{ $teamBranding['favicon_url'] ?? asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ $teamBranding['favicon_16'] ?? asset('favicon-16x16.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ $teamBranding['favicon_32'] ?? asset('favicon-32x32.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ $teamBranding['apple_touch_icon'] ?? asset('apple-touch-icon.png') }}">
+        <link rel="manifest" href="{{ $teamBranding['web_manifest'] ?? asset('site.webmanifest') }}">
+        <meta name="theme-color" content="#ffffff">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -56,6 +64,36 @@
                         background-color: var(--team-primary-color) !important;
                         border-color: var(--team-primary-color) !important;
                         color: white !important;
+                    }
+                    
+                    /* Apply primary color to x-button component with hover and active states */
+                    button.btn-team-primary {
+                        background-color: var(--team-primary-color) !important;
+                        border-color: var(--team-primary-color) !important;
+                        color: white !important;
+                    }
+                    
+                    /* Use secondary color for button text when available */
+                    @if($teamBranding['secondary_color'])
+                    button.btn-team-primary.btn-team-secondary-text {
+                        color: var(--team-secondary-color) !important;
+                    }
+                    @endif
+                    
+                    button.btn-team-primary:hover {
+                        background-color: color-mix(in srgb, var(--team-primary-color) 90%, black) !important;
+                        border-color: color-mix(in srgb, var(--team-primary-color) 90%, black) !important;
+                    }
+                    
+                    button.btn-team-primary:focus {
+                        background-color: color-mix(in srgb, var(--team-primary-color) 90%, black) !important;
+                        border-color: color-mix(in srgb, var(--team-primary-color) 90%, black) !important;
+                        --tw-ring-color: var(--team-primary-color) !important;
+                    }
+                    
+                    button.btn-team-primary:active {
+                        background-color: color-mix(in srgb, var(--team-primary-color) 80%, black) !important;
+                        border-color: color-mix(in srgb, var(--team-primary-color) 80%, black) !important;
                     }
                     
                     /* Apply primary color to text links only (no background) */
@@ -99,6 +137,7 @@
                 }
             </style>
         @endif
+
     </head>
     <body class="font-sans antialiased">
         <x-impersonation-banner />
@@ -130,7 +169,8 @@
         </div>
 
         @stack('modals')
-
+        
+        @filepondScripts <!-- Move to the documents package later -->
         @livewireScripts
     </body>
 </html>

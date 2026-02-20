@@ -214,13 +214,27 @@ class MemberManager extends Component
             // Reset the declined status
             $invitation->update(['declined_at' => null]);
             
-            // Send new notification
+            // Send new notification with rate limiting
             $existingUser = User::where('email', $invitation->email)->first();
+            $rateLimiter = app(\App\Services\EmailRateLimiter::class);
+            
             if ($existingUser) {
-                $existingUser->notify(new TeamInvitationNotification($invitation));
+                if ($rateLimiter->canSendToUser($existingUser)) {
+                    $existingUser->notify(new TeamInvitationNotification($invitation));
+                    $rateLimiter->incrementLimits($existingUser, $invitation->email);
+                } else {
+                    $this->banner(__('Email rate limit exceeded. Please try again later.'), 'error');
+                    return;
+                }
             } else {
-                Notification::route('mail', $invitation->email)
-                    ->notify(new TeamInvitationRegistrationRequired($invitation));
+                if ($rateLimiter->canSendToAddress($invitation->email)) {
+                    Notification::route('mail', $invitation->email)
+                        ->notify(new TeamInvitationRegistrationRequired($invitation));
+                    $rateLimiter->incrementLimits(null, $invitation->email);
+                } else {
+                    $this->banner(__('Email rate limit exceeded. Please try again later.'), 'error');
+                    return;
+                }
             }
         }
 

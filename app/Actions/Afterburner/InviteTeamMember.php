@@ -9,6 +9,7 @@ use App\Events\InvitingTeamMember;
 use App\Mail\TeamInvitation;
 use App\Notifications\TeamInvitationNotification;
 use App\Notifications\TeamInvitationRegistrationRequired;
+use App\Services\EmailRateLimiter;
 use App\Support\Afterburner;
 use Closure;
 use Illuminate\Database\Query\Builder;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class InviteTeamMember
 {
@@ -38,14 +40,29 @@ class InviteTeamMember
 
         // Check if user exists in the system
         $existingUser = User::where('email', $email)->first();
+        $rateLimiter = app(EmailRateLimiter::class);
 
         if ($existingUser) {
             // User exists - send notification to their account
-            $existingUser->notify(new TeamInvitationNotification($invitation));
+            if ($rateLimiter->canSendToUser($existingUser)) {
+                $existingUser->notify(new TeamInvitationNotification($invitation));
+                $rateLimiter->incrementLimits($existingUser, $email);
+            } else {
+                throw ValidationException::withMessages([
+                    'email' => __('Email rate limit exceeded. Please try again later.'),
+                ])->errorBag('addTeamMember');
+            }
         } else {
             // User doesn't exist - send registration required email
-            Notification::route('mail', $email)
-                ->notify(new TeamInvitationRegistrationRequired($invitation));
+            if ($rateLimiter->canSendToAddress($email)) {
+                Notification::route('mail', $email)
+                    ->notify(new TeamInvitationRegistrationRequired($invitation));
+                $rateLimiter->incrementLimits(null, $email);
+            } else {
+                throw ValidationException::withMessages([
+                    'email' => __('Email rate limit exceeded. Please try again later.'),
+                ])->errorBag('addTeamMember');
+            }
         }
     }
 
