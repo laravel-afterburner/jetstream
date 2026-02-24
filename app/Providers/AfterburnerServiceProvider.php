@@ -28,9 +28,6 @@ class AfterburnerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Set the app name from Afterburner config
-        config(['app.name' => config('afterburner.app_name')]);
-
         // Register TeamPolicy with Laravel's Gate
         Gate::policy(Team::class, TeamPolicy::class);
 
