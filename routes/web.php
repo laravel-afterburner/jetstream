@@ -70,21 +70,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
     }
 
-    // Teams
+    // Entity routes (households, teams, companies, etc. - based on entity_url_slug)
     if (Afterburner::hasTeamFeatures()) {
-        Route::get('/teams/create', [TeamController::class, 'create'])->name('teams.create');
+        $entitySlug = config('afterburner.entity_url_slug');
+        Route::get("/{$entitySlug}/create", [TeamController::class, 'create'])->name('teams.create');
         Route::put('/current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
         Route::delete('/team-invitations/{invitation}', [TeamInvitationController::class, 'destroy'])
             ->name('team-invitations.destroy');
-        Route::delete('/teams/{team}', [DeleteTeamController::class, 'destroy'])
+        Route::delete("/{$entitySlug}/{team}", [DeleteTeamController::class, 'destroy'])
             ->name('teams.destroy');
-        Route::get('/teams/{team}/information', function (Team $team) {
+        Route::get("/{$entitySlug}/{team}/information", function (Team $team) {
             return view('teams.information', ['team' => $team]);
         })->name('teams.information');
-        Route::get('/teams/{team}/members', function (Team $team) {
+        Route::get("/{$entitySlug}/{team}/members", function (Team $team) {
             return view('teams.members', ['team' => $team]);
         })->name('teams.members');
-        Route::get('/teams/{team}/roles', function (Team $team) {
+        Route::get("/{$entitySlug}/{team}/roles", function (Team $team) {
             return view('roles.show', ['team' => $team]);
         })->middleware('can:createRole,team')->name('roles.show');
     }
@@ -116,10 +117,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('audit.index');
     });
 
-    // Team Announcements (requires feature)
     if (Afterburner::hasTeamFeatures() && \App\Support\Features::hasTeamAnnouncements()) {
-        // Combined view for all team members (handles both creation and viewing)
-        Route::get('/teams/{team}/announcements', function (Team $team) {
+        $entitySlug = config('afterburner.entity_url_slug');
+        Route::get("/{$entitySlug}/{team}/announcements", function (Team $team) {
             return view('team-announcements.index', ['team' => $team]);
         })->middleware('can:view,team')->name('team-announcements.index');
     }

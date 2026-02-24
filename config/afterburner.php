@@ -8,6 +8,10 @@ $entityLabel = env('AFTERBURNER_ENTITY_LABEL', 'company');
 $appType = env('AFTERBURNER_APP_TYPE', 'Management App');
 $appName = Str::title($entityLabel) . ' ' . $appType;
 
+// URL slug for entity routes (plural form). Defaults to pluralized entity_label.
+// Override via AFTERBURNER_ENTITY_URL_SLUG for irregular plurals (e.g. strata).
+$entityUrlSlug = env('AFTERBURNER_ENTITY_URL_SLUG') ?? Str::plural(strtolower($entityLabel));
+
 return [
 
     /*
@@ -21,6 +25,19 @@ return [
     */
 
     'entity_label' => $entityLabel,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Entity URL Slug
+    |--------------------------------------------------------------------------
+    |
+    | The URL segment used for entity routes (e.g. /households/, /teams/).
+    | Defaults to the plural form of entity_label. Override for irregular
+    | plurals (e.g. strata stays "strata" in URLs).
+    |
+    */
+
+    'entity_url_slug' => $entityUrlSlug,
 
     /*
     |--------------------------------------------------------------------------

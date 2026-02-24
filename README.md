@@ -184,6 +184,7 @@ After installation, you'll need to:
 Afterburner uses the following environment variables (see `.env.example` for details):
 
 - `AFTERBURNER_ENTITY_LABEL` - Label for teams/organizations (default: `organization`)
+- `AFTERBURNER_ENTITY_URL_SLUG` - Optional. URL segment for entity routes (default: plural of entity_label, e.g. `household` → `households`)
 - `AFTERBURNER_APP_TYPE` - Application type (default: `Management App`)
 - `AFTERBURNER_GUARD` - Authentication guard (default: `sanctum`)
 - `AFTERBURNER_PROFILE_PHOTO_DISK` - Profile photo storage disk (default: `public`)
