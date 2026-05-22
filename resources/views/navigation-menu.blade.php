@@ -12,9 +12,24 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                    <x-nav-link href="{{ route('dashboard') }}" :active="$this->isDashboardActive">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @foreach($this->navigationItems as $item)
+                        <x-nav-link
+                            href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                            :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : request()->routeIs($item['route'] . '.*')">
+                            @if(isset($item['icon']))
+                                <x-icon :name="$item['icon']" class="me-1 size-4" />
+                            @endif
+                            {{ $item['label'] }}
+                            @if(isset($item['badge']) && $item['badge'] > 0)
+                                <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                                </span>
+                            @endif
+                        </x-nav-link>
+                    @endforeach
                 </div>
             </div>
 
@@ -51,16 +66,16 @@
 
                                     <!-- Entity Settings -->
                                     @if($this->user->currentTeam)
-                                        <x-dropdown-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="request()->routeIs('teams.information')">
+                                        <x-dropdown-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="$this->isTeamsInformationActive">
                                             Details
                                         </x-dropdown-link>
 
-                                        <x-dropdown-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="request()->routeIs('teams.members')">
+                                        <x-dropdown-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="$this->isTeamsMembersActive">
                                             Members
                                         </x-dropdown-link>
 
                                         @if(App\Support\Features::hasTeamAnnouncements())
-                                            <x-dropdown-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="request()->routeIs('team-announcements.index')">
+                                            <x-dropdown-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
                                                 <div class="flex items-center">
                                                     <span>Announcements</span>
                                                     @if($this->unreadAnnouncementsCount > 0)
@@ -89,7 +104,7 @@
                                     @if($this->canCreateTeam())
                                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
-                                        <x-dropdown-link href="{{ route('teams.create') }}" :active="request()->routeIs('teams.create')">
+                                        <x-dropdown-link href="{{ route('teams.create') }}" :active="$this->isTeamsCreateActive">
                                             Create {{ Str::title(config('afterburner.entity_label')) }}
                                         </x-dropdown-link>
                                     @endif
@@ -152,15 +167,15 @@
                                 {{ __('Manage Account') }}
                             </div>
 
-                            <x-dropdown-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
+                            <x-dropdown-link href="{{ route('profile.show') }}" :active="$this->isProfileActive">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
-                            <x-dropdown-link href="{{ route('security.show') }}" :active="request()->routeIs('security.show')">
+                            <x-dropdown-link href="{{ route('security.show') }}" :active="$this->isSecurityActive">
                                 {{ __('Security') }}
                             </x-dropdown-link>
 
-                            <x-dropdown-link href="{{ route('notifications') }}" :active="request()->routeIs('notifications')">
+                            <x-dropdown-link href="{{ route('notifications') }}" :active="$this->isNotificationsActive">
                                 <div class="flex items-center">
                                     <span>{{ __('Notifications') }}</span>
                                     @if($this->unreadNotificationsCount > 0)
@@ -231,6 +246,35 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="$this->isDashboardActive">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @foreach($this->navigationItems as $item)
+                @php
+                    $isActive = false;
+                    if (($item['route'] ?? '') === 'teams.documents.index') {
+                        $isActive = $this->isDocumentsActive;
+                    } else {
+                        if (isset($item['active']) && is_callable($item['active'])) {
+                            $isActive = (bool) $item['active']();
+                        } else {
+                            $isActive = request()->routeIs($item['route'] . '.*');
+                        }
+                    }
+                @endphp
+                <x-responsive-nav-link
+                    href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                    :active="$isActive">
+                    <div class="flex items-center whitespace-nowrap">
+                        @if(isset($item['icon']))
+                            <x-icon :name="$item['icon']" class="me-1 size-4 flex-shrink-0" />
+                        @endif
+                        <span>{{ $item['label'] }}</span>
+                        @if(isset($item['badge']) && $item['badge'] > 0)
+                            <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex-shrink-0">
+                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                            </span>
+                        @endif
+                    </div>
+                </x-responsive-nav-link>
+            @endforeach
         </div>
 
         <!-- Responsive Settings Options -->
@@ -343,7 +387,7 @@
                         </x-responsive-nav-link>
 
                         @if(App\Support\Features::hasTeamAnnouncements())
-                            <x-responsive-nav-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="request()->routeIs('team-announcements.index')">
+                            <x-responsive-nav-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
                                 <div class="flex items-center">
                                     <span>Announcements</span>
                                     @if($this->unreadAnnouncementsCount > 0)

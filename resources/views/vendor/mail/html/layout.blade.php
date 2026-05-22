@@ -1,13 +1,7 @@
 @props(['team' => null])
 @php
     // Determine the team name to show in title
-    // Only check for explicitly passed variables (safe for queued emails)
-    $teamName = config('afterburner.app_name'); // Default fallback
-    
-    // Check if team prop is available (passed explicitly to component or from mail classes)
-    if ($team && isset($team->name)) {
-        $teamName = $team->name;
-    }
+    $teamName = $team && isset($team->name) ? $team->name : config('app.name');
 @endphp
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">

@@ -4,25 +4,27 @@ namespace App\Traits;
 
 use App\Support\Features;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 trait HasProfilePhoto
 {
     /**
      * Update the user's profile photo.
+     * Expects pre-resized JPEG bytes (e.g. from resize_profile_photo).
      *
-     * @param  \Illuminate\Http\UploadedFile  $photo
-     * @param  string  $storagePath
+     * @param  string  $jpegData  Raw JPEG binary data
      * @return void
      */
-    public function updateProfilePhoto(UploadedFile $photo, $storagePath = 'profile-photos')
+    public function updateProfilePhoto(string $jpegData, $storagePath = 'profile-photos')
     {
-        tap($this->profile_photo_path, function ($previous) use ($photo, $storagePath) {
+        tap($this->profile_photo_path, function ($previous) use ($jpegData, $storagePath) {
+            $path = $storagePath.'/'.Str::uuid().'.jpg';
+
+            Storage::disk($this->profilePhotoDisk())->put($path, $jpegData, 'public');
+
             $this->forceFill([
-                'profile_photo_path' => $photo->storePublicly(
-                    $storagePath, ['disk' => $this->profilePhotoDisk()]
-                ),
+                'profile_photo_path' => $path,
             ])->save();
 
             if ($previous) {
@@ -55,8 +57,6 @@ trait HasProfilePhoto
 
     /**
      * Get the URL to the user's profile photo.
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     protected function profilePhotoUrl(): Attribute
     {
@@ -91,4 +91,3 @@ trait HasProfilePhoto
         return isset($_ENV['VAPOR_ARTIFACT_NAME']) ? 's3' : config('afterburner.profile_photo_disk', 'public');
     }
 }
-

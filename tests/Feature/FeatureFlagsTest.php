@@ -24,7 +24,7 @@ class FeatureFlagsTest extends TestCase
         // Test that feature flags fall back to config values
         // These should match the defaults in config/afterburner.php
         $this->assertTrue(Features::hasTeamFeatures());
-        $this->assertFalse(Features::hasPersonalTeams());
+        $this->assertTrue(Features::hasPersonalTeams()); // Enabled in config/afterburner.php
     }
 
     public function test_enabled_feature_check_exists(): void

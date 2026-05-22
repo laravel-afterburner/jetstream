@@ -274,7 +274,7 @@
                                                 $declinedTime = $team->toTeamTimezone($invitation->declined_at);
                                             @endphp
                                             <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                                                Declined on {{ $declinedTime->format('M j, Y g:i A') }} ({{ $declinedTime->format('T') }})
+                                                Declined on {!! \App\Support\TeamTimestamp::formatCarbonInTeamZone($declinedTime) !!}
                                             </p>
                                         @endif
                                     </div>

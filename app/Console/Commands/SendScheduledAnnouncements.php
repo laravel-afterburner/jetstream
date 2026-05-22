@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Mail\TeamAnnouncementMail;
 use App\Models\TeamAnnouncement;
 use App\Models\User;
+use App\Services\EmailRateLimiter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -58,13 +59,16 @@ class SendScheduledAnnouncements extends Command
             });
 
             $sentCount = 0;
+            $skippedCount = 0;
+            $rateLimiter = app(EmailRateLimiter::class);
 
             foreach ($users as $user) {
                 // Check if user has one of the target roles (or if no roles specified, send to all)
+                $shouldSend = false;
+                
                 if ($announcement->target_roles === null || empty($announcement->target_roles)) {
                     // Send to all team users
-                    Mail::to($user)->send(new TeamAnnouncementMail($announcement));
-                    $sentCount++;
+                    $shouldSend = true;
                 } else {
                     // Check if user has any of the target roles in this team
                     $userRoleSlugs = $user->roles()
@@ -73,13 +77,28 @@ class SendScheduledAnnouncements extends Command
                         ->toArray();
 
                     if (array_intersect($announcement->target_roles, $userRoleSlugs)) {
+                        $shouldSend = true;
+                    }
+                }
+
+                if ($shouldSend) {
+                    // Check rate limit before sending
+                    if ($rateLimiter->canSendToUser($user)) {
                         Mail::to($user)->send(new TeamAnnouncementMail($announcement));
                         $sentCount++;
+                        // Increment rate limiters after successful send
+                        $rateLimiter->incrementLimits($user, $user->email);
+                    } else {
+                        $skippedCount++;
+                        $this->warn("Rate limit exceeded for user: {$user->email}. Email skipped.");
                     }
                 }
             }
 
             $this->info("Sent {$sentCount} email(s) for announcement: {$announcement->title}");
+            if ($skippedCount > 0) {
+                $this->warn("Skipped {$skippedCount} email(s) due to rate limiting.");
+            }
             
             // Mark emails as sent to prevent duplicate sends
             $announcement->update(['emails_sent_at' => now()]);

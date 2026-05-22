@@ -325,36 +325,9 @@
                     @if($selectedLog->changes)
                         <div>
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Changes</h3>
-                            
-                            @if(($selectedLog->event_name === 'user.updated' || $selectedLog->event_name === 'timezone.updated') && isset($selectedLog->changes['timezone']))
-                                {{-- Special formatting for timezone changes --}}
-                                <div class="mt-2 space-y-3">
-                                    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                                        <div class="grid grid-cols-1 gap-3">
-                                            <div>
-                                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">From Timezone</dt>
-                                                <dd class="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100">
-                                                    {{ $selectedLog->changes['timezone']['before'] ?? '(none - using app default)' }}
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">To Timezone</dt>
-                                                <dd class="mt-1 text-sm font-mono text-gray-900 dark:text-gray-100 font-semibold">
-                                                    {{ $selectedLog->changes['timezone']['after'] ?? '(unknown)' }}
-                                                </dd>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- Also show raw JSON for completeness --}}
-                                    <details class="mt-2">
-                                        <summary class="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300">Show raw JSON</summary>
-                                        <pre class="mt-2 p-3 bg-gray-50 dark:bg-gray-900 rounded text-xs overflow-auto max-h-64 border border-gray-200 dark:border-gray-700">{{ json_encode($selectedLog->changes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
-                                    </details>
-                                </div>
-                            @else
-                                {{-- Default JSON display for other changes --}}
-                                <pre class="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded text-xs overflow-auto max-h-64 border border-gray-200 dark:border-gray-700">{{ json_encode($selectedLog->changes, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
-                            @endif
+                            <div class="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 max-h-64 overflow-auto">
+                                @include('audit.partials.formatted-changes', ['data' => $selectedLog->changes])
+                            </div>
                         </div>
                     @endif
 
@@ -362,7 +335,9 @@
                     @if($selectedLog->metadata)
                         <div>
                             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Metadata</h3>
-                            <pre class="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded text-xs overflow-auto max-h-64 border border-gray-200 dark:border-gray-700">{{ json_encode($selectedLog->metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                            <div class="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 max-h-64 overflow-auto">
+                                @include('audit.partials.formatted-metadata', ['metadata' => $selectedLog->metadata])
+                            </div>
                         </div>
                     @endif
                 </div>

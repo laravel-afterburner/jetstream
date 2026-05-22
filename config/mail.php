@@ -113,4 +113,20 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Rate Limiting
+    |--------------------------------------------------------------------------
+    |
+    | Configure rate limits for email sending to prevent abuse and ensure
+    | compliance with email service provider limits.
+    |
+    */
+
+    'rate_limit' => [
+        'global' => env('MAIL_RATE_LIMIT_GLOBAL', 100), // Emails per minute globally
+        'per_user' => env('MAIL_RATE_LIMIT_PER_USER', 10), // Emails per minute per user
+        'per_address' => env('MAIL_RATE_LIMIT_PER_ADDRESS', 5), // Emails per minute per email address
+    ],
+
 ];

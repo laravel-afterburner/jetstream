@@ -8,7 +8,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Str;
 
 class TeamMemberLeft extends Notification implements ShouldQueue
 {
@@ -45,36 +44,18 @@ class TeamMemberLeft extends Notification implements ShouldQueue
         
         $rolesText = empty($this->memberRoles) ? 'No specific roles' : implode(', ', $this->memberRoles);
 
-        return (new MailMessage)
-            ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)
+        $mailMessage = (new MailMessage)
+            ->from(config('mail.from.address'), $teamName)
             ->subject("Team member left {$teamName}")
-            ->viewData(['team' => $this->team])
             ->greeting("Hello {$notifiable->name},")
             ->line("{$memberName} has left the {$entityLabel} \"{$teamName}\".")
             ->line("They held the following positions: {$rolesText}")
             ->line("They no longer have access to this {$entityLabel} and its data.")
             ->line("If you need to invite them back, you can do so from the team management page.");
-    }
 
-    /**
-     * Sanitize team name for use in email domain.
-     * Removes special characters and makes it RFC 2822 compliant.
-     */
-    protected function sanitizeEmailDomain(string $teamName): string
-    {
-        // Convert to lowercase, replace spaces with hyphens, remove special characters
-        $sanitized = Str::lower($teamName);
-        $sanitized = preg_replace('/[^a-z0-9\s-]/', '', $sanitized); // Remove special chars except spaces and hyphens
-        $sanitized = preg_replace('/\s+/', '-', $sanitized); // Replace spaces with hyphens
-        $sanitized = preg_replace('/-+/', '-', $sanitized); // Replace multiple hyphens with single
-        $sanitized = trim($sanitized, '-'); // Remove leading/trailing hyphens
-        
-        // Ensure it's not empty and has valid characters
-        if (empty($sanitized) || !preg_match('/^[a-z0-9-]+$/', $sanitized)) {
-            $sanitized = 'team';
-        }
-        
-        return $sanitized;
+        $mailMessage->viewData = array_merge($mailMessage->viewData ?: [], ['team' => $this->team]);
+
+        return $mailMessage;
     }
 
     /**

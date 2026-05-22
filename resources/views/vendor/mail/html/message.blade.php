@@ -1,14 +1,4 @@
 @props(['team' => null])
-@php
-    // Determine the team name to show in footer
-    // Only check for explicitly passed variables (safe for queued emails)
-    $teamName = config('app.name'); // Default fallback
-    
-    // Check if team prop is available (passed explicitly to component or from mail classes)
-    if ($team && isset($team->name)) {
-        $teamName = $team->name;
-    }
-@endphp
 <x-mail::layout :team="$team">
 {{-- Header --}}
 <x-slot:header>
@@ -34,7 +24,7 @@
 {{-- Footer --}}
 <x-slot:footer>
 <x-mail::footer>
-© {{ date('Y') }} {{ $teamName }}. {{ __('All rights reserved.') }}
+© {{ date('Y') }} {{ config('app.name') }}. {{ __('All rights reserved.') }}
 </x-mail::footer>
 </x-slot:footer>
 </x-mail::layout>

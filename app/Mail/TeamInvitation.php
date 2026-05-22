@@ -7,7 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Str;
 
 class TeamInvitation extends Mailable implements ShouldQueue
 {
@@ -42,7 +41,7 @@ class TeamInvitation extends Mailable implements ShouldQueue
         $inviter = $team->owner;
         
         return $this->from(
-            'donotreply@' . $this->sanitizeEmailDomain($team->name),
+            config('mail.from.address'),
             $inviter->name ?? $team->name
         )->markdown('emails.team-invitation', [
             'acceptUrl' => route('team-invitations.accept', $this->invitation),
@@ -52,25 +51,5 @@ class TeamInvitation extends Mailable implements ShouldQueue
         ])->subject(__('Team Invitation'));
     }
 
-    /**
-     * Sanitize team name for use in email domain.
-     * Removes special characters and makes it RFC 2822 compliant.
-     */
-    protected function sanitizeEmailDomain(string $teamName): string
-    {
-        // Convert to lowercase, replace spaces with hyphens, remove special characters
-        $sanitized = Str::lower($teamName);
-        $sanitized = preg_replace('/[^a-z0-9\s-]/', '', $sanitized); // Remove special chars except spaces and hyphens
-        $sanitized = preg_replace('/\s+/', '-', $sanitized); // Replace spaces with hyphens
-        $sanitized = preg_replace('/-+/', '-', $sanitized); // Replace multiple hyphens with single
-        $sanitized = trim($sanitized, '-'); // Remove leading/trailing hyphens
-        
-        // Ensure it's not empty and has valid characters
-        if (empty($sanitized) || !preg_match('/^[a-z0-9-]+$/', $sanitized)) {
-            $sanitized = 'team';
-        }
-        
-        return $sanitized;
-    }
 }
 

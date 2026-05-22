@@ -199,6 +199,37 @@ class Team extends Model
     }
 
     /**
+     * Get the favicon URL for this team (favicon.ico).
+     *
+     * @return string
+     */
+    public function getFaviconUrl(): string
+    {
+        $faviconService = app(\App\Services\FaviconService::class);
+        return $faviconService->getFaviconUrl($this->id);
+    }
+
+    /**
+     * Get all favicon URLs for this team.
+     *
+     * @return array
+     */
+    public function getAllFaviconUrls(): array
+    {
+        $faviconService = app(\App\Services\FaviconService::class);
+        
+        return [
+            'favicon' => $faviconService->getFaviconUrl($this->id),
+            'favicon_16' => $faviconService->getFavicon16Url($this->id),
+            'favicon_32' => $faviconService->getFavicon32Url($this->id),
+            'apple_touch_icon' => $faviconService->getAppleTouchIconUrl($this->id),
+            'android_chrome_192' => $faviconService->getAndroidChrome192Url($this->id),
+            'android_chrome_512' => $faviconService->getAndroidChrome512Url($this->id),
+            'web_manifest' => $faviconService->getWebManifestUrl($this->id),
+        ];
+    }
+
+    /**
      * Get the team's timezone or fall back to app default.
      *
      * @return string

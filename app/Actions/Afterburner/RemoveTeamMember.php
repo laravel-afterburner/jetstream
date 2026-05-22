@@ -5,6 +5,7 @@ namespace App\Actions\Afterburner;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\TeamMemberLeft;
+use App\Services\EmailRateLimiter;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -36,9 +37,14 @@ class RemoveTeamMember
 
         $team->removeUser($teamMember);
 
-        // Notify the team owner that a member has left
+        // Notify the team owner that a member has left (with rate limiting)
         if ($team->owner->id !== $teamMember->id) {
-            $team->owner->notify(new TeamMemberLeft($team, $teamMember, $memberRoles));
+            $rateLimiter = app(EmailRateLimiter::class);
+            if ($rateLimiter->canSendToUser($team->owner)) {
+                $team->owner->notify(new TeamMemberLeft($team, $teamMember, $memberRoles));
+                $rateLimiter->incrementLimits($team->owner, $team->owner->email);
+            }
+            // Silently skip if rate limited - this is a non-critical notification
         }
 
         TeamMemberRemoved::dispatch($team, $teamMember);
