@@ -1,12 +1,12 @@
 <?php
 
-use App\Support\Features;
 use App\Http\Middleware\AuthenticateSession;
+use App\Support\Features;
 use Illuminate\Support\Str;
 
 $entityLabel = env('AFTERBURNER_ENTITY_LABEL', 'company');
 $appType = env('AFTERBURNER_APP_TYPE', 'Management App');
-$appName = Str::title($entityLabel) . ' ' . $appType;
+$appName = Str::title($entityLabel).' '.$appType;
 
 // URL slug for entity routes (plural form). Defaults to pluralized entity_label.
 // Override via AFTERBURNER_ENTITY_URL_SLUG for irregular plurals (e.g. strata).
@@ -74,7 +74,7 @@ return [
     |
     */
 
-    'mail_from_address' => 'donotreply@' . Str::snake($appName),
+    'mail_from_address' => 'donotreply@'.Str::snake($appName),
 
     /*
     |--------------------------------------------------------------------------
@@ -182,5 +182,32 @@ return [
 
     'profile_photo_disk' => env('AFTERBURNER_PROFILE_PHOTO_DISK', 'public'),
 
-];
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Photo Resize
+    |--------------------------------------------------------------------------
+    |
+    | Images are resized with GD before storage. Uploaded files may be larger
+    | than these dimensions; output is always JPEG at the configured quality.
+    |
+    */
 
+    'profile_photo' => [
+        'max_width' => 512,
+        'max_height' => 512,
+        'quality' => 85,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Team Logo Resize
+    |--------------------------------------------------------------------------
+    */
+
+    'team_logo' => [
+        'max_width' => 800,
+        'max_height' => 800,
+        'quality' => 85,
+    ],
+
+];

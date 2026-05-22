@@ -2,13 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Teams\MemberManager;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
-use App\Support\Features;
-use App\Livewire\Teams\MemberManager;
-use App\Mail\TeamInvitation;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -38,7 +37,7 @@ class InviteTeamMemberTest extends TestCase
 
         // Check that invitation was created
         $this->assertCount(1, $user->currentTeam->fresh()->teamInvitations);
-        
+
         // Check that registration required notification was sent (since user doesn't exist)
         // Notification::assertSentTo(
         //     'test@example.com',
@@ -73,5 +72,65 @@ class InviteTeamMemberTest extends TestCase
         $component->call('cancelTeamInvitation', $invitationId);
 
         $this->assertCount(0, $user->currentTeam->fresh()->teamInvitations);
+    }
+
+    public function test_reinviting_same_email_updates_existing_invitation(): void
+    {
+        if (! Features::hasTeamFeatures()) {
+            $this->markTestSkipped('Team features not enabled.');
+        }
+
+        $this->seed(\Database\Seeders\RolesSeeder::class);
+
+        Notification::fake();
+
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+
+        Livewire::test(MemberManager::class, ['team' => $user->currentTeam])
+            ->set('addTeamMemberForm', [
+                'email' => 'test@example.com',
+                'roles' => ['employee'],
+            ])->call('addTeamMember');
+
+        Livewire::test(MemberManager::class, ['team' => $user->currentTeam])
+            ->set('addTeamMemberForm', [
+                'email' => 'test@example.com',
+                'roles' => ['owner_manager'],
+            ])->call('addTeamMember');
+
+        $invitations = $user->currentTeam->fresh()->teamInvitations;
+        $this->assertCount(1, $invitations);
+        $this->assertSame(['owner_manager'], $invitations->first()->roles);
+        $this->assertNull($invitations->first()->declined_at);
+    }
+
+    public function test_reinviting_declined_email_clears_declined_at(): void
+    {
+        if (! Features::hasTeamFeatures()) {
+            $this->markTestSkipped('Team features not enabled.');
+        }
+
+        $this->seed(\Database\Seeders\RolesSeeder::class);
+
+        Notification::fake();
+
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+
+        Livewire::test(MemberManager::class, ['team' => $user->currentTeam])
+            ->set('addTeamMemberForm', [
+                'email' => 'test@example.com',
+                'roles' => ['employee'],
+            ])->call('addTeamMember');
+
+        $invitation = $user->currentTeam->fresh()->teamInvitations->first();
+        $invitation->update(['declined_at' => now()]);
+
+        Livewire::test(MemberManager::class, ['team' => $user->currentTeam])
+            ->set('addTeamMemberForm', [
+                'email' => 'test@example.com',
+                'roles' => ['employee'],
+            ])->call('addTeamMember');
+
+        $this->assertNull($invitation->fresh()->declined_at);
     }
 }

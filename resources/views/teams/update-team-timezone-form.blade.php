@@ -108,7 +108,7 @@
                                     $currentTime = now()->setTimezone($savedTimezone);
                                 @endphp
                                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1" wire:key="timezone-preview-{{ $savedTimezone }}">
-                                    {{ $currentTime->format('g:i:s A') }} ({{ $currentTime->format('T') }})
+                                    {!! \App\Support\TeamTimestamp::formatTimeInTeamZone($currentTime) !!}
                                 </p>
                             </div>
                         </div>

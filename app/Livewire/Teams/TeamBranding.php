@@ -2,14 +2,17 @@
 
 namespace App\Livewire\Teams;
 
-use App\Traits\InteractsWithBanner;
 use App\Models\Team;
 use App\Services\FaviconService;
+use App\Traits\InteractsWithBanner;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+
 class TeamBranding extends Component
 {
     use InteractsWithBanner;
@@ -68,8 +71,11 @@ class TeamBranding extends Component
         $this->validate([
             'brandingForm.primary_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'brandingForm.secondary_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'logo' => ['nullable', 'image', 'max:2048'], // 2MB max
-        ], [], [
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:10240'],
+        ], [
+            'logo.max' => __('The logo must not be larger than 10MB.'),
+            'logo.mimes' => __('The logo must be a JPG, PNG, WebP, or GIF image.'),
+        ], [
             'brandingForm.primary_color' => 'primary color',
             'brandingForm.secondary_color' => 'secondary color',
             'logo' => 'logo',
@@ -80,15 +86,15 @@ class TeamBranding extends Component
         $originalSecondaryColor = $this->team->secondary_color ?? '';
         $newPrimaryColor = $this->brandingForm['primary_color'] ?: null;
         $newSecondaryColor = $this->brandingForm['secondary_color'] ?: null;
-        
+
         // Normalize empty strings to null for comparison
         $originalPrimaryColor = $originalPrimaryColor === '' ? null : $originalPrimaryColor;
         $originalSecondaryColor = $originalSecondaryColor === '' ? null : $originalSecondaryColor;
-        
+
         // Check if colors changed
-        $colorsChanged = ($originalPrimaryColor !== $newPrimaryColor) || 
+        $colorsChanged = ($originalPrimaryColor !== $newPrimaryColor) ||
                         ($originalSecondaryColor !== $newSecondaryColor);
-        
+
         // Check if logo is being updated
         $logoUpdated = $this->logo !== null;
 
@@ -97,15 +103,24 @@ class TeamBranding extends Component
         // Handle logo upload
         $logoUrl = $this->team->logo_url;
         if ($this->logo) {
+            $result = resize_team_logo($this->logo);
+
+            if (! $result['success']) {
+                throw ValidationException::withMessages([
+                    'logo' => [$result['error']],
+                ]);
+            }
+
             // Delete old logo and favicon if they exist
             if ($this->team->logo_url && str_starts_with($this->team->logo_url, 'teams/')) {
                 Storage::disk('public')->delete($this->team->logo_url);
                 $faviconService->deleteFavicon($this->team->id);
             }
 
-            // Store new logo
-            $logoUrl = $this->logo->store('teams/' . $this->team->id, 'public');
-            
+            $logoPath = 'teams/'.$this->team->id.'/'.Str::uuid().'.jpg';
+            Storage::disk('public')->put($logoPath, $result['data'], 'public');
+            $logoUrl = $logoPath;
+
             // Generate favicon from new logo
             $faviconService->generateFromLogo($logoUrl, $this->team->id);
         }
@@ -127,18 +142,18 @@ class TeamBranding extends Component
         // This ensures the CSS variables are updated properly
         if ($colorsChanged) {
             // Flash success banner message for the redirect
-            $message = $logoUpdated 
-                ? __('Branding updated successfully.') 
+            $message = $logoUpdated
+                ? __('Branding updated successfully.')
                 : __('Branding colors updated successfully.');
-            
+
             session()->flash('flash', [
                 'bannerStyle' => 'success',
                 'banner' => $message,
             ]);
-            
+
             return $this->redirect(route('teams.information', $this->team), navigate: true);
         }
-        
+
         // Show success banner if only logo was updated (no redirect)
         if ($logoUpdated) {
             $this->banner(__('Branding updated successfully.'));

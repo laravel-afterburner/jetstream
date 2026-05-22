@@ -7,9 +7,9 @@ use App\Support\Afterburner;
 use App\Support\Features;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Component;
 use Str;
 
 class NavigationMenu extends Component
@@ -27,12 +27,23 @@ class NavigationMenu extends Component
      * @var bool
      */
     public $isDashboardActive = false;
+
     public $isProfileActive = false;
+
     public $isSecurityActive = false;
+
     public $isNotificationsActive = false;
+
     public $isTeamsMembersActive = false;
+
     public $isTeamsInformationActive = false;
+
     public $isTeamsCreateActive = false;
+
+    public $isTeamAnnouncementsActive = false;
+
+    public $isTeamActive = false;
+
     public $isDocumentsActive = false;
 
     /**
@@ -42,7 +53,7 @@ class NavigationMenu extends Component
      */
     public function mount()
     {
-        // Cache route checks so they persist across re-renders
+        // Cache route checks so they persist across Livewire re-renders
         $this->isDashboardActive = request()->routeIs('dashboard');
         $this->isProfileActive = request()->routeIs('profile.show');
         $this->isSecurityActive = request()->routeIs('security.show');
@@ -50,7 +61,12 @@ class NavigationMenu extends Component
         $this->isTeamsMembersActive = request()->routeIs('teams.members');
         $this->isTeamsInformationActive = request()->routeIs('teams.information');
         $this->isTeamsCreateActive = request()->routeIs('teams.create');
+        $this->isTeamAnnouncementsActive = request()->routeIs('team-announcements.index');
         $this->isDocumentsActive = request()->routeIs('teams.documents.*');
+        $this->isTeamActive = request()->routeIs('teams.information')
+            || request()->routeIs('teams.members')
+            || request()->routeIs('team-announcements.index')
+            || request()->routeIs('teams.create');
     }
 
     /**
@@ -67,38 +83,35 @@ class NavigationMenu extends Component
 
     /**
      * Get the current team name.
-     *
-     * @return string
      */
     #[On('team-name-updated')]
     #[Computed]
     public function currentTeamName(): string
     {
-        if (!Features::hasTeamFeatures()) {
+        if (! Features::hasTeamFeatures()) {
             return '';
         }
 
-        if (!$this->user || !$this->user->currentTeam) {
-            return 'No '. Str::title(config('afterburner.entity_label'));
+        if (! $this->user || ! $this->user->currentTeam) {
+            return 'No '.Str::title(config('afterburner.entity_label'));
         }
-        
+
         return $this->user->currentTeam->name;
     }
 
     /**
      * Get the current team's logo URL.
-     *
-     * @return string
      */
     #[On('team-branding-updated')]
     #[Computed]
     public function currentTeamLogoUrl(): string
     {
-        if (!Features::hasTeamFeatures() || !$this->user || !$this->user->currentTeam) {
+        if (! Features::hasTeamFeatures() || ! $this->user || ! $this->user->currentTeam) {
             return asset('media/logo.png');
         }
-        
+
         $team = $this->user->currentTeam;
+
         return $team->getLogoUrl();
     }
 
@@ -118,11 +131,11 @@ class NavigationMenu extends Component
             // Reload the relationship to get fresh data
             $this->user->load('currentTeam');
         }
-        
+
         // Get the new logo URL after refreshing the relationship
         $team = $this->user?->currentTeam;
         $newLogoUrl = $team ? $team->getLogoUrl() : asset('media/logo.png');
-        
+
         // Dispatch browser event with the new logo URL
         $this->dispatch('team-branding-changed', ['logoUrl' => $newLogoUrl]);
     }
@@ -135,44 +148,52 @@ class NavigationMenu extends Component
     #[Computed]
     public function allTeams()
     {
-        if (!Features::hasTeamFeatures() || !$this->user) {
+        if (! Features::hasTeamFeatures() || ! $this->user) {
             return collect();
         }
-        return $this->user->allTeams();
+
+        $teams = $this->user->allTeams();
+
+        if ($this->user->currentTeam && $teams->count() > 1) {
+            $currentTeam = $this->user->currentTeam;
+            $current = $teams->firstWhere('id', $currentTeam->id);
+            $others = $teams->filter(fn ($t) => $t->id !== $currentTeam->id)->values();
+
+            return $current ? collect([$current])->merge($others) : $teams;
+        }
+
+        return $teams;
     }
 
     /**
      * Get the unread notifications count.
-     *
-     * @return int
      */
-    #[On('refresh-notifications')] 
+    #[On('refresh-notifications')]
     #[Computed]
     public function unreadNotificationsCount(): int
     {
-        if (!$this->user) {
+        if (! $this->user) {
             return 0;
         }
+
         return $this->user->unreadNotifications->count();
     }
 
     /**
      * Get the unread announcements count.
-     *
-     * @return int
      */
     #[On('refresh-navigation-menu')]
     #[Computed]
     public function unreadAnnouncementsCount(): int
     {
-        if (!$this->user || !Features::hasTeamAnnouncements()) {
+        if (! $this->user || ! Features::hasTeamAnnouncements()) {
             return 0;
         }
-        
-        if (!$this->user->currentTeam) {
+
+        if (! $this->user->currentTeam) {
             return 0;
         }
-        
+
         return \App\Models\TeamAnnouncement::getUnreadCountForUser($this->user);
     }
 
@@ -184,9 +205,10 @@ class NavigationMenu extends Component
     #[Computed]
     public function navigationItems()
     {
-        if (!class_exists(\App\Support\Navigation::class)) {
+        if (! class_exists(\App\Support\Navigation::class)) {
             return collect();
         }
+
         return \App\Support\Navigation::items();
     }
 
@@ -197,7 +219,7 @@ class NavigationMenu extends Component
      */
     public function toggleMobileMenu()
     {
-        $this->mobileMenuOpen = !$this->mobileMenuOpen;
+        $this->mobileMenuOpen = ! $this->mobileMenuOpen;
     }
 
     /**
@@ -217,9 +239,10 @@ class NavigationMenu extends Component
      */
     public function canCreateTeam()
     {
-        if (!Features::hasTeamFeatures()) {
+        if (! Features::hasTeamFeatures()) {
             return false;
         }
+
         return $this->user && $this->user->can('create', Afterburner::newTeamModel());
     }
 
@@ -235,8 +258,6 @@ class NavigationMenu extends Component
 
     /**
      * Check if currently impersonating a user.
-     *
-     * @return bool
      */
     #[Computed]
     public function isImpersonating(): bool
@@ -246,8 +267,6 @@ class NavigationMenu extends Component
 
     /**
      * Check if the current user is a system admin.
-     *
-     * @return bool
      */
     #[Computed]
     public function isSystemAdmin(): bool
@@ -263,11 +282,12 @@ class NavigationMenu extends Component
     #[Computed]
     public function impersonatedUser()
     {
-        if (!$this->isImpersonating) {
+        if (! $this->isImpersonating) {
             return null;
         }
 
         $userId = Session::get('impersonated_user_id');
+
         return $userId ? User::find($userId) : null;
     }
 

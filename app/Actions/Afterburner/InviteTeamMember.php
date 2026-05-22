@@ -2,22 +2,17 @@
 
 namespace App\Actions\Afterburner;
 
+use App\Events\InvitingTeamMember;
 use App\Models\Role;
 use App\Models\Team;
 use App\Models\User;
-use App\Events\InvitingTeamMember;
-use App\Mail\TeamInvitation;
 use App\Notifications\TeamInvitationNotification;
 use App\Notifications\TeamInvitationRegistrationRequired;
 use App\Services\EmailRateLimiter;
-use App\Support\Afterburner;
 use Closure;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class InviteTeamMember
@@ -33,17 +28,21 @@ class InviteTeamMember
 
         InvitingTeamMember::dispatch($team, $email, $roles);
 
-        $invitation = $team->teamInvitations()->create([
-            'email' => $email,
-            'roles' => $roles, // Store the additional roles to be assigned on acceptance
-        ]);
+        $invitation = $team->teamInvitations()->where('email', $email)->first();
 
-        // Check if user exists in the system
+        if ($invitation) {
+            $invitation->update(['roles' => $roles, 'declined_at' => null]);
+        } else {
+            $invitation = $team->teamInvitations()->create([
+                'email' => $email,
+                'roles' => $roles,
+            ]);
+        }
+
         $existingUser = User::where('email', $email)->first();
         $rateLimiter = app(EmailRateLimiter::class);
 
         if ($existingUser) {
-            // User exists - send notification to their account
             if ($rateLimiter->canSendToUser($existingUser)) {
                 $existingUser->notify(new TeamInvitationNotification($invitation));
                 $rateLimiter->incrementLimits($existingUser, $email);
@@ -53,7 +52,6 @@ class InviteTeamMember
                 ])->errorBag('addTeamMember');
             }
         } else {
-            // User doesn't exist - send registration required email
             if ($rateLimiter->canSendToAddress($email)) {
                 Notification::route('mail', $email)
                     ->notify(new TeamInvitationRegistrationRequired($invitation));
@@ -74,8 +72,9 @@ class InviteTeamMember
         Validator::make([
             'email' => $email,
             'roles' => $roles,
-        ], $this->rules($team), [
-            'email.unique' => __('This user has already been invited to the :entity.', ['entity' => config('afterburner.entity_label')]),
+        ], $this->rules(), [
+            'email.required' => __('The email field is required.'),
+            'email.email' => __('The email must be a valid email address.'),
         ])->after(
             $this->ensureUserIsNotAlreadyInEntity($team, $email)
         )->after(
@@ -88,15 +87,10 @@ class InviteTeamMember
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
-    protected function rules(Team $team): array
+    protected function rules(): array
     {
         return [
-            'email' => [
-                'required', 'email',
-                Rule::unique(Afterburner::teamInvitationModel())->where(function (Builder $query) use ($team) {
-                    $query->where('team_id', $team->id);
-                }),
-            ],
+            'email' => ['required', 'email'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', 'exists:roles,slug'],
         ];
@@ -122,19 +116,19 @@ class InviteTeamMember
     protected function ensureRolesAreNotAtMaxCapacity(Team $team, ?array $roles): Closure
     {
         return function ($validator) use ($team, $roles) {
-            if (!$roles) {
+            if (! $roles) {
                 return;
             }
 
             foreach ($roles as $roleSlug) {
                 $role = Role::where('slug', $roleSlug)->first();
-                
+
                 if ($role && $role->hasReachedMaxMembers($team->id)) {
                     $validator->errors()->add(
                         'roles',
                         __('The :role role has reached its maximum capacity of :max members.', [
                             'role' => $role->name,
-                            'max' => $role->max_members
+                            'max' => $role->max_members,
                         ])
                     );
                 }
