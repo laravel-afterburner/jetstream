@@ -5,9 +5,9 @@
 
     <x-slot name="description">
         @if (Gate::check('update', $team))
-            {{ __('Update the :entity timezone preference. Team-related dates and times will be displayed in the selected timezone.', ['entity' => config('afterburner.entity_label')]) }}
+            {{ __('Update the :entity timezone so that :entity related dates and times will be displayed in the appropriate timezone.', ['entity' => config('afterburner.entity_label')]) }}
         @else
-            {{ __('Team-related dates and times will be displayed in the selected timezone.') }}
+            {{ __(':entity related dates and times will be displayed in the appropriate timezone.', ['entity' => config('afterburner.entity_label')]) }}
         @endif
     </x-slot>
 

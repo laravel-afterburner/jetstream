@@ -11,9 +11,9 @@ class ArtisanCommandsTest extends TestCase
 
     public function test_install_command_exists(): void
     {
-        $this->artisan('afterburner:install')
-            ->expectsOutput('Installing Afterburner add-ons...')
-            ->expectsOutput('This command is a placeholder and will be implemented in a future step.')
+        $this->artisan('afterburner:install', ['--no-migrate' => true, '--no-seed' => true])
+            ->expectsOutput('Installing Afterburner packages...')
+            ->expectsOutput('Afterburner installation complete.')
             ->assertExitCode(0);
     }
 
@@ -39,10 +39,7 @@ class ArtisanCommandsTest extends TestCase
 
     public function test_install_command_accepts_options(): void
     {
-        $this->artisan('afterburner:install', ['--tag' => ['test']])
-            ->assertExitCode(0);
-
-        $this->artisan('afterburner:install', ['--force' => true])
+        $this->artisan('afterburner:install', ['--no-migrate' => true, '--no-seed' => true, '--force' => true])
             ->assertExitCode(0);
     }
 
@@ -55,4 +52,3 @@ class ArtisanCommandsTest extends TestCase
             ->assertExitCode(0);
     }
 }
-

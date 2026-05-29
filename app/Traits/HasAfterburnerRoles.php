@@ -36,6 +36,11 @@ trait HasAfterburnerRoles
             return false;
         }
 
+        // Team owners have full access within their team
+        if (Features::hasTeamFeatures() && $teamId && $this->ownsTeamById($teamId)) {
+            return true;
+        }
+
         return $this->roles()
             ->where('team_id', $teamId)
             ->whereHas('permissions', function ($query) use ($permissionSlug) {

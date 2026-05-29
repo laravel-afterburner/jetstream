@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class TeamInvitationRegistrationRequired extends Notification implements ShouldQueue
 {
@@ -55,7 +56,7 @@ class TeamInvitationRegistrationRequired extends Notification implements ShouldQ
         ]);
 
         $mailMessage = (new MailMessage)
-            ->from(config('mail.from.address'), $inviter->name ?? $team->name)
+            ->from('donotreply@' . $this->sanitizeEmailDomain($team->name), $inviter->name ?? $team->name)
             ->subject("You've been invited to join {$teamName}")
             ->greeting('Hello!')
             ->line("You've been invited to join {$teamName}.");
@@ -77,9 +78,28 @@ class TeamInvitationRegistrationRequired extends Notification implements ShouldQ
             ->action('Create Account & Accept Invitation', $registrationUrl)
             ->line("If you didn't expect this invitation, you can safely ignore this email.");
 
-        $mailMessage->viewData = array_merge($mailMessage->viewData ?: [], ['team' => $team]);
-
         return $mailMessage;
+    }
+
+    /**
+     * Sanitize team name for use in email domain.
+     * Removes special characters and makes it RFC 2822 compliant.
+     */
+    protected function sanitizeEmailDomain(string $teamName): string
+    {
+        // Convert to lowercase, replace spaces with hyphens, remove special characters
+        $sanitized = Str::lower($teamName);
+        $sanitized = preg_replace('/[^a-z0-9\s-]/', '', $sanitized); // Remove special chars except spaces and hyphens
+        $sanitized = preg_replace('/\s+/', '-', $sanitized); // Replace spaces with hyphens
+        $sanitized = preg_replace('/-+/', '-', $sanitized); // Replace multiple hyphens with single
+        $sanitized = trim($sanitized, '-'); // Remove leading/trailing hyphens
+        
+        // Ensure it's not empty and has valid characters
+        if (empty($sanitized) || !preg_match('/^[a-z0-9-]+$/', $sanitized)) {
+            $sanitized = 'team';
+        }
+        
+        return $sanitized;
     }
 
     /**

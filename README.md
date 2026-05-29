@@ -36,21 +36,25 @@ Built as a self-contained successor to Laravel Jetstream, Afterburner vendors al
 
 - **Team Timezone Management** - Per-team timezone configuration
 
+- **System Settings** - Extensible team settings page for package-provided configuration sections
+
 - **Personal Teams** - Optional personal team feature (configurable)
 
 ### Roles & Permissions
 
 - **Custom Roles System** - Flexible role management with hierarchy
 
-- **Permission Management** - Fine-grained permission system
+- **Permission Management** - Fine-grained permission system with grouped UI in the role manager
 
 - **Default Role Assignment** - Automatic role assignment for new team members
 
-- **Role Templates** - Pre-configured role templates (team, company, strata, organization)
+- **Role Templates** - Pre-configured role templates (team, company, strata, organization) with document, voting, and ballot permissions
 
 - **Member Limits** - Configurable member limits per role
 
 - **Role Hierarchy** - Hierarchical role system for permission inheritance
+
+- **Team Owner Access** - Team owners automatically have full permissions within their team
 
 ### Team Features
 
@@ -118,7 +122,7 @@ Built as a self-contained successor to Laravel Jetstream, Afterburner vendors al
 
 - **Terms & Privacy Policy** - Accept terms and privacy policy on registration
 
-- **Email Notifications** - Team invitations, announcements, and more
+- **Email Notifications** - Team invitations, announcements, and more (sent from team-branded sender addresses)
 
 - **Flash Messages** - Banner-style flash notifications
 
@@ -164,8 +168,10 @@ After installation, you'll need to:
 
 1. Copy `.env.example` to `.env` and configure your environment
 2. Run migrations: `php artisan migrate`
-3. Seed a System Admin account (optional): `php artisan db:seed --class=SystemAdminSeeder`
-4. Seed roles (optional): `php artisan db:seed --class=RolesSeeder`
+3. Seed the database: `php artisan db:seed` (roles, system admin, and any installed package permissions)
+4. Install Afterburner packages: `php artisan afterburner:install`
+
+New projects created via `composer create-project` run migrations, seed the database, and call `afterburner:install` automatically.
 
 **Note:** If you plan to use WebAuthn/Biometric Authentication, ensure your development site is served over HTTPS. WebAuthn APIs are only available in secure contexts (HTTPS or localhost). If you're testing on a non-localhost domain, you'll need to set up SSL/TLS certificates for your development environment.
 
@@ -299,7 +305,7 @@ Then run: `php artisan db:seed --class=RolesSeeder`
 Afterburner provides several Artisan commands:
 
 ### Installation & Publishing
-- `afterburner:install` - Install add-ons into an existing project
+- `afterburner:install` - Publish and install Afterburner packages (documents, voting, meetings when present). Options: `--force`, `--no-migrate`, `--no-seed`
 - `afterburner:publish` - Publish all Afterburner assets (config, migrations, views)
 
 ### Feature Flags
@@ -353,6 +359,49 @@ The template includes several utility classes in `App\Support`:
 - `Features` - Feature flag management
 - `OwnerRole` - Helper class for owner role
 - `Role` - Support class for role definitions
+- `PermissionGroups` - Groups permissions for the role manager UI
+- `PackageSeederRegistry` - Register package seeders for `afterburner:install` and `db:seed`
+- `SystemSettings` - Register Livewire sections on the team System Settings page
+- `TeamNavigation` - Register items in the team dropdown navigation menu
+- `SystemAdminNavigation` - Register items in the system admin profile menu
+
+### Extensibility Registries
+
+Packages and application code can register UI sections and navigation without modifying core views:
+
+```php
+use App\Support\SystemSettings;
+use App\Support\TeamNavigation;
+use App\Support\SystemAdminNavigation;
+use App\Support\PackageSeederRegistry;
+
+// Team System Settings page (/{entity}/{team}/system-settings)
+SystemSettings::register([
+    'key' => 'timezone',
+    'component' => 'teams.update-team-timezone-form',
+    'order' => 10,
+    'permission' => fn ($user) => $user->can('update', $user->currentTeam),
+]);
+
+// Team dropdown navigation
+TeamNavigation::register([
+    'label' => 'Documents',
+    'route' => 'teams.documents.index',
+    'route_params' => fn () => ['team' => auth()->user()->currentTeam->id],
+    'permission' => fn ($user) => $user->hasPermission('view_documents'),
+    'order' => 50,
+]);
+
+// System admin profile menu
+SystemAdminNavigation::register([
+    'label' => 'Audit Log',
+    'route' => 'audit.index',
+    'order' => 20,
+]);
+
+// Package permission seeders (called by afterburner:install and DatabaseSeeder)
+PackageSeederRegistry::register(\Afterburner\Voting\Database\Seeders\VotingPermissionsSeeder::class);
+```
 
 ## Documentation (coming soon)
 
@@ -386,24 +435,25 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Add-On Packages
 
-Afterburner is designed to be extensible. Check out our add-on packages:
+Afterburner is designed to be extensible. First-party packages integrate via service providers, navigation registries, and the install command:
 
-- **Documents** - Document management (coming next!)
-
+- **Documents** - Document management with folders, permissions, and versioning
+- **Voting** - Ballots, resolutions, and proxy votes
+- **Meetings** - Meeting management
 - **Subscriptions** - Stripe subscription management (coming soon)
-
 - **Communications** - Enhanced communications (coming soon)
 
-- **Voting** - Polls and voting system (coming soon)
-
-- **Meetings** - Meeting management (coming soon)
-
-Install add-ons via Composer:
+Install packages via Composer, then run the install command:
 
 ```bash
-composer require laravel-afterburner/subscriptions
-php artisan afterburner:subscriptions:install
+composer require laravel-afterburner/documents
+composer require laravel-afterburner/voting
+composer require laravel-afterburner/meetings
+
+php artisan afterburner:install
 ```
+
+The install command publishes package config and assets, runs migrations, and seeds package permissions. Use `--no-migrate` or `--no-seed` to skip those steps when needed.
 
 ## Contributing
 

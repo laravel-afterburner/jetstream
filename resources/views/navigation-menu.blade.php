@@ -86,6 +86,26 @@
                                                 </div>
                                             </x-dropdown-link>
                                         @endif
+
+                                        @foreach (App\Support\TeamNavigation::items() as $teamNavItem)
+                                            @php
+                                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                                    ? $teamNavItem['active']()
+                                                    : request()->routeIs($teamNavItem['route']);
+                                            @endphp
+                                            <x-dropdown-link
+                                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                                :active="$teamNavActive"
+                                            >
+                                                {{ $teamNavItem['label'] }}
+                                            </x-dropdown-link>
+                                        @endforeach
+
+                                        @can('update', $this->user->currentTeam)
+                                            <x-dropdown-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
+                                                System Settings
+                                            </x-dropdown-link>
+                                        @endcan
                                     @endif
 
                                     <!-- Entity Switcher -->
@@ -207,6 +227,16 @@
                                 <x-dropdown-link href="#" wire:click="$dispatch('open-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
                                     {{ __('Impersonate User') }}
                                 </x-dropdown-link>
+                                @foreach (App\Support\SystemAdminNavigation::items() as $adminNavItem)
+                                    @php
+                                        $adminNavActive = isset($adminNavItem['active']) && is_callable($adminNavItem['active'])
+                                            ? $adminNavItem['active']()
+                                            : request()->routeIs($adminNavItem['route']);
+                                    @endphp
+                                    <x-dropdown-link href="{{ route($adminNavItem['route']) }}" :active="$adminNavActive">
+                                        {{ $adminNavItem['label'] }}
+                                    </x-dropdown-link>
+                                @endforeach
                                 <x-dropdown-link href="{{ route('audit.index') }}">
                                     {{ __('Audit Logs') }}
                                 </x-dropdown-link>
@@ -357,6 +387,19 @@
                     <x-responsive-nav-link href="#" wire:click="$dispatch('open-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
                         {{ __('Impersonate User') }}
                     </x-responsive-nav-link>
+                    @foreach (App\Support\SystemAdminNavigation::items() as $adminNavItem)
+                        @php
+                            $adminNavActive = isset($adminNavItem['active']) && is_callable($adminNavItem['active'])
+                                ? $adminNavItem['active']()
+                                : request()->routeIs($adminNavItem['route']);
+                        @endphp
+                        <x-responsive-nav-link href="{{ route($adminNavItem['route']) }}" :active="$adminNavActive">
+                            {{ $adminNavItem['label'] }}
+                        </x-responsive-nav-link>
+                    @endforeach
+                    <x-responsive-nav-link href="{{ route('audit.index') }}">
+                        {{ __('Audit Logs') }}
+                    </x-responsive-nav-link>
                 @endif
 
                 <!-- Authentication -->
@@ -398,6 +441,26 @@
                                 </div>
                             </x-responsive-nav-link>
                         @endif
+
+                        @foreach (App\Support\TeamNavigation::items() as $teamNavItem)
+                            @php
+                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                    ? $teamNavItem['active']()
+                                    : request()->routeIs($teamNavItem['route']);
+                            @endphp
+                            <x-responsive-nav-link
+                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                :active="$teamNavActive"
+                            >
+                                {{ $teamNavItem['label'] }}
+                            </x-responsive-nav-link>
+                        @endforeach
+
+                        @can('update', $this->user->currentTeam)
+                            <x-responsive-nav-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
+                                System Settings
+                            </x-responsive-nav-link>
+                        @endcan
                     @endif
 
                     <!-- Entity Switcher -->

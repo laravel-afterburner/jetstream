@@ -7,6 +7,7 @@ use App\Http\Controllers\DeleteTeamController;
 use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PrivacyPolicyController;
+use App\Http\Controllers\SystemSettingsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamInvitationController;
 use App\Http\Controllers\TermsOfServiceController;
@@ -88,6 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get("/{$entitySlug}/{team}/roles", function (Team $team) {
             return view('roles.show', ['team' => $team]);
         })->middleware('can:createRole,team')->name('roles.show');
+        Route::get("/{$entitySlug}/{team}/system-settings", SystemSettingsController::class)
+            ->name('teams.system-settings')
+            ->middleware('can:update,team');
     }
 
     // Notifications

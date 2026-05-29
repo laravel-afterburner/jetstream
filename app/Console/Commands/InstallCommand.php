@@ -2,41 +2,68 @@
 
 namespace App\Console\Commands;
 
+use App\Support\PackageSeederRegistry;
 use Illuminate\Console\Command;
 
 class InstallCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'afterburner:install
-                            {--tag=* : The tag(s) to publish}
-                            {--force : Overwrite existing files}';
+                            {--force : Overwrite published files}
+                            {--no-migrate : Skip running migrations}
+                            {--no-seed : Skip seeding package permissions}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Install add-ons into an existing Afterburner project';
+    protected $description = 'Install Afterburner packages (documents, voting, meetings when present)';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
-        $this->info('Installing Afterburner add-ons...');
+        $this->info('Installing Afterburner packages...');
 
-        // TODO: Implement add-on installation logic
-        // - Merge Afterburner environment variables into .env.example
-        // - Publish config, migrations, and views
-        // - Run migrations
+        $force = $this->option('force') ? ['--force' => true] : [];
 
-        $this->comment('This command is a placeholder and will be implemented in a future step.');
+        $publishGroups = [
+            'Documents' => ['afterburner-documents-config', 'afterburner-documents-assets'],
+            'Voting' => ['afterburner-voting-config', 'afterburner-voting-assets'],
+            'Meetings' => ['afterburner-meetings-config', 'afterburner-meetings-assets'],
+        ];
+
+        foreach ($publishGroups as $label => $tags) {
+            $this->components->task($label.' package', function () use ($tags, $force) {
+                foreach ($tags as $tag) {
+                    $this->callSilently('vendor:publish', array_merge(['--tag' => $tag], $force));
+                }
+
+                return true;
+            });
+        }
+
+        if (! $this->option('no-migrate')) {
+            $this->info('Running migrations...');
+            $this->call('migrate', ['--force' => true]);
+        }
+
+        if (! $this->option('no-seed')) {
+            $this->info('Seeding package permissions...');
+            foreach (PackageSeederRegistry::all() as $seederClass) {
+                $this->seedIfAvailable($seederClass);
+            }
+        }
+
+        $this->newLine();
+        $this->info('Afterburner installation complete.');
+        $this->comment('Package migrations load automatically from their service providers.');
+        $this->comment('Run `php artisan db:seed` to seed roles if this is a fresh project.');
 
         return Command::SUCCESS;
     }
-}
 
+    protected function seedIfAvailable(string $seederClass): void
+    {
+        if (! class_exists($seederClass)) {
+            return;
+        }
+
+        $seeder = new $seederClass;
+        $seeder->setCommand($this);
+        $seeder->run();
+    }
+}

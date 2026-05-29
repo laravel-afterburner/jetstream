@@ -5,6 +5,7 @@ namespace App\Livewire\Roles;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Team;
+use App\Support\PermissionGroups;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -457,6 +458,16 @@ class RoleManager extends Component
     public function getRolesProperty()
     {
         return Role::orderBy('hierarchy')->get();
+    }
+
+    /**
+     * Get the available permissions grouped for the UI.
+     *
+     * @return array<string, \Illuminate\Support\Collection>
+     */
+    public function getGroupedPermissionsProperty()
+    {
+        return PermissionGroups::group($this->permissions);
     }
 
     /**

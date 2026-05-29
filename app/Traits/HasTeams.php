@@ -255,6 +255,18 @@ trait HasTeams
     }
 
     /**
+     * Determine if the user owns the team with the given ID.
+     */
+    public function ownsTeamById(?int $teamId): bool
+    {
+        if (! $teamId) {
+            return false;
+        }
+
+        return $this->ownedTeams()->whereKey($teamId)->exists();
+    }
+
+    /**
      * Determine if the user belongs to the given team.
      *
      * @param  mixed  $team

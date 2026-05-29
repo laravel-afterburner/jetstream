@@ -186,15 +186,22 @@
                     <!-- Permissions -->
                     <div class="col-span-6">
                         <x-label value="{{ __('Permissions') }}" />
-                        <div class="mt-2 space-y-2 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            @foreach($this->permissions as $permission)
-                                <label class="flex items-center">
-                                    <input type="checkbox" 
-                                           class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" 
-                                           wire:model="createRoleForm.permissions" 
-                                           value="{{ $permission->id }}">
-                                    <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
-                                </label>
+                        <div class="mt-2 space-y-4 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            @foreach($this->groupedPermissions as $groupLabel => $groupPermissions)
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __($groupLabel) }}</p>
+                                    <div class="mt-2 space-y-2">
+                                        @foreach($groupPermissions as $permission)
+                                            <label class="flex items-center">
+                                                <input type="checkbox"
+                                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
+                                                       wire:model="createRoleForm.permissions"
+                                                       value="{{ $permission->id }}">
+                                                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
                         <x-input-error for="createRoleForm.permissions" class="mt-2" />
@@ -302,15 +309,22 @@
                 <!-- Permissions -->
                 <div>
                     <x-label value="{{ __('Permissions') }}" />
-                    <div class="mt-2 space-y-2 max-h-40 overflow-y-auto">
-                        @foreach($this->permissions as $permission)
-                            <label class="flex items-center">
-                                <input type="checkbox" 
-                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" 
-                                    wire:model="editRoleForm.permissions" 
-                                    value="{{ $permission->id }}">
-                                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
-                            </label>
+                    <div class="mt-2 space-y-4 max-h-60 overflow-y-auto">
+                        @foreach($this->groupedPermissions as $groupLabel => $groupPermissions)
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __($groupLabel) }}</p>
+                                <div class="mt-2 space-y-2">
+                                    @foreach($groupPermissions as $permission)
+                                        <label class="flex items-center">
+                                            <input type="checkbox"
+                                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
+                                                wire:model="editRoleForm.permissions"
+                                                value="{{ $permission->id }}">
+                                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 </div>

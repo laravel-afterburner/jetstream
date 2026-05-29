@@ -42,6 +42,8 @@ class NavigationMenu extends Component
 
     public $isTeamAnnouncementsActive = false;
 
+    public $isTeamSystemSettingsActive = false;
+
     public $isTeamActive = false;
 
     public $isDocumentsActive = false;
@@ -62,10 +64,12 @@ class NavigationMenu extends Component
         $this->isTeamsInformationActive = request()->routeIs('teams.information');
         $this->isTeamsCreateActive = request()->routeIs('teams.create');
         $this->isTeamAnnouncementsActive = request()->routeIs('team-announcements.index');
+        $this->isTeamSystemSettingsActive = request()->routeIs('teams.system-settings');
         $this->isDocumentsActive = request()->routeIs('teams.documents.*');
         $this->isTeamActive = request()->routeIs('teams.information')
             || request()->routeIs('teams.members')
             || request()->routeIs('team-announcements.index')
+            || request()->routeIs('teams.system-settings')
             || request()->routeIs('teams.create');
     }
 
