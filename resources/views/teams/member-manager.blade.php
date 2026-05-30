@@ -1,5 +1,5 @@
 <div>
-    @if ($team->users->isNotEmpty())
+    @if ($team->users->isNotEmpty() || Gate::check('addTeamMember', $team))
         <!-- Manage Entity Members -->
         <x-action-section>
             <x-slot name="title">
@@ -12,6 +12,15 @@
 
             <!-- Entity Member List -->
             <x-slot name="content">
+                @if (Gate::check('addTeamMember', $team))
+                    <div class="mb-6 flex justify-end">
+                        <x-button wire:click="openAddTeamMemberModal" no-spinner>
+                            Add New Member
+                        </x-button>
+                    </div>
+                @endif
+
+                @if ($team->users->isNotEmpty())
                 <ul role="list" class="divide-y divide-gray-100 dark:divide-gray-700 overflow-hidden bg-white dark:bg-gray-800 shadow-sm outline outline-1 outline-gray-900/5 dark:outline-gray-700/50 sm:rounded-xl">
                     @foreach ($this->sortedTeamUsers as $user)
                         <li class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 dark:hover:bg-gray-700 sm:px-6">
@@ -97,113 +106,11 @@
                         </li>
                     @endforeach
                 </ul>
+                @else
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No members yet.</p>
+                @endif
             </x-slot>
         </x-action-section>
-    @endif
-
-    @if (Gate::check('addTeamMember', $team))
-        <x-section-border />
-
-        <!-- Add Entity Member -->
-        <div class="mt-10 sm:mt-0">
-            <x-form-section submit="addTeamMember">
-                <x-slot name="title">
-                    Add New Member
-                </x-slot>
-
-                <x-slot name="description">
-                    Add a new member to your {{ config('afterburner.entity_label') }}. All members automatically receive basic user access, and you may optionally assign additional roles.
-                </x-slot>
-
-                <x-slot name="form">
-                    <div class="col-span-6">
-                        <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
-                            Please provide the email address of the person you would like to add to this {{ config('afterburner.entity_label') }}.
-                        </div>
-                    </div>
-
-                    <!-- Member Email -->
-                    <div class="col-span-6 sm:col-span-4">
-                        <x-label for="email" value="{{ __('Email') }}" />
-                        <x-input id="email" type="email" class="mt-1 block w-full" wire:model="addTeamMemberForm.email" />
-                        <x-input-error for="email" class="mt-2" />
-                    </div>
-
-                    <!-- Roles Selection -->
-                    @if (count($this->roles) > 0)
-                        <div class="col-span-6 lg:col-span-4">
-                            <div class="flex items-center justify-between">
-                                <x-label for="roles" value="{{ __('Select Role(s)') }}" />
-                                <a href="{{ route('roles.show', $team) }}" class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                    Manage Roles
-                                </a>
-                            </div>
-                            <x-input-error for="roles" class="mt-2" />
-
-                            <div class="relative z-0 mt-1 border border-gray-200 dark:border-gray-700 rounded-lg">
-                                @foreach ($this->roles as $index => $role)
-                                    @php
-                                        $isDisabled = $role->is_default || $role->is_at_max_capacity;
-                                        $isSelected = in_array($role->key, $addTeamMemberForm['roles']) || $role->is_default;
-                                    @endphp
-                                    <button type="button" 
-                                            class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 {{ $index > 0 ? 'border-t border-gray-200 dark:border-gray-700 focus:border-none rounded-t-none' : '' }} {{ ! $loop->last ? 'rounded-b-none' : '' }} {{ $role->is_default ? 'bg-gray-50 dark:bg-gray-800' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' : '' }}"
-                                            wire:click="toggleInvitationRole('{{ $role->key }}')"
-                                            @if($isDisabled) disabled @endif
-                                            @if($role->is_at_max_capacity && !$role->is_default) title="This role is not available - maximum capacity reached" @endif>
-                                        <div class="{{ !$isSelected && !$role->is_default ? 'opacity-50' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'opacity-75' : '' }}">
-                                            
-                                            <div class="flex items-center">
-                                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 {{ $isSelected ? 'font-semibold' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'text-gray-400 dark:text-gray-500' : '' }}">
-                                                    <img src="{{ asset('icons/' . $this->getRoleIcon($role->key)) }}" alt="{{ $role->name }}" class="w-4 h-4 mr-2" />
-                                                    <span class="cursor-pointer hover:underline" 
-                                                          wire:click="showRolePermissions('{{ $role->key }}')"
-                                                          wire:key="role-name-{{ $role->key }}">
-                                                        {{ $role->name }}
-                                                    </span>
-                                                    @if($role->is_default)
-                                                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(Basic User)</span>
-                                                    @elseif($role->is_at_max_capacity)
-                                                        <span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(Max capacity reached)</span>
-                                                    @elseif($role->max_members !== null)
-                                                        <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">({{ $role->available_slots }} available)</span>
-                                                    @endif
-                                                </div>
-
-                                                @if($isSelected)
-                                                    <svg class="ms-2 size-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                @elseif($role->is_at_max_capacity && !$role->is_default)
-                                                    <svg class="ms-2 size-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                @endif
-                                            </div>
-
-                                            <!-- Role Description -->
-                                            <div class="mt-2 text-xs text-gray-600 dark:text-gray-400 text-start {{ $role->is_at_max_capacity && !$role->is_default ? 'text-gray-400 dark:text-gray-500' : '' }}">
-                                                {{ $role->description }}
-                                            </div>
-                                        </div>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                </x-slot>
-
-                <x-slot name="actions">
-                    <x-action-message class="me-3" on="saved">
-                        {{ __('Added.') }}
-                    </x-action-message>
-
-                    <x-button>
-                        {{ __('Add') }}
-                    </x-button>
-                </x-slot>
-            </x-form-section>
-        </div>
     @endif
 
     @if ($team->teamInvitations->isNotEmpty() && Gate::check('addTeamMember', $team))
@@ -325,6 +232,97 @@
             </x-action-section>
         </div>
     @endif
+
+    <!-- Add Team Member Modal -->
+    <x-dialog-modal wire:model.live="addingTeamMember" maxWidth="2xl">
+        <x-slot name="title">
+            {{ __('Add New Member') }}
+        </x-slot>
+
+        <x-slot name="content">
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Add a new member to your {{ config('afterburner.entity_label') }}. All members automatically receive basic user access, and you may optionally assign additional roles.
+                </p>
+
+                <div>
+                    <x-label for="add_member_email" value="{{ __('Email') }}" />
+                    <x-input id="add_member_email" type="email" class="mt-1 block w-full" wire:model="addTeamMemberForm.email" />
+                    <x-input-error for="email" class="mt-2" />
+                </div>
+
+                @if (count($this->roles) > 0)
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <x-label for="add_member_roles" value="{{ __('Select Role(s)') }}" />
+                            <a href="{{ route('roles.show', $team) }}" class="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                Manage Roles
+                            </a>
+                        </div>
+                        <x-input-error for="roles" class="mt-2" />
+
+                        <div class="relative z-0 mt-1 border border-gray-200 dark:border-gray-700 rounded-lg">
+                            @foreach ($this->roles as $index => $role)
+                                @php
+                                    $isDisabled = $role->is_default || $role->is_at_max_capacity;
+                                    $isSelected = in_array($role->key, $addTeamMemberForm['roles']) || $role->is_default;
+                                @endphp
+                                <button type="button"
+                                        class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 {{ $index > 0 ? 'border-t border-gray-200 dark:border-gray-700 focus:border-none rounded-t-none' : '' }} {{ ! $loop->last ? 'rounded-b-none' : '' }} {{ $role->is_default ? 'bg-gray-50 dark:bg-gray-800' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-50' : '' }}"
+                                        wire:click="toggleInvitationRole('{{ $role->key }}')"
+                                        @if($isDisabled) disabled @endif
+                                        @if($role->is_at_max_capacity && !$role->is_default) title="This role is not available - maximum capacity reached" @endif>
+                                    <div class="{{ !$isSelected && !$role->is_default ? 'opacity-50' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'opacity-75' : '' }}">
+                                        <div class="flex items-center">
+                                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 {{ $isSelected ? 'font-semibold' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'text-gray-400 dark:text-gray-500' : '' }}">
+                                                <img src="{{ asset('icons/' . $this->getRoleIcon($role->key)) }}" alt="{{ $role->name }}" class="w-4 h-4 mr-2" />
+                                                <span class="cursor-pointer hover:underline"
+                                                      wire:click.stop="showRolePermissions('{{ $role->key }}')"
+                                                      wire:key="add-role-name-{{ $role->key }}">
+                                                    {{ $role->name }}
+                                                </span>
+                                                @if($role->is_default)
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">(Basic User)</span>
+                                                @elseif($role->is_at_max_capacity)
+                                                    <span class="text-xs text-gray-400 dark:text-gray-500 ml-1">(Max capacity reached)</span>
+                                                @elseif($role->max_members !== null)
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">({{ $role->available_slots }} available)</span>
+                                                @endif
+                                            </div>
+
+                                            @if($isSelected)
+                                                <svg class="ms-2 size-5 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            @elseif($role->is_at_max_capacity && !$role->is_default)
+                                                <svg class="ms-2 size-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            @endif
+                                        </div>
+
+                                        <div class="mt-2 text-xs text-gray-600 dark:text-gray-400 text-start {{ $role->is_at_max_capacity && !$role->is_default ? 'text-gray-400 dark:text-gray-500' : '' }}">
+                                            {{ $role->description }}
+                                        </div>
+                                    </div>
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </x-slot>
+
+        <x-slot name="footer">
+            <x-secondary-button wire:click="cancelAddTeamMember" wire:loading.attr="disabled">
+                {{ __('Cancel') }}
+            </x-secondary-button>
+
+            <x-button class="ms-3" wire:click="addTeamMember" wire:loading.attr="disabled">
+                {{ __('Add') }}
+            </x-button>
+        </x-slot>
+    </x-dialog-modal>
 
     <!-- Role Management Modal -->
     <x-dialog-modal wire:model.live="currentlyManagingRole">

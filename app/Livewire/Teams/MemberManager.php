@@ -83,6 +83,13 @@ class MemberManager extends Component
     public $invitationIdBeingCanceled = null;
 
     /**
+     * Indicates if the add team member modal is open.
+     *
+     * @var bool
+     */
+    public $addingTeamMember = false;
+
+    /**
      * The "add team member" form state.
      *
      * @var array
@@ -152,6 +159,42 @@ class MemberManager extends Component
     }
 
     /**
+     * Open the add team member modal.
+     *
+     * @return void
+     */
+    public function openAddTeamMemberModal()
+    {
+        $this->resetErrorBag();
+
+        $defaultRole = Role::where('is_default', true)->first();
+        $this->addTeamMemberForm = [
+            'email' => '',
+            'roles' => $defaultRole ? [$defaultRole->slug] : [],
+        ];
+
+        $this->addingTeamMember = true;
+    }
+
+    /**
+     * Cancel adding a team member.
+     *
+     * @return void
+     */
+    public function cancelAddTeamMember()
+    {
+        $this->resetErrorBag();
+
+        $defaultRole = Role::where('is_default', true)->first();
+        $this->addTeamMemberForm = [
+            'email' => '',
+            'roles' => $defaultRole ? [$defaultRole->slug] : [],
+        ];
+
+        $this->addingTeamMember = false;
+    }
+
+    /**
      * Add a new team member to a team.
      *
      * @return void
@@ -176,7 +219,8 @@ class MemberManager extends Component
 
         $this->team = $this->team->fresh();
 
-        $this->dispatch('saved');
+        $this->addingTeamMember = false;
+        $this->banner(__('Added.'));
     }
 
     /**

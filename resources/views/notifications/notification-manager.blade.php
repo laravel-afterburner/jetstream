@@ -122,23 +122,22 @@
                                                 Decline
                                             </button>
                                             @if($isUnread)
-                                                <button 
-                                                    wire:click="markAsRead('{{ $notification->id }}')" 
+                                                <x-action-icon
+                                                    type="mark-read"
+                                                    wire:click="markAsRead('{{ $notification->id }}')"
                                                     wire:loading.attr="disabled"
-                                                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                                    Mark as read
-                                                </button>
+                                                    title="Mark as read"
+                                                />
                                             @endif
                                         </div>
                                     @elseif($isUnread)
-                                        <div class="flex flex-col sm:flex-row gap-2 ml-4">
-                                            <button 
-                                                wire:click="markAsRead('{{ $notification->id }}')" 
-                                                wire:loading.attr="disabled"
-                                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                                Mark as read
-                                            </button>
-                                        </div>
+                                        <x-action-icon
+                                            type="mark-read"
+                                            wire:click="markAsRead('{{ $notification->id }}')"
+                                            wire:loading.attr="disabled"
+                                            class="ml-4"
+                                            title="Mark as read"
+                                        />
                                     @else
                                         {{-- Show delete button for read or actioned notifications --}}
                                         <button 
@@ -187,14 +186,13 @@
                                         </p>
                                     </div>
                                     @if($isUnread)
-                                        <div class="flex flex-col sm:flex-row gap-2 ml-4">
-                                            <button 
-                                                wire:click="markAsRead('{{ $notification->id }}')" 
-                                                wire:loading.attr="disabled"
-                                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                                Mark as read
-                                            </button>
-                                        </div>
+                                        <x-action-icon
+                                            type="mark-read"
+                                            wire:click="markAsRead('{{ $notification->id }}')"
+                                            wire:loading.attr="disabled"
+                                            class="ml-4"
+                                            title="Mark as read"
+                                        />
                                     @else
                                         {{-- Show delete button for read notifications --}}
                                         <button 
