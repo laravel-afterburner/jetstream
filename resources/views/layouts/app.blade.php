@@ -143,10 +143,12 @@
         <x-impersonation-banner />
         <x-banner />
         @if(App\Support\Afterburner::hasUserTimezoneManagement())
-            <x-timezone-suggestion-banner 
-                :detectedTimezone="session('detected_timezone')" 
-                :userTimezone="auth()->check() ? (auth()->user()->timezone ?? config('app.timezone', 'UTC')) : config('app.timezone', 'UTC')"
-                :dismissed="session('timezone_suggestion_dismissed', false)" />
+            @persist('timezone-banner')
+                <x-timezone-suggestion-banner
+                    :detectedTimezone="session('detected_timezone')"
+                    :userTimezone="auth()->check() ? (auth()->user()->timezone ?? config('app.timezone', 'UTC')) : config('app.timezone', 'UTC')"
+                    :dismissed="session('timezone_suggestion_dismissed', false)" />
+            @endpersist
         @endif
 
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">

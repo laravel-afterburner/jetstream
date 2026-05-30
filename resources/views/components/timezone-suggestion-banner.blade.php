@@ -6,32 +6,42 @@
     $shouldShowFromSession = $sessionDetected && !$sessionDismissed;
 @endphp
 
-<div x-data="{
+<div
+    x-cloak
+    style="display: none;"
+    x-data="{
     show: @js($shouldShowFromSession),
     detectedTimezone: @js($sessionDetected),
     userTimezone: @js($userTimezone),
     dismissed: @js($sessionDismissed),
     updating: false,
     init() {
-        // If banner not shown from session, check cookie client-side
+        document.addEventListener('livewire:navigating', () => {
+            this.show = false;
+        });
+
+        // wire:navigate morph re-initializes Alpine; only check the cookie once per page load.
+        if (window.__timezoneBannerCookieChecked) {
+            return;
+        }
+
+        window.__timezoneBannerCookieChecked = true;
+
         if (!this.show && !this.dismissed) {
             this.checkCookie();
         }
     },
     checkCookie() {
-        // Get timezone from cookie
         const cookieValue = document.cookie
             .split('; ')
             .find(row => row.startsWith('timezone='));
-        
+
         if (cookieValue) {
-            const detectedTz = cookieValue.split('=')[1];
-            
-            // Only show if detected timezone differs from user's saved timezone
+            const detectedTz = decodeURIComponent(cookieValue.split('=')[1]);
+
             if (detectedTz && detectedTz !== this.userTimezone) {
                 this.detectedTimezone = detectedTz;
                 this.show = true;
-                // The middleware will set the session on the next request automatically
             }
         }
     },
@@ -60,7 +70,6 @@
         }).then(response => response.json())
         .then(data => {
             this.show = false;
-            // Reload page to reflect timezone change
             window.location.reload();
         })
         .catch(() => {
@@ -70,9 +79,6 @@
 }"
 @timezone-updated.window="show = false"
 x-show="show && detectedTimezone"
-x-transition:enter="transition ease-out duration-300"
-x-transition:enter-start="opacity-0 transform translate-y-[-10px]"
-x-transition:enter-end="opacity-100 translate-y-0"
 x-transition:leave="transition ease-in duration-200"
 x-transition:leave-start="opacity-100 translate-y-0"
 x-transition:leave-end="opacity-0 transform translate-y-[-10px]"

@@ -23,6 +23,12 @@ class DetectTimezone
             return $next($request);
         }
 
+        // Skip Livewire requests — navigate fetches and component updates should not
+        // toggle session state or re-render the timezone suggestion banner.
+        if ($this->shouldSkipTimezoneDetection($request)) {
+            return $next($request);
+        }
+
         // Skip if user is not authenticated
         if (!Auth::check()) {
             return $next($request);
@@ -59,6 +65,22 @@ class DetectTimezone
     protected function isValidTimezone(string $timezone): bool
     {
         return in_array($timezone, timezone_identifiers_list(), true);
+    }
+
+    /**
+     * Determine if timezone detection should be skipped for this request.
+     */
+    protected function shouldSkipTimezoneDetection(Request $request): bool
+    {
+        if ($request->routeIs('livewire.*')) {
+            return true;
+        }
+
+        if ($request->headers->has('X-Livewire-Navigate')) {
+            return true;
+        }
+
+        return false;
     }
 }
 
