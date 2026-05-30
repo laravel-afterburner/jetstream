@@ -1,10 +1,8 @@
-<x-app-layout title="{{ Str::title(config('afterburner.entity_label')) }} Role Management">
+@php($entityLabel = Str::title(config('afterburner.entity_label')))
+
+<x-app-layout :title="\App\Support\PageHeader::make($entityLabel, detail: 'Role management')">
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ Str::title(config('afterburner.entity_label')) }} Role Management
-            </h2>
-        </div>
+        <x-page-header :section="$entityLabel" detail="Role management" />
     </x-slot>
 
     <div>

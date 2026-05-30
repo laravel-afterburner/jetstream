@@ -1,8 +1,6 @@
-<x-app-layout title="Meeting">
+<x-app-layout :title="\App\Support\PageHeader::make('Meetings', detail: $meeting->title)">
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-            {{ $meeting->title }}
-        </h2>
+        <x-page-header section="Meetings" :detail="$meeting->title" />
     </x-slot>
 
     <div class="max-w-4xl mx-auto py-10 sm:px-6 lg:px-8">

@@ -1,8 +1,6 @@
-<x-app-layout title="{{ __('User Profile') }}">
+<x-app-layout :title="\App\Support\PageHeader::make(__('Profile'))">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('User Profile') }}
-        </h2>
+        <x-page-header :section="__('Profile')" />
     </x-slot>
 
     <div>

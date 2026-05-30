@@ -1,8 +1,6 @@
-<x-app-layout title="{{ __('API Tokens') }}">
+<x-app-layout :title="\App\Support\PageHeader::make('API', detail: __('Tokens'))">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('API Tokens') }}
-        </h2>
+        <x-page-header section="API" :detail="__('Tokens')" />
     </x-slot>
 
     <div>

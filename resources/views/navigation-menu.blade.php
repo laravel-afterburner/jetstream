@@ -74,6 +74,20 @@
                                             Members
                                         </x-dropdown-link>
 
+                                        @foreach (App\Support\TeamNavigation::items('after-members') as $teamNavItem)
+                                            @php
+                                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                                    ? $teamNavItem['active']()
+                                                    : request()->routeIs($teamNavItem['route']);
+                                            @endphp
+                                            <x-dropdown-link
+                                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                                :active="$teamNavActive"
+                                            >
+                                                {{ $teamNavItem['label'] }}
+                                            </x-dropdown-link>
+                                        @endforeach
+
                                         @if(App\Support\Features::hasTeamAnnouncements())
                                             <x-dropdown-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
                                                 <div class="flex items-center">
@@ -106,6 +120,20 @@
                                                 System Settings
                                             </x-dropdown-link>
                                         @endcan
+
+                                        @foreach (App\Support\TeamNavigation::items('after-system-settings') as $teamNavItem)
+                                            @php
+                                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                                    ? $teamNavItem['active']()
+                                                    : request()->routeIs($teamNavItem['route']);
+                                            @endphp
+                                            <x-dropdown-link
+                                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                                :active="$teamNavActive"
+                                            >
+                                                {{ $teamNavItem['label'] }}
+                                            </x-dropdown-link>
+                                        @endforeach
                                     @endif
 
                                     <!-- Entity Switcher -->
@@ -429,6 +457,20 @@
                             Members
                         </x-responsive-nav-link>
 
+                        @foreach (App\Support\TeamNavigation::items('after-members') as $teamNavItem)
+                            @php
+                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                    ? $teamNavItem['active']()
+                                    : request()->routeIs($teamNavItem['route']);
+                            @endphp
+                            <x-responsive-nav-link
+                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                :active="$teamNavActive"
+                            >
+                                {{ $teamNavItem['label'] }}
+                            </x-responsive-nav-link>
+                        @endforeach
+
                         @if(App\Support\Features::hasTeamAnnouncements())
                             <x-responsive-nav-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
                                 <div class="flex items-center">
@@ -461,6 +503,20 @@
                                 System Settings
                             </x-responsive-nav-link>
                         @endcan
+
+                        @foreach (App\Support\TeamNavigation::items('after-system-settings') as $teamNavItem)
+                            @php
+                                $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
+                                    ? $teamNavItem['active']()
+                                    : request()->routeIs($teamNavItem['route']);
+                            @endphp
+                            <x-responsive-nav-link
+                                href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
+                                :active="$teamNavActive"
+                            >
+                                {{ $teamNavItem['label'] }}
+                            </x-responsive-nav-link>
+                        @endforeach
                     @endif
 
                     <!-- Entity Switcher -->

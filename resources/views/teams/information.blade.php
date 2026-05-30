@@ -1,8 +1,8 @@
-<x-app-layout title="{{ Str::title(config('afterburner.entity_label')) }} Details">
+@php($entityLabel = Str::title(config('afterburner.entity_label')))
+
+<x-app-layout :title="\App\Support\PageHeader::make($entityLabel, detail: 'Details')">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ Str::title(config('afterburner.entity_label')) }} Details
-        </h2>
+        <x-page-header :section="$entityLabel" detail="Details" />
     </x-slot>
 
     <div>

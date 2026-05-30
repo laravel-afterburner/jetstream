@@ -1,8 +1,6 @@
-<x-app-layout title="System Settings">
+<x-app-layout :title="\App\Support\PageHeader::make('Settings', detail: 'System')">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            System Settings
-        </h2>
+        <x-page-header section="Settings" detail="System" />
     </x-slot>
 
     <div>

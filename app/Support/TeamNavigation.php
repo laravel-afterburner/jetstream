@@ -17,6 +17,7 @@ class TeamNavigation
     {
         self::$items[] = array_merge([
             'order' => 100,
+            'placement' => 'default',
             'permission' => null,
             'active' => null,
             'route_params' => [],
@@ -24,11 +25,14 @@ class TeamNavigation
     }
 
     /**
-     * Get all registered team navigation items, filtered by permissions and sorted.
+     * Get registered team navigation items for a menu placement.
+     *
+     * @param  string  $placement  e.g. after-members, after-system-settings, default
      */
-    public static function items(): Collection
+    public static function items(string $placement = 'default'): Collection
     {
         return collect(self::$items)
+            ->filter(fn ($item) => ($item['placement'] ?? 'default') === $placement)
             ->filter(function ($item) {
                 if (isset($item['permission']) && is_callable($item['permission'])) {
                     return $item['permission'](auth()->user());
