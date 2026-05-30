@@ -1,6 +1,6 @@
-<x-app-layout :title="\App\Support\PageHeader::make('Voting', detail: 'Proxy votes')">
+<x-app-layout :title="\Afterburner\Voting\Support\PageHeader::make('Voting', detail: 'Proxy votes')">
     <x-slot name="header">
-        <x-page-header section="Voting" detail="Proxy votes" />
+        <x-afterburner-voting::page-header section="Voting" detail="Proxy votes" />
     </x-slot>
 
     <div>

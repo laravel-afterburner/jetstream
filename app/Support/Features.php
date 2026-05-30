@@ -304,36 +304,6 @@ class Features
     }
 
     /**
-     * Enable the team announcements feature.
-     *
-     * @return string
-     */
-    public static function teamAnnouncements()
-    {
-        return 'team_announcements';
-    }
-
-    /**
-     * Determine if the application is using team announcements features.
-     *
-     * @return bool
-     */
-    public static function hasTeamAnnouncements()
-    {
-        return static::enabled(static::teamAnnouncements());
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Fortify Email Verification Feature
-    |--------------------------------------------------------------------------
-    |
-    | Email verification is managed through the Afterburner config for unified
-    | feature flag control. Other Fortify features remain in config/fortify.php.
-    |
-    */
-
-    /**
      * Enable the email verification feature.
      *
      * @return string
@@ -355,7 +325,7 @@ class Features
 
     /**
      * Get feature options from config.
-     * 
+     *
      * Returns the options array for a given feature, or an empty array if not set.
      * Feature keys are normalized to snake_case for config lookup.
      *
@@ -364,13 +334,12 @@ class Features
      */
     public static function getOptions(string $feature): array
     {
-        // Normalize feature key to snake_case for config lookup
         $normalizedFeature = str_replace('-', '_', $feature);
         $options = config("afterburner.options.{$normalizedFeature}", []);
-        // Fallback to original key for backward compatibility
         if (empty($options)) {
             $options = config("afterburner.options.{$feature}", []);
         }
+
         return $options;
     }
 
@@ -383,15 +352,12 @@ class Features
      */
     public static function getFeatureGroups(): array
     {
-        // Get features from config to ensure we only show what's actually configured
         $configFeatures = config('afterburner.features', []);
-        $configFeatureKeys = array_map(function($key) {
-            return str_replace('-', '_', $key); // Normalize to snake_case
+        $configFeatureKeys = array_map(function ($key) {
+            return str_replace('-', '_', $key);
         }, $configFeatures);
-        
-        // Define all possible features with their metadata
+
         $allFeatures = [
-            // Teams & Collaboration
             static::teams() => [
                 'group' => 'Teams & Collaboration',
                 'name' => 'Teams',
@@ -401,11 +367,6 @@ class Features
                 'group' => 'Teams & Collaboration',
                 'name' => 'Personal Teams',
                 'description' => 'Enable personal team creation for individual users',
-            ],
-            static::teamAnnouncements() => [
-                'group' => 'Teams & Collaboration',
-                'name' => 'Team Announcements',
-                'description' => 'Enable team-wide announcements and notifications',
             ],
             static::teamTimezone() => [
                 'group' => 'Teams & Collaboration',

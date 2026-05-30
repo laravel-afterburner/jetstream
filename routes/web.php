@@ -121,33 +121,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('audit.index');
     });
 
-    if (Afterburner::hasTeamFeatures() && \App\Support\Features::hasTeamAnnouncements()) {
-        $entitySlug = config('afterburner.entity_url_slug');
-        Route::get("/{$entitySlug}/{team}/announcements", function (Team $team) {
-            return view('team-announcements.index', ['team' => $team]);
-        })->middleware('can:view,team')->name('team-announcements.index');
-    }
-
-    // Email Preview Route (development only)
-    if (app()->environment('local', 'development')) {
-        Route::get('/preview-email/team-announcement', function () {
-            $team = \App\Models\Team::first();
-            $announcement = \App\Models\TeamAnnouncement::first();
-            
-            if (!$announcement && $team) {
-                $announcement = new \App\Models\TeamAnnouncement([
-                    'title' => 'New Announcement',
-                    'message' => 'Here is a brand new announcement.',
-                    'team_id' => $team->id,
-                    'creator_id' => $team->user_id,
-                ]);
-            }
-            
-            if (!$team || !$announcement) {
-                return 'No team or announcement found. Please create test data first.';
-            }
-            
-            return new \App\Mail\TeamAnnouncementMail($announcement);
-        });
-    }
 });

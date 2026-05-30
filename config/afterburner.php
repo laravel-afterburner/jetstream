@@ -131,7 +131,6 @@ return [
         // Teams & Collaboration
         Features::teams(),
         Features::personalTeams(),
-        Features::teamAnnouncements(),
         Features::teamTimezone(),
 
         // Authentication & Security

@@ -1,9 +1,9 @@
-<x-app-layout :title="\App\Support\PageHeader::make('Meetings', isset($meeting) ? 'Edit' : 'Create meeting', isset($meeting) ? $meeting->title : null)">
+<x-app-layout :title="\Afterburner\Meetings\Support\PageHeader::make('Meetings', isset($meeting) ? 'Edit' : 'Create meeting', isset($meeting) ? $meeting->title : null)">
     <x-slot name="header">
         @if (isset($meeting))
-            <x-page-header section="Meetings" action="Edit" :detail="$meeting->title" />
+            <x-afterburner-meetings::page-header section="Meetings" action="Edit" :detail="$meeting->title" />
         @else
-            <x-page-header section="Meetings" action="Create meeting" />
+            <x-afterburner-meetings::page-header section="Meetings" action="Create meeting" />
         @endif
     </x-slot>
 

@@ -16,19 +16,66 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @foreach($this->navigationItems as $item)
-                        <x-nav-link
-                            href="{{ route($item['route'], $item['route_params'] ?? []) }}"
-                            :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : request()->routeIs($item['route'] . '.*')">
-                            @if(isset($item['icon']))
-                                <x-icon :name="$item['icon']" class="me-1 size-4" />
-                            @endif
-                            {{ $item['label'] }}
-                            @if(isset($item['badge']) && $item['badge'] > 0)
-                                <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
-                                    {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
-                                </span>
-                            @endif
-                        </x-nav-link>
+                        @if(! empty($item['children']))
+                            <x-dropdown align="left" width="48">
+                                <x-slot name="trigger">
+                                    <span @class([
+                                        'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none',
+                                        'border-indigo-400 dark:border-indigo-600 text-gray-900 dark:text-gray-100 focus:border-indigo-700' => isset($item['active']) && is_callable($item['active']) ? $item['active']() : false,
+                                        'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 focus:text-gray-700 dark:focus:text-gray-300 focus:border-gray-300 dark:focus:border-gray-700' => ! (isset($item['active']) && is_callable($item['active']) ? $item['active']() : false),
+                                    ])>
+                                        @if(isset($item['icon']))
+                                            <x-icon :name="$item['icon']" class="me-1 size-4" />
+                                        @endif
+                                        {{ $item['label'] }}
+                                        @if(isset($item['badge']) && $item['badge'] > 0)
+                                            <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                                            </span>
+                                        @endif
+                                        <svg class="ms-1 size-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </span>
+                                </x-slot>
+                                <x-slot name="content">
+                                    @foreach($item['children'] as $child)
+                                        @php
+                                            $childActive = isset($child['active']) && is_callable($child['active'])
+                                                ? $child['active']()
+                                                : request()->routeIs(($child['route'] ?? '').'.*');
+                                        @endphp
+                                        <x-dropdown-link
+                                            href="{{ route($child['route'], $child['route_params'] ?? []) }}"
+                                            :active="$childActive"
+                                        >
+                                            <div class="flex items-center">
+                                                <span>{{ $child['label'] }}</span>
+                                                @if(isset($child['badge']) && $child['badge'] > 0)
+                                                    <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                                        {{ $child['badge'] > 9 ? '9+' : $child['badge'] }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </x-dropdown-link>
+                                    @endforeach
+                                </x-slot>
+                            </x-dropdown>
+                        @else
+                            <x-nav-link
+                                href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                                :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : request()->routeIs($item['route'] . '.*')">
+                                @if(isset($item['icon']))
+                                    <x-icon :name="$item['icon']" class="me-1 size-4" />
+                                @endif
+                                {{ $item['label'] }}
+                                @if(isset($item['badge']) && $item['badge'] > 0)
+                                    <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                        {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                                    </span>
+                                @endif
+                            </x-nav-link>
+                        @endif
                     @endforeach
                 </div>
             </div>
@@ -47,13 +94,6 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
                                         </svg>
                                     </button>
-                                    
-                                    <!-- Announcements badge -->
-                                    @if($this->unreadAnnouncementsCount > 0)
-                                        <span class="absolute -top-1 -left-1 flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full border-2 border-white dark:border-gray-800">
-                                            {{ $this->unreadAnnouncementsCount > 9 ? '9+' : $this->unreadAnnouncementsCount }}
-                                        </span>
-                                    @endif
                                 </span>
                             </x-slot>
 
@@ -87,19 +127,6 @@
                                                 {{ $teamNavItem['label'] }}
                                             </x-dropdown-link>
                                         @endforeach
-
-                                        @if(App\Support\Features::hasTeamAnnouncements())
-                                            <x-dropdown-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
-                                                <div class="flex items-center">
-                                                    <span>Announcements</span>
-                                                    @if($this->unreadAnnouncementsCount > 0)
-                                                        <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
-                                                            {{ $this->unreadAnnouncementsCount > 9 ? '9+' : $this->unreadAnnouncementsCount }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </x-dropdown-link>
-                                        @endif
 
                                         @foreach (App\Support\TeamNavigation::items() as $teamNavItem)
                                             @php
@@ -305,33 +332,60 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             @foreach($this->navigationItems as $item)
-                @php
-                    $isActive = false;
-                    if (($item['route'] ?? '') === 'teams.documents.index') {
-                        $isActive = $this->isDocumentsActive;
-                    } else {
-                        if (isset($item['active']) && is_callable($item['active'])) {
-                            $isActive = (bool) $item['active']();
-                        } else {
-                            $isActive = request()->routeIs($item['route'] . '.*');
-                        }
-                    }
-                @endphp
-                <x-responsive-nav-link
-                    href="{{ route($item['route'], $item['route_params'] ?? []) }}"
-                    :active="$isActive">
-                    <div class="flex items-center whitespace-nowrap">
-                        @if(isset($item['icon']))
-                            <x-icon :name="$item['icon']" class="me-1 size-4 flex-shrink-0" />
-                        @endif
-                        <span>{{ $item['label'] }}</span>
-                        @if(isset($item['badge']) && $item['badge'] > 0)
-                            <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex-shrink-0">
-                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
-                            </span>
-                        @endif
+                @if(! empty($item['children']))
+                    <div class="border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
+                        <div class="px-4 py-1 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                            {{ $item['label'] }}
+                        </div>
+                        @foreach($item['children'] as $child)
+                            @php
+                                $childActive = isset($child['active']) && is_callable($child['active'])
+                                    ? $child['active']()
+                                    : request()->routeIs(($child['route'] ?? '').'.*');
+                            @endphp
+                            <x-responsive-nav-link
+                                href="{{ route($child['route'], $child['route_params'] ?? []) }}"
+                                :active="$childActive">
+                                <div class="flex items-center whitespace-nowrap ps-2">
+                                    <span>{{ $child['label'] }}</span>
+                                    @if(isset($child['badge']) && $child['badge'] > 0)
+                                        <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex-shrink-0">
+                                            {{ $child['badge'] > 9 ? '9+' : $child['badge'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </x-responsive-nav-link>
+                        @endforeach
                     </div>
-                </x-responsive-nav-link>
+                @else
+                    @php
+                        $isActive = false;
+                        if (($item['route'] ?? '') === 'teams.documents.index') {
+                            $isActive = $this->isDocumentsActive;
+                        } else {
+                            if (isset($item['active']) && is_callable($item['active'])) {
+                                $isActive = (bool) $item['active']();
+                            } else {
+                                $isActive = request()->routeIs($item['route'] . '.*');
+                            }
+                        }
+                    @endphp
+                    <x-responsive-nav-link
+                        href="{{ route($item['route'], $item['route_params'] ?? []) }}"
+                        :active="$isActive">
+                        <div class="flex items-center whitespace-nowrap">
+                            @if(isset($item['icon']))
+                                <x-icon :name="$item['icon']" class="me-1 size-4 flex-shrink-0" />
+                            @endif
+                            <span>{{ $item['label'] }}</span>
+                            @if(isset($item['badge']) && $item['badge'] > 0)
+                                <span class="ms-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full flex-shrink-0">
+                                    {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                                </span>
+                            @endif
+                        </div>
+                    </x-responsive-nav-link>
+                @endif
             @endforeach
         </div>
 
@@ -470,19 +524,6 @@
                                 {{ $teamNavItem['label'] }}
                             </x-responsive-nav-link>
                         @endforeach
-
-                        @if(App\Support\Features::hasTeamAnnouncements())
-                            <x-responsive-nav-link href="{{ route('team-announcements.index', $this->user->currentTeam->id) }}" :active="$this->isTeamAnnouncementsActive">
-                                <div class="flex items-center">
-                                    <span>Announcements</span>
-                                    @if($this->unreadAnnouncementsCount > 0)
-                                        <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-blue-500 text-white text-xs font-bold rounded-full">
-                                            {{ $this->unreadAnnouncementsCount > 9 ? '9+' : $this->unreadAnnouncementsCount }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </x-responsive-nav-link>
-                        @endif
 
                         @foreach (App\Support\TeamNavigation::items() as $teamNavItem)
                             @php

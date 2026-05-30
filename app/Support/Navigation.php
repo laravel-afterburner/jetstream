@@ -35,27 +35,62 @@ class Navigation
     {
         return collect(self::$items)
             ->filter(function ($item) {
-                // Check permission if provided
                 if (isset($item['permission']) && is_callable($item['permission'])) {
                     return $item['permission'](auth()->user());
                 }
+
                 return true;
             })
             ->map(function ($item) {
-                // Resolve route params if callable
-                if (isset($item['route_params']) && is_callable($item['route_params'])) {
-                    $item['route_params'] = $item['route_params']();
+                return self::resolveItem($item);
+            })
+            ->filter(function ($item) {
+                if (! empty($item['children'])) {
+                    return count($item['children']) > 0;
                 }
-                
-                // Resolve badge if callable
-                if (isset($item['badge']) && is_callable($item['badge'])) {
-                    $item['badge'] = $item['badge']();
-                }
-                
-                return $item;
+
+                return isset($item['route']);
             })
             ->sortBy('order')
             ->values();
+    }
+
+    /**
+     * Resolve route params, badges, and nested children for a navigation item.
+     */
+    protected static function resolveItem(array $item): array
+    {
+        if (isset($item['route_params']) && is_callable($item['route_params'])) {
+            $item['route_params'] = $item['route_params']();
+        }
+
+        if (isset($item['badge']) && is_callable($item['badge'])) {
+            $item['badge'] = $item['badge']();
+        }
+
+        if (isset($item['children']) && is_array($item['children'])) {
+            $item['children'] = collect($item['children'])
+                ->filter(function ($child) {
+                    if (isset($child['permission']) && is_callable($child['permission'])) {
+                        return $child['permission'](auth()->user());
+                    }
+
+                    return true;
+                })
+                ->map(fn (array $child) => self::resolveItem($child))
+                ->values()
+                ->all();
+
+            if (! isset($item['badge']) || $item['badge'] === null) {
+                $childBadgeTotal = collect($item['children'])->sum(fn ($child) => (int) ($child['badge'] ?? 0));
+
+                if ($childBadgeTotal > 0) {
+                    $item['badge'] = $childBadgeTotal;
+                }
+            }
+        }
+
+        return $item;
     }
 
     /**

@@ -11,6 +11,7 @@
         "laravel-afterburner/documents": "@dev",
         "laravel-afterburner/meetings": "@dev",
         "laravel-afterburner/voting": "@dev",
+        "laravel-afterburner/communications": "@dev",
         "laravel/fortify": "^1.20",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
@@ -96,6 +97,10 @@
         "afterburner-meetings": {
             "type": "path",
             "url": "../afterburner-meetings"
+        },
+        "afterburner-communications": {
+            "type": "path",
+            "url": "../afterburner-communications"
         }
     }
 }

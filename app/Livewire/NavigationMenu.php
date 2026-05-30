@@ -40,8 +40,6 @@ class NavigationMenu extends Component
 
     public $isTeamsCreateActive = false;
 
-    public $isTeamAnnouncementsActive = false;
-
     public $isTeamSystemSettingsActive = false;
 
     public $isTeamActive = false;
@@ -63,12 +61,10 @@ class NavigationMenu extends Component
         $this->isTeamsMembersActive = request()->routeIs('teams.members');
         $this->isTeamsInformationActive = request()->routeIs('teams.information');
         $this->isTeamsCreateActive = request()->routeIs('teams.create');
-        $this->isTeamAnnouncementsActive = request()->routeIs('team-announcements.index');
         $this->isTeamSystemSettingsActive = request()->routeIs('teams.system-settings');
         $this->isDocumentsActive = request()->routeIs('teams.documents.*');
         $this->isTeamActive = request()->routeIs('teams.information')
             || request()->routeIs('teams.members')
-            || request()->routeIs('team-announcements.index')
             || request()->routeIs('teams.system-settings')
             || request()->routeIs('teams.create');
     }
@@ -181,24 +177,6 @@ class NavigationMenu extends Component
         }
 
         return $this->user->unreadNotifications->count();
-    }
-
-    /**
-     * Get the unread announcements count.
-     */
-    #[On('refresh-navigation-menu')]
-    #[Computed]
-    public function unreadAnnouncementsCount(): int
-    {
-        if (! $this->user || ! Features::hasTeamAnnouncements()) {
-            return 0;
-        }
-
-        if (! $this->user->currentTeam) {
-            return 0;
-        }
-
-        return \App\Models\TeamAnnouncement::getUnreadCountForUser($this->user);
     }
 
     /**

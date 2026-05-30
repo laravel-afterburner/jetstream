@@ -42,6 +42,29 @@ public function boot(): void
 - **`permission`** (optional): Callable that receives user, returns boolean
 - **`active`** (optional): Callable that returns boolean for active state
 - **`badge`** (optional): Integer or callable returning count for badge display
+- **`children`** (optional): Array of child items with the same shape (except `children` and `order`). Parent items with children render as dropdown menus. Child badges are summed onto the parent when the parent has no badge.
+
+## Nested menus
+
+Register a parent item with `children` for dropdown navigation (for example, a **Chat** menu with **Discussions**, **Announcements**, and **Chat Log**):
+
+```php
+Navigation::register([
+    'label' => 'Chat',
+    'icon' => 'chat-bubble-left-right',
+    'order' => 25,
+    'children' => [
+        [
+            'label' => 'Discussions',
+            'route' => 'teams.discussions.index',
+            'route_params' => fn () => ['team' => auth()->user()?->currentTeam?->id],
+            'permission' => fn ($user) => $user?->currentTeam !== null,
+            'active' => fn () => request()->routeIs('teams.discussions.*'),
+        ],
+    ],
+    'active' => fn () => request()->routeIs('teams.discussions.*'),
+]);
+```
 
 ## Notes
 

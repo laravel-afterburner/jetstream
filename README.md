@@ -4,7 +4,7 @@ A production-ready Laravel application template featuring teams, custom roles & 
 
 ## What is Afterburner?
 
-Afterburner Jetstream is a complete Laravel application starter template that provides a powerful multi-tenancy foundation. This template includes everything you need to build team-based applications: authentication, team management, custom roles and permissions, audit logging, team announcements, and more.
+Afterburner Jetstream is a complete Laravel application starter template that provides a powerful multi-tenancy foundation. This template includes everything you need to build team-based applications: authentication, team management, custom roles and permissions, audit logging, and more.
 
 Built as a self-contained successor to Laravel Jetstream, Afterburner vendors all necessary functionality directly into your application, giving you complete control without external dependencies. Perfect for SaaS applications, team collaboration tools, or any multi-tenant application requiring fine-grained access control.
 
@@ -57,16 +57,6 @@ Built as a self-contained successor to Laravel Jetstream, Afterburner vendors al
 - **Team Owner Access** - Team owners automatically have full permissions within their team
 
 ### Team Features
-
-- **Team Announcements** - Publishable announcements per team
-
-  - Scheduled publishing
-
-  - Email notifications
-
-  - Role-based targeting
-
-  - Read/unread tracking
 
 - **Team Members Management** - Add, remove, and update team members
 
@@ -305,7 +295,7 @@ Then run: `php artisan db:seed --class=RolesSeeder`
 Afterburner provides several Artisan commands:
 
 ### Installation & Publishing
-- `afterburner:install` - Publish and install Afterburner packages (documents, voting, meetings when present). Options: `--force`, `--no-migrate`, `--no-seed`
+- `afterburner:install` - Publish and install Afterburner packages (documents, voting, meetings, communications when present). Options: `--force`, `--no-migrate`, `--no-seed`
 - `afterburner:publish` - Publish all Afterburner assets (config, migrations, views)
 
 ### Feature Flags
@@ -316,7 +306,6 @@ All feature flag commands support the `--disabled` flag to disable features, and
 - `afterburner:biometric` - Enable/disable biometric authentication (WebAuthn) feature
 - `afterburner:personal-teams` - Enable/disable personal teams feature
 - `afterburner:profile-photos` - Enable/disable profile photos feature
-- `afterburner:team-announcements` - Enable/disable team announcements feature
 - `afterburner:teams` - Enable/disable teams feature
 - `afterburner:terms-and-privacy-policy` - Enable/disable terms and privacy policy feature
 - `afterburner:timezone` - Enable/disable timezone management feature
@@ -417,7 +406,7 @@ Full documentation is available in the [docs](docs/) directory of this repositor
 
 - [Audit Logging](docs/audit-logging.md)
 
-- [Team Announcements](docs/team-announcements.md)
+- [Communications package](https://github.com/laravel-afterburner/communications) (announcements, discussions, chat log)
 
 - [API Documentation](docs/api.md)
 

@@ -12,7 +12,7 @@ class InstallCommand extends Command
                             {--no-migrate : Skip running migrations}
                             {--no-seed : Skip seeding package permissions}';
 
-    protected $description = 'Install Afterburner packages (documents, voting, meetings when present)';
+    protected $description = 'Install Afterburner packages (documents, voting, meetings, communications when present)';
 
     public function handle(): int
     {
@@ -24,6 +24,7 @@ class InstallCommand extends Command
             'Documents' => ['afterburner-documents-config', 'afterburner-documents-assets'],
             'Voting' => ['afterburner-voting-config', 'afterburner-voting-assets'],
             'Meetings' => ['afterburner-meetings-config', 'afterburner-meetings-assets'],
+            'Communications' => ['afterburner-communications-config', 'afterburner-communications-assets'],
         ];
 
         foreach ($publishGroups as $label => $tags) {
