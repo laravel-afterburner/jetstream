@@ -16,7 +16,6 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->integer('hierarchy')->default(999); // Lower = higher priority
             $table->string('badge_color')->default('bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300');
-            $table->string('icon')->default('member.svg');
             $table->integer('max_members')->nullable();
             $table->timestamps();
         });
@@ -42,7 +41,7 @@ return new class extends Migration
             $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnDelete();
             $table->timestamps();
             $table->unique(['user_id', 'role_id', 'team_id']);
-            
+
             // Indexes for improved query performance
             $table->index('team_id', 'user_role_team_id_index');
             $table->index(['team_id', 'user_id'], 'user_role_team_user_index');

@@ -177,13 +177,20 @@ New projects created via `composer create-project` run migrations, seed the data
 
 ### Environment Variables
 
-Afterburner uses the following environment variables (see `.env.example` for details):
+Afterburner keeps install-time settings in `config/afterburner.php` (entity label, features, team policy). `.env` is for deployment secrets and infrastructure only — see `.env.example`.
 
-- `AFTERBURNER_ENTITY_LABEL` - Label for teams/organizations (default: `organization`)
-- `AFTERBURNER_ENTITY_URL_SLUG` - Optional. URL segment for entity routes (default: plural of entity_label, e.g. `household` → `households`)
-- `AFTERBURNER_APP_TYPE` - Application type (default: `Management App`)
-- `AFTERBURNER_GUARD` - Authentication guard (default: `sanctum`)
-- `AFTERBURNER_PROFILE_PHOTO_DISK` - Profile photo storage disk (default: `public`)
+Package install commands append secrets when needed:
+
+- `AFTERBURNER_DOCUMENTS_R2_*` — Cloudflare R2 credentials (Documents package)
+- `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` — Subscriptions package
+
+### Fresh install seeding
+
+```bash
+php artisan afterburner:seed-install
+```
+
+Optional flags: `--entity=`, `--admin-name=`, `--admin-email=`, `--skip-admin`, `--skip-packages`. The `afterburner new` installer passes these when you seed during setup. System admin seeding is skipped in production.
 
 ### Configuration File
 

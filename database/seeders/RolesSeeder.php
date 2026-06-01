@@ -12,12 +12,12 @@ class RolesSeeder extends Seeder
     /**
      * Run the database seeds.
      * 
-     * @param string|null $template The role template to use. Can be set via: $this->call(RolesSeeder::class, ['template' => 'team']);
-     *                              Defaults to env('AFTERBURNER_ENTITY_LABEL') if set, otherwise 'company'.
+     * @param string|null $template The role template to use. Can be set via: $this->call(RolesSeeder::class, false, ['template' => 'team']);
+     *                              Defaults to config('afterburner.entity_label').
      */
     public function run(?string $template = null): void
     {
-        $template = $template ?? (env('AFTERBURNER_ENTITY_LABEL') ?? 'company');
+        $template = $template ?? config('afterburner.entity_label', 'company');
         
         $templateData = RoleTemplates::get($template);
 

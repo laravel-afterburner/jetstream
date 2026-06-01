@@ -57,7 +57,7 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi",
-            "@php artisan db:seed --force --ansi",
+            "@php artisan afterburner:seed-install --force --ansi",
             "@php artisan afterburner:install --force --no-interaction --ansi"
         ],
         "dev": [

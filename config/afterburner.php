@@ -4,13 +4,11 @@ use App\Http\Middleware\AuthenticateSession;
 use App\Support\Features;
 use Illuminate\Support\Str;
 
-$entityLabel = env('AFTERBURNER_ENTITY_LABEL', 'company');
-$appType = env('AFTERBURNER_APP_TYPE', 'Management App');
-$appName = Str::title($entityLabel).' '.$appType;
+$entityLabel = 'company';
+$entityUrlSlug = $entityLabel === 'strata' ? 'strata' : Str::plural(strtolower($entityLabel));
+$appType = 'Management App';
 
-// URL slug for entity routes (plural form). Defaults to pluralized entity_label.
-// Override via AFTERBURNER_ENTITY_URL_SLUG for irregular plurals (e.g. strata).
-$entityUrlSlug = env('AFTERBURNER_ENTITY_URL_SLUG') ?? Str::plural(strtolower($entityLabel));
+$appName = Str::title($entityLabel).' '.$appType;
 
 return [
 
@@ -111,7 +109,7 @@ return [
     |
     */
 
-    'guard' => env('AFTERBURNER_GUARD', 'sanctum'),
+    'guard' => 'sanctum',
 
     /*
     |--------------------------------------------------------------------------
@@ -180,7 +178,7 @@ return [
     |
     */
 
-    'profile_photo_disk' => env('AFTERBURNER_PROFILE_PHOTO_DISK', 'public'),
+    'profile_photo_disk' => 'public',
 
     /*
     |--------------------------------------------------------------------------
@@ -222,6 +220,6 @@ return [
     |
     */
 
-    'allow_team_creation' => env('AFTERBURNER_ALLOW_TEAM_CREATION', true),
+    'allow_team_creation' => true,
 
 ];

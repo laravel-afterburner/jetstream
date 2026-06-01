@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('set null');
             $table->string('name');
+            $table->text('notes')->nullable();
             $table->string('filename');
             $table->string('mime_type');
             $table->unsignedBigInteger('size');
@@ -26,7 +27,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Indexes
             $table->index('team_id');
             $table->index('folder_id');
             $table->index('upload_status');
@@ -42,4 +42,3 @@ return new class extends Migration
         Schema::dropIfExists('documents');
     }
 };
-

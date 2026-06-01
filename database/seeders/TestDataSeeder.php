@@ -24,7 +24,7 @@ class TestDataSeeder extends Seeder
         }
 
         // Get the system admin user from SystemAdminSeeder
-        $systemAdmin = User::where('email', 'andrew@laravel-afterburner.com')->first();
+        $systemAdmin = User::where('email', SystemAdminSeeder::installEmail())->first();
        
         if (!$systemAdmin) {
             $this->command->error('System Admin does not exist. Test data seeder aborted.');

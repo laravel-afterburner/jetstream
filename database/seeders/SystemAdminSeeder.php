@@ -9,66 +9,97 @@ use Illuminate\Support\Facades\Hash;
 
 class SystemAdminSeeder extends Seeder
 {
+    public const DEFAULT_NAME = 'Laravel Afterburner';
+
+    public const DEFAULT_EMAIL = 'admin@laravel-afterburner.com';
+
+    private const DEFAULT_PASSWORD = 'Afterburner';
+
+    protected static ?string $installName = null;
+
+    protected static ?string $installEmail = null;
+
+    public static function configureInstall(?string $name = null, ?string $email = null): void
+    {
+        static::$installName = $name;
+        static::$installEmail = $email;
+    }
+
+    public static function installEmail(): string
+    {
+        return static::$installEmail ?? static::DEFAULT_EMAIL;
+    }
+
+    public static function installName(): string
+    {
+        return static::$installName ?? static::DEFAULT_NAME;
+    }
+
     public function run(): void
     {
-        $user = User::create([
-            'name' => env('AFTERBURNER_USERNAME', 'Laravel Afterburner'),
-            'email' => env('AFTERBURNER_EMAIL', 'admin@laravel-afterburner.com'),
-            'password' => Hash::make('Afterburner'),
-            'email_verified_at' => now(),
-            'is_system_admin' => true,
-        ]);
+        if (app()->environment('production')) {
+            if (isset($this->command)) {
+                $this->command->info('Skipping SystemAdminSeeder in production.');
+            }
 
-        // Check if teams feature is enabled
+            return;
+        }
+
+        $user = User::firstOrCreate(
+            ['email' => static::installEmail()],
+            [
+                'name' => static::installName(),
+                'password' => Hash::make(self::DEFAULT_PASSWORD),
+                'email_verified_at' => now(),
+                'is_system_admin' => true,
+            ]
+        );
+
         if (\App\Support\Features::hasTeamFeatures()) {
-            // Teams enabled - create team and assign team-based roles
-            // Check if personal teams feature is enabled
             $isPersonalTeam = \App\Support\Features::hasPersonalTeams();
-            
-            $team = Team::create([
-                'user_id' => $user->id,
-                'name' => 'System Admin',
-                'personal_team' => $isPersonalTeam,
-            ]);
+
+            $team = Team::firstOrCreate(
+                ['user_id' => $user->id, 'name' => 'System Admin'],
+                ['personal_team' => $isPersonalTeam]
+            );
 
             $user->update([
                 'current_team_id' => $team->id,
             ]);
 
-            // Attach user to team
-            $team->users()->attach($user);
+            if (! $team->users()->where('user_id', $user->id)->exists()) {
+                $team->users()->attach($user);
+            }
 
-            // Assign default role (works with any template)
             $defaultRole = \App\Models\Role::where('is_default', true)->first();
             if ($defaultRole) {
                 $user->assignRole($defaultRole->slug, $team->id);
             }
 
-            // Assign lead role (try team_lead first for team template, fallback to president for strata template, or highest hierarchy)
             $leadRole = \App\Models\Role::where('slug', 'team_lead')->first()
                 ?? \App\Models\Role::where('slug', 'president')->first()
                 ?? \App\Models\Role::where('hierarchy', 1)->first();
-            
+
             if ($leadRole) {
                 $user->assignRole($leadRole->slug, $team->id);
             }
         } else {
-            // Teams disabled - assign global roles (null team_id)
             $defaultRole = \App\Models\Role::where('is_default', true)->first();
             if ($defaultRole) {
                 $user->assignRole($defaultRole->slug, null);
             }
 
-            // Assign lead role globally
             $leadRole = \App\Models\Role::where('slug', 'team_lead')->first()
                 ?? \App\Models\Role::where('slug', 'president')->first()
                 ?? \App\Models\Role::where('hierarchy', 1)->first();
-            
+
             if ($leadRole) {
                 $user->assignRole($leadRole->slug, null);
             }
         }
 
-        $this->command->info('System admin data seeded successfully!');
+        if (isset($this->command)) {
+            $this->command->info('System admin data seeded successfully!');
+        }
     }
 }
