@@ -295,8 +295,9 @@ Then run: `php artisan db:seed --class=RolesSeeder`
 Afterburner provides several Artisan commands:
 
 ### Installation & Publishing
-- `afterburner:install` - Publish and install Afterburner packages (documents, voting, meetings, communications when present). Options: `--force`, `--no-migrate`, `--no-seed`
-- `afterburner:publish` - Publish all Afterburner assets (config, migrations, views)
+- `afterburner:install` - Publish package config and install Afterburner packages (config only by default). Options: `--force`, `--with-views`, `--no-migrate`, `--no-seed`
+- `afterburner:publish` - Publish package view assets for intentional host customizations (`--tag`, `--force`)
+- `afterburner:audit-integration` - Fail when package integration violates host conventions (unchanged published views, app-level view forks, etc.)
 
 ### Feature Flags
 All feature flag commands support the `--disabled` flag to disable features, and `--force` to skip confirmation prompts. By default, commands enable the feature.
@@ -451,7 +452,9 @@ composer require laravel-afterburner/meetings
 php artisan afterburner:install
 ```
 
-The install command publishes package config and assets, runs migrations, and seeds package permissions. Use `--no-migrate` or `--no-seed` to skip those steps when needed.
+The install command publishes package config (not views by default), runs migrations, and seeds package permissions. Use `--with-views` only when you plan to customize published Blade files. Use `--no-migrate` or `--no-seed` to skip those steps when needed.
+
+See [Package Integration](docs/package-integration.md) for how to customize package UI without bulk-copying views.
 
 ## Contributing
 

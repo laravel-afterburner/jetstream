@@ -8,12 +8,6 @@ return [
         'enabled' => env('AFTERBURNER_COMMUNICATIONS_DISCUSSIONS_ENABLED', true),
     ],
 
-    'communication_log' => [
-        'enabled' => env('AFTERBURNER_COMMUNICATIONS_LOG_ENABLED', true),
-        'log_notification_mail' => true,
-        'log_notification_database' => true,
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | Council role slugs (discussion scope: council)
@@ -31,7 +25,6 @@ return [
     'audit' => [
         'skip_routes' => [
             'teams.discussions.*',
-            'teams.communication-log.*',
             'team-announcements.*',
         ],
     ],

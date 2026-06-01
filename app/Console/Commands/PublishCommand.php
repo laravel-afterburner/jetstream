@@ -7,37 +7,48 @@ use Illuminate\Console\Command;
 class PublishCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Vendor publish tags that copy package views into resources/views/vendor/.
      *
-     * @var string
+     * @var list<string>
      */
+    public const VIEW_ASSET_TAGS = [
+        'afterburner-documents-assets',
+        'afterburner-communications-assets',
+        'afterburner-meetings-assets',
+        'afterburner-voting-assets',
+        'afterburner-subscriptions-assets',
+        'afterburner-playbook-assets',
+    ];
+
     protected $signature = 'afterburner:publish
-                            {--tag=* : The tag(s) to publish}
+                            {--tag=* : The view asset tag(s) to publish (default: all Afterburner packages)}
                             {--force : Overwrite existing files}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Publish all Afterburner assets (config, migrations, views)';
+    protected $description = 'Publish Afterburner package views for intentional host customizations';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
-        $this->info('Publishing Afterburner assets...');
+        $tags = $this->option('tag') ?: self::VIEW_ASSET_TAGS;
 
-        // TODO: Implement asset publishing logic
-        // - Publish config files
-        // - Publish migrations
-        // - Publish views
-        // Note: Does NOT modify .env.example (use afterburner:install for that)
+        $this->info('Publishing Afterburner vendor views...');
+        $this->comment('Publish only the files you plan to customize. Unchanged copies override package views and create drift — delete them after editing.');
 
-        $this->comment('This command is a placeholder and will be implemented in a future step.');
+        foreach ($tags as $tag) {
+            $this->components->task($tag, function () use ($tag) {
+                $this->callSilently('vendor:publish', array_filter([
+                    '--tag' => $tag,
+                    '--force' => $this->option('force') ? true : null,
+                ]));
+
+                return true;
+            });
+        }
+
+        $this->newLine();
+        $this->comment('Customized files under resources/views/vendor/afterburner-* override package views when present.');
+        $this->comment('Delete unchanged copies — path-repo package source is the default.');
+        $this->comment('Run `php artisan afterburner:audit-integration` after publishing.');
 
         return Command::SUCCESS;
     }
 }
-

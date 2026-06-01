@@ -19,9 +19,8 @@ class ArtisanCommandsTest extends TestCase
 
     public function test_publish_command_exists(): void
     {
-        $this->artisan('afterburner:publish')
-            ->expectsOutput('Publishing Afterburner assets...')
-            ->expectsOutput('This command is a placeholder and will be implemented in a future step.')
+        $this->artisan('afterburner:publish', ['--tag' => ['afterburner-meetings-assets-nonexistent']])
+            ->expectsOutput('Publishing Afterburner vendor views...')
             ->assertExitCode(0);
     }
 
@@ -57,10 +56,12 @@ class ArtisanCommandsTest extends TestCase
 
     public function test_publish_command_accepts_options(): void
     {
-        $this->artisan('afterburner:publish', ['--tag' => ['test']])
+        $this->artisan('afterburner:publish', ['--tag' => ['afterburner-meetings-assets-nonexistent']])
             ->assertExitCode(0);
 
-        $this->artisan('afterburner:publish', ['--force' => true])
-            ->assertExitCode(0);
+        $this->artisan('afterburner:publish', [
+            '--tag' => ['afterburner-meetings-assets-nonexistent'],
+            '--force' => true,
+        ])->assertExitCode(0);
     }
 }

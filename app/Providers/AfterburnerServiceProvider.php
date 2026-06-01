@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\Team;
 use App\Policies\RolePolicy;
 use App\Policies\TeamPolicy;
+use App\Support\AfterburnerPublishedViews;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +29,10 @@ class AfterburnerServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        foreach (AfterburnerPublishedViews::customizedNamespaces() as $namespace) {
+            $this->loadViewsFrom(resource_path('views/vendor/'.$namespace), $namespace);
+        }
+
         // Register TeamPolicy with Laravel's Gate
         Gate::policy(Team::class, TeamPolicy::class);
 
