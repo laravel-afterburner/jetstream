@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TeamPolicy
@@ -32,7 +33,7 @@ class TeamPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return Features::allowsTeamCreation();
     }
 
     /**
@@ -101,6 +102,10 @@ class TeamPolicy
      */
     public function delete(User $user, Team $team): bool
     {
+        if (! Features::hasTeamDeletionFeatures()) {
+            return false;
+        }
+
         // Team owners can always delete
         if ($user->ownsTeam($team)) {
             return true;

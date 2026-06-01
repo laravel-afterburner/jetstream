@@ -132,6 +132,7 @@ return [
         Features::teams(),
         Features::personalTeams(),
         Features::teamTimezone(),
+        Features::teamDeletion(),
 
         // Authentication & Security
         Features::emailVerification(),
@@ -208,5 +209,19 @@ return [
         'max_height' => 800,
         'quality' => 85,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Allow Team Creation
+    |--------------------------------------------------------------------------
+    |
+    | When false, users cannot register or create new organizations. Existing users
+    | invited by email are added to that organization automatically. New users still
+    | register via invitation links. Users without an organization can access profile,
+    | security, and notifications without being prompted to create one.
+    |
+    */
+
+    'allow_team_creation' => env('AFTERBURNER_ALLOW_TEAM_CREATION', true),
 
 ];

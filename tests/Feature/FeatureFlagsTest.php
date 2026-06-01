@@ -15,6 +15,7 @@ class FeatureFlagsTest extends TestCase
         // Test that feature flag methods exist and return boolean values
         $this->assertIsBool(Features::hasTeamFeatures());
         $this->assertIsBool(Features::hasPersonalTeams());
+        $this->assertIsBool(Features::hasTeamDeletionFeatures());
         $this->assertIsBool(Features::hasApiFeatures());
         $this->assertIsBool(Features::managesProfilePhotos());
     }
@@ -24,6 +25,7 @@ class FeatureFlagsTest extends TestCase
         // Test that feature flags fall back to config values
         // These should match the defaults in config/afterburner.php
         $this->assertTrue(Features::hasTeamFeatures());
+        $this->assertTrue(Features::hasTeamDeletionFeatures());
         $this->assertTrue(Features::hasPersonalTeams()); // Enabled in config/afterburner.php
     }
 

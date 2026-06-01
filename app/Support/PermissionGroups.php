@@ -13,7 +13,7 @@ class PermissionGroups
      */
     public static function definitions(): array
     {
-        return [
+        $definitions = [
             'Team Administration' => [
                 'manage_users',
                 'manage_team_settings',
@@ -54,9 +54,17 @@ class PermissionGroups
                 'assign_tasks',
                 'view_reports',
                 'manage_programs',
-                'post_announcements',
             ],
         ];
+
+        foreach (PermissionGroupsRegistry::all() as $label => $slugs) {
+            $definitions[$label] = array_values(array_unique(array_merge(
+                $definitions[$label] ?? [],
+                $slugs
+            )));
+        }
+
+        return $definitions;
     }
 
     /**

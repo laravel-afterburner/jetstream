@@ -43,7 +43,6 @@ class RoleManager extends Component
         'name' => '',
         'description' => '',
         'badge_color' => 'gray',
-        'icon' => 'member.svg',
         'max_members' => null,
         'permissions' => [],
     ];
@@ -72,7 +71,6 @@ class RoleManager extends Component
         'slug' => '',
         'description' => '',
         'badge_color' => 'gray',
-        'icon' => 'member.svg',
         'max_members' => null,
         'permissions' => [],
     ];
@@ -169,7 +167,6 @@ class RoleManager extends Component
             'createRoleForm.name' => 'required|string|max:255|unique:roles,name',
             'createRoleForm.description' => 'nullable|string|max:500',
             'createRoleForm.badge_color' => 'required|string',
-            'createRoleForm.icon' => 'required|string',
             'createRoleForm.max_members' => 'nullable|integer|min:1',
         ], [
             'createRoleForm.name.unique' => 'This role name has already been taken.',
@@ -177,7 +174,6 @@ class RoleManager extends Component
             'createRoleForm.name.max' => 'The role name may not be greater than 255 characters.',
             'createRoleForm.description.max' => 'The description may not be greater than 500 characters.',
             'createRoleForm.badge_color.required' => 'The badge color field is required.',
-            'createRoleForm.icon.required' => 'The icon field is required.',
             'createRoleForm.max_members.integer' => 'The member limit must be a number.',
             'createRoleForm.max_members.min' => 'The member limit must be at least 1.',
         ]);
@@ -190,7 +186,6 @@ class RoleManager extends Component
             'slug' => $slug,
             'description' => $this->createRoleForm['description'],
             'badge_color' => $this->createRoleForm['badge_color'],
-            'icon' => $this->createRoleForm['icon'],
             'hierarchy' => $maxHierarchy + 1,
             'max_members' => $this->createRoleForm['max_members'],
             'is_default' => false,
@@ -225,7 +220,6 @@ class RoleManager extends Component
             'slug' => $role->slug,
             'description' => $role->description,
             'badge_color' => $role->badge_color ?: 'gray',
-            'icon' => $role->icon ?: 'member.svg',
             'max_members' => $role->max_members,
             'permissions' => $role->permissions->pluck('id')->toArray(),
         ];
@@ -253,7 +247,6 @@ class RoleManager extends Component
             'name' => $role->name . ' (Copy)',
             'description' => $role->description,
             'badge_color' => $role->badge_color ?: 'gray',
-            'icon' => $role->icon ?: 'member.svg',
             'max_members' => $role->max_members,
             'permissions' => $role->permissions->pluck('id')->toArray(),
         ];
@@ -297,7 +290,6 @@ class RoleManager extends Component
             'editRoleForm.name' => 'required|string|max:255|unique:roles,name,' . $this->roleBeingEdited->id,
             'editRoleForm.description' => 'nullable|string|max:500',
             'editRoleForm.badge_color' => 'required|string',
-            'editRoleForm.icon' => 'required|string',
             'editRoleForm.max_members' => 'nullable|integer|min:1',
         ], [
             'editRoleForm.name.unique' => 'This role name has already been taken.',
@@ -305,7 +297,6 @@ class RoleManager extends Component
             'editRoleForm.name.max' => 'The role name may not be greater than 255 characters.',
             'editRoleForm.description.max' => 'The description may not be greater than 500 characters.',
             'editRoleForm.badge_color.required' => 'The badge color field is required.',
-            'editRoleForm.icon.required' => 'The icon field is required.',
             'editRoleForm.max_members.integer' => 'The member limit must be a number.',
             'editRoleForm.max_members.min' => 'The member limit must be at least 1.',
         ]);
@@ -316,7 +307,6 @@ class RoleManager extends Component
             'slug' => $newSlug,
             'description' => $this->editRoleForm['description'],
             'badge_color' => $this->editRoleForm['badge_color'],
-            'icon' => $this->editRoleForm['icon'],
             'max_members' => $this->editRoleForm['max_members'],
         ];
 
@@ -413,7 +403,6 @@ class RoleManager extends Component
             'name' => '',
             'description' => '',
             'badge_color' => 'gray',
-            'icon' => 'member.svg',
             'max_members' => null,
             'permissions' => [],
         ];
@@ -433,7 +422,6 @@ class RoleManager extends Component
             'slug' => '',
             'description' => '',
             'badge_color' => 'gray',
-            'icon' => 'member.svg',
             'max_members' => null,
             'permissions' => [],
         ];
@@ -537,46 +525,6 @@ class RoleManager extends Component
         }
 
         $this->dispatch('saved');
-    }
-
-    /**
-     * Get the icon path for a role.
-     */
-    public function getRoleIcon($roleSlug)
-    {
-        // First try to get the icon from the database
-        $role = Role::where('slug', $roleSlug)->first();
-        if ($role && $role->icon) {
-            return $role->icon;
-        }
-
-        // Fallback to the old hardcoded mapping for backward compatibility
-        $iconMap = [
-            'president' => 'leader.svg',
-            'vice_president' => 'deputy.svg',
-            'treasurer' => 'finance.svg',
-            'secretary' => 'records.svg',
-            'council_member' => 'governance.svg',
-            'strata_member' => 'member.svg',
-        ];
-
-        return $iconMap[$roleSlug] ?? 'member.svg';
-    }
-
-    /**
-     * Get available icon options for role selection.
-     */
-    public function getIconOptions()
-    {
-        return config('role-icons.options', []);
-    }
-
-    /**
-     * Get icon options for the view.
-     */
-    public function getIconOptionsProperty()
-    {
-        return $this->getIconOptions();
     }
 
     /**

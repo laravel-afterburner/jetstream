@@ -349,6 +349,7 @@ The template includes several utility classes in `App\Support`:
 - `OwnerRole` - Helper class for owner role
 - `Role` - Support class for role definitions
 - `PermissionGroups` - Groups permissions for the role manager UI
+- `PermissionGroupsRegistry` - Register permission groups from packages for the role manager UI
 - `PackageSeederRegistry` - Register package seeders for `afterburner:install` and `db:seed`
 - `SystemSettings` - Register Livewire sections on the team System Settings page
 - `TeamNavigation` - Register items in the team dropdown navigation menu
@@ -363,6 +364,7 @@ use App\Support\SystemSettings;
 use App\Support\TeamNavigation;
 use App\Support\SystemAdminNavigation;
 use App\Support\PackageSeederRegistry;
+use App\Support\PermissionGroupsRegistry;
 
 // Team System Settings page (/{entity}/{team}/system-settings)
 SystemSettings::register([
@@ -386,6 +388,13 @@ SystemAdminNavigation::register([
     'label' => 'Audit Log',
     'route' => 'audit.index',
     'order' => 20,
+]);
+
+// Role manager permission groups (packages register their own slugs)
+PermissionGroupsRegistry::register('Communications', [
+    'post_announcements',
+    'manage_discussions',
+    'view_communication_log',
 ]);
 
 // Package permission seeders (called by afterburner:install and DatabaseSeeder)

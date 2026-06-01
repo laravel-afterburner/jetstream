@@ -42,8 +42,15 @@ class Navigation
                 return true;
             })
             ->map(function ($item) {
-                return self::resolveItem($item);
+                $item = self::resolveItem($item);
+
+                if (! self::userHasCurrentTeam() && self::requiresTeamContext($item)) {
+                    return null;
+                }
+
+                return $item;
             })
+            ->filter()
             ->filter(function ($item) {
                 if (! empty($item['children'])) {
                     return count($item['children']) > 0;
@@ -53,6 +60,28 @@ class Navigation
             })
             ->sortBy('order')
             ->values();
+    }
+
+    protected static function userHasCurrentTeam(): bool
+    {
+        return (bool) auth()->user()?->currentTeam;
+    }
+
+    protected static function requiresTeamContext(array $item): bool
+    {
+        if (! empty($item['route']) && str_starts_with($item['route'], 'teams.')) {
+            return true;
+        }
+
+        if (! empty($item['children'])) {
+            foreach ($item['children'] as $child) {
+                if (self::requiresTeamContext($child)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -71,6 +100,10 @@ class Navigation
         if (isset($item['children']) && is_array($item['children'])) {
             $item['children'] = collect($item['children'])
                 ->filter(function ($child) {
+                    if (! self::userHasCurrentTeam() && self::requiresTeamContext($child)) {
+                        return false;
+                    }
+
                     if (isset($child['permission']) && is_callable($child['permission'])) {
                         return $child['permission'](auth()->user());
                     }

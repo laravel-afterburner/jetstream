@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\FeatureFlag;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Livewire\Teams\DeleteTeamForm;
 use Livewire\Livewire;
@@ -15,6 +17,10 @@ class DeleteTeamTest extends TestCase
 
     public function test_teams_can_be_deleted(): void
     {
+        if (! Features::hasTeamDeletionFeatures()) {
+            $this->markTestSkipped('Team deletion is not enabled.');
+        }
+
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
         $user->ownedTeams()->save($team = Team::factory()->make([
@@ -35,9 +41,13 @@ class DeleteTeamTest extends TestCase
 
     public function test_personal_teams_cant_be_deleted_when_feature_enabled(): void
     {
+        if (! Features::hasTeamDeletionFeatures()) {
+            $this->markTestSkipped('Team deletion is not enabled.');
+        }
+
         // Enable personal teams feature
-        \App\Models\FeatureFlag::updateOrCreate(
-            ['key' => \App\Support\Features::personalTeams()],
+        FeatureFlag::updateOrCreate(
+            ['key' => Features::personalTeams()],
             ['enabled' => true]
         );
 
@@ -48,5 +58,27 @@ class DeleteTeamTest extends TestCase
             ->assertHasErrors(['team']);
 
         $this->assertNotNull($user->currentTeam->fresh());
+    }
+
+    public function test_teams_cannot_be_deleted_when_feature_disabled(): void
+    {
+        FeatureFlag::updateOrCreate(
+            ['key' => Features::teamDeletion()],
+            ['enabled' => false]
+        );
+
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+
+        $user->ownedTeams()->save($team = Team::factory()->make([
+            'personal_team' => false,
+        ]));
+
+        $this->assertFalse($user->can('delete', $team));
+
+        Livewire::test(DeleteTeamForm::class, ['team' => $team->fresh()])
+            ->call('deleteTeam')
+            ->assertForbidden();
+
+        $this->assertNull($team->fresh()->deleted_at);
     }
 }

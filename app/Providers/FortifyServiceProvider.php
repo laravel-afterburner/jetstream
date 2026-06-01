@@ -32,6 +32,14 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::viewPrefix('auth.');
 
+        Fortify::registerView(function () {
+            if (! AfterburnerFeatures::allowsTeamCreation() && ! request()->filled('invitation')) {
+                abort(404);
+            }
+
+            return view('auth.register');
+        });
+
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);

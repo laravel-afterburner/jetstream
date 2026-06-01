@@ -6,7 +6,7 @@
     </h1>
 
     <p class="mt-6 text-gray-500 dark:text-gray-400 leading-relaxed">
-        Afterburner is a complete Laravel application starter template that provides a powerful multi-tenancy foundation. This template includes everything you need to build team-based applications: authentication, team management, custom roles and permissions, audit logging, team announcements, and more.
+        Afterburner is a complete Laravel application starter template that provides a powerful multi-tenancy foundation. This template includes everything you need to build team-based applications: authentication, team management, custom roles and permissions, audit logging, and more.
     </p>
     <p class="mt-6 text-gray-500 dark:text-gray-400 leading-relaxed">
         Built as a self-contained successor to Laravel Jetstream, Afterburner vendors all necessary functionality directly into your application, giving you complete control without external dependencies. Perfect for SaaS applications, team collaboration tools, or any multi-tenant application requiring fine-grained access control.

@@ -21,7 +21,6 @@ class Role extends Model
         'is_default',
         'hierarchy',
         'badge_color',
-        'icon',
         'max_members',
     ];
 

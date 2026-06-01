@@ -37,6 +37,18 @@ class ArtisanCommandsTest extends TestCase
             ->assertExitCode(0);
     }
 
+    public function test_team_deletion_command_exists(): void
+    {
+        $this->artisan('afterburner:team-deletion --help')
+            ->assertExitCode(0);
+    }
+
+    public function test_team_deletion_command_accepts_disabled_flag(): void
+    {
+        $this->artisan('afterburner:team-deletion', ['--disabled' => true, '--force' => true])
+            ->assertExitCode(0);
+    }
+
     public function test_install_command_accepts_options(): void
     {
         $this->artisan('afterburner:install', ['--no-migrate' => true, '--no-seed' => true, '--force' => true])

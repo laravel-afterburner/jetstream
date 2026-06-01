@@ -95,6 +95,14 @@ class Features
     }
 
     /**
+     * Determine if users may register or create new organizations without an invitation.
+     */
+    public static function allowsTeamCreation(): bool
+    {
+        return (bool) config('afterburner.allow_team_creation', true);
+    }
+
+    /**
      * Determine if invitations are sent to team members.
      * Invitations are always enabled when teams are enabled.
      *
@@ -123,6 +131,16 @@ class Features
     public static function hasAccountDeletionFeatures()
     {
         return static::enabled(static::accountDeletion());
+    }
+
+    /**
+     * Determine if the application is using team deletion features.
+     *
+     * @return bool
+     */
+    public static function hasTeamDeletionFeatures()
+    {
+        return static::enabled(static::teamDeletion());
     }
 
     /**
@@ -176,6 +194,16 @@ class Features
     public static function accountDeletion()
     {
         return 'account_deletion';
+    }
+
+    /**
+     * Enable the team deletion feature.
+     *
+     * @return string
+     */
+    public static function teamDeletion()
+    {
+        return 'team_deletion';
     }
 
     /**
@@ -372,6 +400,11 @@ class Features
                 'group' => 'Teams & Collaboration',
                 'name' => 'Team Timezone',
                 'description' => 'Allow teams to set and manage their timezone preferences',
+            ],
+            static::teamDeletion() => [
+                'group' => 'Teams & Collaboration',
+                'name' => 'Team Deletion',
+                'description' => 'Allow team owners and authorized users to delete teams',
             ],
             
             // Authentication & Security

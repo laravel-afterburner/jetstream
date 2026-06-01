@@ -258,27 +258,14 @@ class MemberManager extends Component
             // Reset the declined status
             $invitation->update(['declined_at' => null]);
             
-            // Send new notification with rate limiting
-            $existingUser = User::where('email', $invitation->email)->first();
-            $rateLimiter = app(\App\Services\EmailRateLimiter::class);
-            
-            if ($existingUser) {
-                if ($rateLimiter->canSendToUser($existingUser)) {
-                    $existingUser->notify(new TeamInvitationNotification($invitation));
-                    $rateLimiter->incrementLimits($existingUser, $invitation->email);
-                } else {
-                    $this->banner(__('Email rate limit exceeded. Please try again later.'), 'error');
-                    return;
-                }
-            } else {
-                if ($rateLimiter->canSendToAddress($invitation->email)) {
-                    Notification::route('mail', $invitation->email)
-                        ->notify(new TeamInvitationRegistrationRequired($invitation));
-                    $rateLimiter->incrementLimits(null, $invitation->email);
-                } else {
-                    $this->banner(__('Email rate limit exceeded. Please try again later.'), 'error');
-                    return;
-                }
+            try {
+                app(InviteTeamMember::class)->deliverInvitation($invitation);
+            } catch (\Illuminate\Validation\ValidationException $exception) {
+                $message = collect($exception->errors())->flatten()->first()
+                    ?? __('Email rate limit exceeded. Please try again later.');
+                $this->banner($message, 'error');
+
+                return;
             }
         }
 
@@ -597,30 +584,6 @@ class MemberManager extends Component
         }
 
         return Role::where('slug', $roleSlug)->value('name');
-    }
-
-    /**
-     * Get the icon path for a role.
-     */
-    public function getRoleIcon($roleSlug)
-    {
-        // First try to get the icon from the database
-        $role = Role::where('slug', $roleSlug)->first();
-        if ($role && $role->icon) {
-            return $role->icon;
-        }
-
-        // Fallback to the old hardcoded mapping for backward compatibility
-        $iconMap = [
-            'president' => 'leader.svg',
-            'vice_president' => 'deputy.svg',
-            'treasurer' => 'finance.svg',
-            'secretary' => 'records.svg',
-            'council_member' => 'governance.svg',
-            'strata_member' => 'member.svg',
-        ];
-
-        return $iconMap[$roleSlug] ?? 'member.svg';
     }
 
     /**

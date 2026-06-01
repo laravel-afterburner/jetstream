@@ -12,6 +12,7 @@ use App\Support\Features;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -67,6 +68,10 @@ class CreateNewUser implements CreatesNewUsers
                 // Check if this is an invitation-based registration
                 if (isset($input['invitation'])) {
                     $this->handleInvitationRegistration($user, $input['invitation']);
+                } elseif (! Features::allowsTeamCreation()) {
+                    throw ValidationException::withMessages([
+                        'email' => [__('Registration is not available. Please use a team invitation link to create an account.')],
+                    ]);
                 } else {
                     $this->createTeam($user);
                 }
@@ -82,6 +87,12 @@ class CreateNewUser implements CreatesNewUsers
      */
     protected function createTeam(User $user): void
     {
+        if (! Features::allowsTeamCreation()) {
+            throw ValidationException::withMessages([
+                'email' => [__('Registration is not available. Please use a team invitation link to create an account.')],
+            ]);
+        }
+
         $teamData = [
             'user_id' => $user->id,
             'name' => explode(' ', $user->name, 2)[0]."'s ".ucfirst(config('afterburner.entity_label')),
@@ -126,15 +137,27 @@ class CreateNewUser implements CreatesNewUsers
         $invitation = TeamInvitation::find($invitationToken);
         
         if (!$invitation) {
-            // If invitation not found, create personal team as fallback
+            if (! Features::allowsTeamCreation()) {
+                throw ValidationException::withMessages([
+                    'email' => [__('The invitation is invalid or has expired.')],
+                ]);
+            }
+
             $this->createTeam($user);
+
             return;
         }
 
         // Verify the invitation is for this user's email
         if ($invitation->email !== $user->email) {
-            // If email doesn't match, create personal team as fallback
+            if (! Features::allowsTeamCreation()) {
+                throw ValidationException::withMessages([
+                    'email' => [__('The email address must match the invitation.')],
+                ]);
+            }
+
             $this->createTeam($user);
+
             return;
         }
 

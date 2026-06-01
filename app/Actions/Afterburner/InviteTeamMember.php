@@ -5,7 +5,9 @@ namespace App\Actions\Afterburner;
 use App\Events\InvitingTeamMember;
 use App\Models\Role;
 use App\Models\Team;
+use App\Models\TeamInvitation;
 use App\Models\User;
+use App\Support\Features;
 use App\Notifications\TeamInvitationNotification;
 use App\Notifications\TeamInvitationRegistrationRequired;
 use App\Services\EmailRateLimiter;
@@ -39,8 +41,28 @@ class InviteTeamMember
             ]);
         }
 
+        $this->deliverInvitation($invitation);
+    }
+
+    /**
+     * Notify or immediately add an invited user, depending on configuration.
+     */
+    public function deliverInvitation(TeamInvitation $invitation): void
+    {
+        $email = $invitation->email;
         $existingUser = User::where('email', $email)->first();
         $rateLimiter = app(EmailRateLimiter::class);
+
+        if ($existingUser && ! Features::allowsTeamCreation()) {
+            app(AcceptTeamInvitation::class)->add(
+                $existingUser,
+                $invitation->team,
+                $invitation->email,
+                $invitation->roles
+            );
+
+            return;
+        }
 
         if ($existingUser) {
             if ($rateLimiter->canSendToUser($existingUser)) {
@@ -51,16 +73,18 @@ class InviteTeamMember
                     'email' => __('Email rate limit exceeded. Please try again later.'),
                 ])->errorBag('addTeamMember');
             }
+
+            return;
+        }
+
+        if ($rateLimiter->canSendToAddress($email)) {
+            Notification::route('mail', $email)
+                ->notify(new TeamInvitationRegistrationRequired($invitation));
+            $rateLimiter->incrementLimits(null, $email);
         } else {
-            if ($rateLimiter->canSendToAddress($email)) {
-                Notification::route('mail', $email)
-                    ->notify(new TeamInvitationRegistrationRequired($invitation));
-                $rateLimiter->incrementLimits(null, $email);
-            } else {
-                throw ValidationException::withMessages([
-                    'email' => __('Email rate limit exceeded. Please try again later.'),
-                ])->errorBag('addTeamMember');
-            }
+            throw ValidationException::withMessages([
+                'email' => __('Email rate limit exceeded. Please try again later.'),
+            ])->errorBag('addTeamMember');
         }
     }
 

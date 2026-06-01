@@ -50,11 +50,19 @@ class DeleteTeamController extends Controller
                 ->whereNull('read_at')
                 ->get();
 
+            if (! \App\Support\Features::allowsTeamCreation()) {
+                return redirect()->route('profile.show')->banner(
+                    __('The :entity ":name" has been deleted.', [
+                        'entity' => config('afterburner.entity_label'),
+                        'name' => $teamName,
+                    ])
+                );
+            }
+
             if ($unreadInvitations->count() > 0) {
-                // User has unread invitations - redirect to notifications page
                 $firstInvitation = $unreadInvitations->first();
-                $invitedTeamName = $firstInvitation->data['team_name'] ?? 'a ' . config('afterburner.entity_label');
-                
+                $invitedTeamName = $firstInvitation->data['team_name'] ?? 'a '.config('afterburner.entity_label');
+
                 return redirect()->route('notifications')->banner(
                     __('The :entity ":name" has been deleted. You have been invited to join :invitedTeamName! Please check your notifications.', [
                         'entity' => config('afterburner.entity_label'),
@@ -64,7 +72,6 @@ class DeleteTeamController extends Controller
                 );
             }
 
-            // No teams available and no pending invitations - redirect to create team
             return redirect()->route('teams.create')->banner(
                 __('The :entity ":name" has been deleted.', [
                     'entity' => config('afterburner.entity_label'),

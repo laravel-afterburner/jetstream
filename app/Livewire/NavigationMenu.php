@@ -221,7 +221,7 @@ class NavigationMenu extends Component
      */
     public function canCreateTeam()
     {
-        if (! Features::hasTeamFeatures()) {
+        if (! Features::hasTeamFeatures() || ! Features::allowsTeamCreation()) {
             return false;
         }
 

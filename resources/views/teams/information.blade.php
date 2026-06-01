@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            @if (Gate::check('delete', $team))
+            @if (App\Support\Afterburner::hasTeamDeletionFeatures() && Gate::check('delete', $team))
                 <x-section-border />
 
                 <div class="mt-10 sm:mt-0">

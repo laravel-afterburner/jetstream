@@ -21,7 +21,6 @@
                             <!-- Role Info -->
                             <div class="flex-1">
                                 <div class="flex items-center text-sm font-medium text-gray-900 dark:text-white">
-                                    <img src="{{ asset('icons/' . $this->getRoleIcon($role->slug)) }}" alt="{{ $role->name }}" class="w-5 h-5 mr-2" />
                                     {{ $role->name }}
                                 </div>
                                 @if($role->description)
@@ -159,30 +158,6 @@
                         <x-input-error for="createRoleForm.max_members" class="mt-2" />
                     </div>
 
-                    <!-- Icon and Icon Preview -->
-
-                    <div class="col-span-6 sm:col-span-3">
-                        <x-label for="create_icon" value="{{ __('Icon') }}" />
-                        <select id="create_icon" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="createRoleForm.icon">
-                            @foreach($this->iconOptions as $iconFile => $iconData)
-                                <option value="{{ $iconFile }}">{{ $iconData['label'] }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error for="createRoleForm.icon" class="mt-2" />
-                    </div>
-
-                    <div class="col-span-6 sm:col-span-3">
-                        <x-label value="{{ __('Icon Preview') }}" />
-                        <div class="mt-1 flex items-center space-x-2 h-10" wire:key="create-icon-preview-{{ $createRoleForm['icon'] ?? 'member.svg' }}">
-                            @php
-                                $selectedIcon = $createRoleForm['icon'] ?? 'member.svg';
-                                $iconOptions = $this->iconOptions ?? [];
-                            @endphp
-                            <img src="{{ asset('icons/' . $selectedIcon) }}" alt="Icon preview" class="w-6 h-6" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $iconOptions[$selectedIcon]['label'] ?? 'Unknown' }}</span>
-                        </div>
-                    </div>
-
                     <!-- Permissions -->
                     <div class="col-span-6">
                         <x-label value="{{ __('Permissions') }}" />
@@ -278,31 +253,6 @@
                         <x-label for="edit_max_members" value="{{ __('Member Limit (Optional)') }}" />
                         <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" />
                         <x-input-error for="editRoleForm.max_members" class="mt-2" />
-                    </div>
-                </div>
-
-                <!-- Icon and Icon Preview -->
-                <div class="flex space-x-4">
-                    <div class="flex-1 max-w-xs">
-                        <x-label for="edit_icon" value="{{ __('Icon') }}" />
-                        <select id="edit_icon" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="editRoleForm.icon">
-                            @foreach($this->iconOptions as $iconFile => $iconData)
-                                <option value="{{ $iconFile }}">{{ $iconData['label'] }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error for="editRoleForm.icon" class="mt-2" />
-                    </div>
-
-                    <div class="flex-1 max-w-xs">
-                        <x-label value="{{ __('Icon Preview') }}" />
-                        <div class="mt-1 flex items-center space-x-2 h-10" wire:key="edit-icon-preview-{{ $editRoleForm['icon'] ?? 'member.svg' }}">
-                            @php
-                                $selectedIcon = $editRoleForm['icon'] ?? 'member.svg';
-                                $iconOptions = $this->iconOptions ?? [];
-                            @endphp
-                            <img src="{{ asset('icons/' . $selectedIcon) }}" alt="Icon preview" class="w-6 h-6" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $iconOptions[$selectedIcon]['label'] ?? 'Unknown' }}</span>
-                        </div>
                     </div>
                 </div>
 

@@ -4,10 +4,6 @@ return [
 
     'enabled' => env('AFTERBURNER_COMMUNICATIONS_ENABLED', true),
 
-    'announcements' => [
-        'enabled' => env('AFTERBURNER_COMMUNICATIONS_ANNOUNCEMENTS_ENABLED', true),
-    ],
-
     'discussions' => [
         'enabled' => env('AFTERBURNER_COMMUNICATIONS_DISCUSSIONS_ENABLED', true),
     ],

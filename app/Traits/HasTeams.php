@@ -104,8 +104,7 @@ trait HasTeams
      */
     protected function ensureUserHasTeam()
     {
-        // Don't create teams if feature is disabled
-        if (! Features::hasTeamFeatures()) {
+        if (! Features::hasTeamFeatures() || ! Features::allowsTeamCreation()) {
             return null;
         }
 

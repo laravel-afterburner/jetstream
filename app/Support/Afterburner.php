@@ -214,6 +214,16 @@ class Afterburner
     }
 
     /**
+     * Determine if the application is using team deletion features.
+     *
+     * @return bool
+     */
+    public static function hasTeamDeletionFeatures()
+    {
+        return Features::hasTeamDeletionFeatures();
+    }
+
+    /**
      * Determine if the application is using user timezone management features.
      *
      * @return bool

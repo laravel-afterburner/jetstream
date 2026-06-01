@@ -1,6 +1,6 @@
 <div>
     <form wire:submit.prevent="saveDraft" class="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="max-w-xl">
+        <div>
             <x-label for="title" value="Title" />
             <x-input id="title" type="text" class="mt-1 block w-full" wire:model="title" required />
             <x-input-error for="title" class="mt-2" />
@@ -9,7 +9,7 @@
         <div class="flex flex-wrap gap-4">
             <div class="w-44">
                 <x-label for="type" value="Meeting type" />
-                <x-select-input id="type" wire:model="type" class="mt-1 block w-full">
+                <x-select-input id="type" wire:model.live="type" class="mt-1 block w-full">
                     <option value="agm">AGM</option>
                     <option value="council">Council</option>
                     <option value="special">Special</option>
@@ -18,7 +18,7 @@
 
             <div class="w-44">
                 <x-label for="status" value="Status" />
-                <x-select-input id="status" wire:model="status" class="mt-1 block w-full">
+                <x-select-input id="status" wire:model.live="status" class="mt-1 block w-full">
                     <option value="draft">Draft</option>
                     <option value="scheduled">Scheduled</option>
                     <option value="in_progress">In Progress</option>
@@ -35,12 +35,12 @@
             <x-input-error for="scheduledAt" class="mt-2" />
         </div>
 
-        <div class="max-w-xl">
+        <div>
             <x-label for="location" value="Location" />
             <x-input id="location" type="text" class="mt-1 block w-full" wire:model="location" />
         </div>
 
-        <div class="max-w-xl">
+        <div>
             <x-label for="virtualLink" value="Virtual meeting link" />
             <x-input id="virtualLink" type="url" class="mt-1 block w-full" wire:model="virtualLink" placeholder="https://" />
             <x-input-error for="virtualLink" class="mt-2" />
@@ -48,7 +48,7 @@
 
         <div>
             <x-label for="agendaNotes" value="Agenda notes" />
-            <x-textarea-input id="agendaNotes" wire:model="agendaNotes" rows="5" class="mt-1 block w-full max-w-2xl" />
+            <x-textarea-input id="agendaNotes" wire:model="agendaNotes" rows="5" class="mt-1 block w-full" />
         </div>
 
         <div>
@@ -58,7 +58,7 @@
                 @foreach ($audienceRoles as $role)
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                         <input type="checkbox"
-                               wire:model="targetRoleSlugs"
+                               wire:model.live="targetRoleSlugs"
                                value="{{ $role->slug }}"
                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900">
                         <span>{{ $role->name }}</span>
@@ -85,6 +85,21 @@
             </x-button>
         </div>
     </form>
+
+    @if ($meetingId)
+        <div class="mt-6">
+            @livewire('meetings.meeting-agenda-items', [
+                'teamId' => $team->id,
+                'meetingId' => $meetingId,
+            ], key('meeting-agenda-items-create-'.$meetingId))
+        </div>
+    @else
+        <div class="mt-6 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-5 dark:border-gray-600 dark:bg-gray-900/40">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Save a draft first to build the agenda and link existing records.
+            </p>
+        </div>
+    @endif
 
     @if ($documentsEnabled)
         <div class="mt-6">

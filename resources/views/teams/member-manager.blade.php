@@ -170,7 +170,6 @@
                                                         type="button"
                                                         wire:click="showRolePermissions('{{ $roleSlug }}')"
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer transition-opacity hover:opacity-80 {{ $this->getRoleBadgeColor($roleSlug) }}">
-                                                        <img src="{{ asset('icons/' . $this->getRoleIcon($roleSlug)) }}" alt="{{ $this->getRoleName($roleSlug) }}" class="w-3 h-3 mr-1" />
                                                         {{ $this->getRoleName($roleSlug) }}
                                                     </button>
                                                 @endforeach
@@ -275,7 +274,6 @@
                                     <div class="{{ !$isSelected && !$role->is_default ? 'opacity-50' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'opacity-75' : '' }}">
                                         <div class="flex items-center">
                                             <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 {{ $isSelected ? 'font-semibold' : '' }} {{ $role->is_at_max_capacity && !$role->is_default ? 'text-gray-400 dark:text-gray-500' : '' }}">
-                                                <img src="{{ asset('icons/' . $this->getRoleIcon($role->key)) }}" alt="{{ $role->name }}" class="w-4 h-4 mr-2" />
                                                 <span class="cursor-pointer hover:underline"
                                                       wire:click.stop="showRolePermissions('{{ $role->key }}')"
                                                       wire:key="add-role-name-{{ $role->key }}">
@@ -350,7 +348,6 @@
                             <!-- Role Name -->
                             <div class="flex items-center">
                                 <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 {{ $isSelected ? 'font-semibold' : '' }} {{ $role->is_at_max_capacity && !$isSelected ? 'text-gray-400 dark:text-gray-500' : '' }}">
-                                    <img src="{{ asset('icons/' . $this->getRoleIcon($role->key)) }}" alt="{{ $role->name }}" class="w-4 h-4 mr-2" />
                                     <span class="cursor-pointer hover:underline" 
                                           wire:click="showRolePermissions('{{ $role->key }}')"
                                           wire:key="modal-role-name-{{ $role->key }}">
@@ -500,7 +497,6 @@
                     @foreach($memberPermissionsByRole as $roleData)
                         <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                             <div class="flex items-center mb-3">
-                                <img src="{{ asset('icons/' . $this->getRoleIcon($roleData['role']->slug)) }}" alt="{{ $roleData['role']->name }}" class="w-5 h-5 mr-2" />
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                                     {{ $roleData['role']->name }}
                                 </h3>
