@@ -43,7 +43,7 @@
                                         @php
                                             $childActive = isset($child['active']) && is_callable($child['active'])
                                                 ? $child['active']()
-                                                : request()->routeIs(($child['route'] ?? '').'.*');
+                                                : \App\Support\NavigationActive::routeIs(($child['route'] ?? '').'.*');
                                         @endphp
                                         <x-dropdown-link
                                             href="{{ route($child['route'], $child['route_params'] ?? []) }}"
@@ -64,7 +64,7 @@
                         @else
                             <x-nav-link
                                 href="{{ route($item['route'], $item['route_params'] ?? []) }}"
-                                :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : request()->routeIs($item['route'] . '.*')">
+                                :active="isset($item['active']) && is_callable($item['active']) ? $item['active']() : \App\Support\NavigationActive::routeIs($item['route'] . '.*')">
                                 @if(isset($item['icon']))
                                     <x-icon :name="$item['icon']" class="me-1 size-4" />
                                 @endif
@@ -118,7 +118,7 @@
                                             @php
                                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                                     ? $teamNavItem['active']()
-                                                    : request()->routeIs($teamNavItem['route']);
+                                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                                             @endphp
                                             <x-dropdown-link
                                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
@@ -132,7 +132,7 @@
                                             @php
                                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                                     ? $teamNavItem['active']()
-                                                    : request()->routeIs($teamNavItem['route']);
+                                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                                             @endphp
                                             <x-dropdown-link
                                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
@@ -152,7 +152,7 @@
                                             @php
                                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                                     ? $teamNavItem['active']()
-                                                    : request()->routeIs($teamNavItem['route']);
+                                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                                             @endphp
                                             <x-dropdown-link
                                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
@@ -286,7 +286,7 @@
                                     @php
                                         $adminNavActive = isset($adminNavItem['active']) && is_callable($adminNavItem['active'])
                                             ? $adminNavItem['active']()
-                                            : request()->routeIs($adminNavItem['route']);
+                                            : \App\Support\NavigationActive::routeIs($adminNavItem['route']);
                                     @endphp
                                     <x-dropdown-link href="{{ route($adminNavItem['route']) }}" :active="$adminNavActive">
                                         {{ $adminNavItem['label'] }}
@@ -341,7 +341,7 @@
                             @php
                                 $childActive = isset($child['active']) && is_callable($child['active'])
                                     ? $child['active']()
-                                    : request()->routeIs(($child['route'] ?? '').'.*');
+                                    : \App\Support\NavigationActive::routeIs(($child['route'] ?? '').'.*');
                             @endphp
                             <x-responsive-nav-link
                                 href="{{ route($child['route'], $child['route_params'] ?? []) }}"
@@ -366,7 +366,7 @@
                             if (isset($item['active']) && is_callable($item['active'])) {
                                 $isActive = (bool) $item['active']();
                             } else {
-                                $isActive = request()->routeIs($item['route'] . '.*');
+                                $isActive = \App\Support\NavigationActive::routeIs($item['route'] . '.*');
                             }
                         }
                     @endphp
@@ -473,7 +473,7 @@
                         @php
                             $adminNavActive = isset($adminNavItem['active']) && is_callable($adminNavItem['active'])
                                 ? $adminNavItem['active']()
-                                : request()->routeIs($adminNavItem['route']);
+                                : \App\Support\NavigationActive::routeIs($adminNavItem['route']);
                         @endphp
                         <x-responsive-nav-link href="{{ route($adminNavItem['route']) }}" :active="$adminNavActive">
                             {{ $adminNavItem['label'] }}
@@ -515,7 +515,7 @@
                             @php
                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                     ? $teamNavItem['active']()
-                                    : request()->routeIs($teamNavItem['route']);
+                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                             @endphp
                             <x-responsive-nav-link
                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
@@ -529,7 +529,7 @@
                             @php
                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                     ? $teamNavItem['active']()
-                                    : request()->routeIs($teamNavItem['route']);
+                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                             @endphp
                             <x-responsive-nav-link
                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"
@@ -549,7 +549,7 @@
                             @php
                                 $teamNavActive = isset($teamNavItem['active']) && is_callable($teamNavItem['active'])
                                     ? $teamNavItem['active']()
-                                    : request()->routeIs($teamNavItem['route']);
+                                    : \App\Support\NavigationActive::routeIs($teamNavItem['route']);
                             @endphp
                             <x-responsive-nav-link
                                 href="{{ route($teamNavItem['route'], $teamNavItem['route_params']) }}"

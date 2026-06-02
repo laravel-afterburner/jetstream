@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\User;
 use App\Support\Afterburner;
+use App\Support\NavigationActive;
 use App\Support\Features;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -54,19 +55,19 @@ class NavigationMenu extends Component
     public function mount()
     {
         // Cache route checks so they persist across Livewire re-renders
-        $this->isDashboardActive = request()->routeIs('dashboard');
-        $this->isProfileActive = request()->routeIs('profile.show');
-        $this->isSecurityActive = request()->routeIs('security.show');
-        $this->isNotificationsActive = request()->routeIs('notifications');
-        $this->isTeamsMembersActive = request()->routeIs('teams.members');
-        $this->isTeamsInformationActive = request()->routeIs('teams.information');
-        $this->isTeamsCreateActive = request()->routeIs('teams.create');
-        $this->isTeamSystemSettingsActive = request()->routeIs('teams.system-settings');
-        $this->isDocumentsActive = request()->routeIs('teams.documents.*');
-        $this->isTeamActive = request()->routeIs('teams.information')
-            || request()->routeIs('teams.members')
-            || request()->routeIs('teams.system-settings')
-            || request()->routeIs('teams.create');
+        $this->isDashboardActive = NavigationActive::routeIs('dashboard');
+        $this->isProfileActive = NavigationActive::routeIs('profile.show');
+        $this->isSecurityActive = NavigationActive::routeIs('security.show');
+        $this->isNotificationsActive = NavigationActive::routeIs('notifications');
+        $this->isTeamsMembersActive = NavigationActive::routeIs('teams.members');
+        $this->isTeamsInformationActive = NavigationActive::routeIs('teams.information');
+        $this->isTeamsCreateActive = NavigationActive::routeIs('teams.create');
+        $this->isTeamSystemSettingsActive = NavigationActive::routeIs('teams.system-settings');
+        $this->isDocumentsActive = NavigationActive::routeIs('teams.documents.*');
+        $this->isTeamActive = NavigationActive::routeIs('teams.information')
+            || NavigationActive::routeIs('teams.members')
+            || NavigationActive::routeIs('teams.system-settings')
+            || NavigationActive::routeIs('teams.create');
     }
 
     /**
