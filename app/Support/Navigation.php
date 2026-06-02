@@ -56,7 +56,7 @@ class Navigation
                     return count($item['children']) > 0;
                 }
 
-                return isset($item['route']);
+                return isset($item['route']) && self::isRouteAccessible($item['route']);
             })
             ->sortBy('order')
             ->values();
@@ -108,7 +108,7 @@ class Navigation
                         return $child['permission'](auth()->user());
                     }
 
-                    return true;
+                    return self::isRouteAccessible($child['route'] ?? null);
                 })
                 ->map(fn (array $child) => self::resolveItem($child))
                 ->values()
@@ -124,6 +124,19 @@ class Navigation
         }
 
         return $item;
+    }
+
+    public static function isRouteAccessible(?string $routeName): bool
+    {
+        if ($routeName === null) {
+            return true;
+        }
+
+        if (class_exists(\Afterburner\Subscriptions\Support\SubscriptionRouteAccess::class)) {
+            return \Afterburner\Subscriptions\Support\SubscriptionRouteAccess::isRouteAccessible($routeName);
+        }
+
+        return true;
     }
 
     /**

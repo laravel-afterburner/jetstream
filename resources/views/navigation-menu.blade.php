@@ -106,13 +106,17 @@
 
                                     <!-- Entity Settings -->
                                     @if($this->user->currentTeam)
-                                        <x-dropdown-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="$this->isTeamsInformationActive">
-                                            Details
-                                        </x-dropdown-link>
+                                        @if(\App\Support\Navigation::isRouteAccessible('teams.information'))
+                                            <x-dropdown-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="$this->isTeamsInformationActive">
+                                                Details
+                                            </x-dropdown-link>
+                                        @endif
 
-                                        <x-dropdown-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="$this->isTeamsMembersActive">
-                                            Members
-                                        </x-dropdown-link>
+                                        @if(\App\Support\Navigation::isRouteAccessible('teams.members'))
+                                            <x-dropdown-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="$this->isTeamsMembersActive">
+                                                Members
+                                            </x-dropdown-link>
+                                        @endif
 
                                         @foreach (App\Support\TeamNavigation::items('after-members') as $teamNavItem)
                                             @php
@@ -143,9 +147,11 @@
                                         @endforeach
 
                                         @can('update', $this->user->currentTeam)
-                                            <x-dropdown-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
-                                                System Settings
-                                            </x-dropdown-link>
+                                            @if(\App\Support\Navigation::isRouteAccessible('teams.system-settings'))
+                                                <x-dropdown-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
+                                                    System Settings
+                                                </x-dropdown-link>
+                                            @endif
                                         @endcan
 
                                         @foreach (App\Support\TeamNavigation::items('after-system-settings') as $teamNavItem)
@@ -176,7 +182,7 @@
                                         @endforeach
                                     @endif
 
-                                    @if($this->canCreateTeam())
+                                    @if($this->canCreateTeam() && \App\Support\Navigation::isRouteAccessible('teams.create'))
                                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                                         <x-dropdown-link href="{{ route('teams.create') }}" :active="$this->isTeamsCreateActive">
@@ -250,16 +256,18 @@
                                 {{ __('Security') }}
                             </x-dropdown-link>
 
-                            <x-dropdown-link href="{{ route('notifications') }}" :active="$this->isNotificationsActive">
-                                <div class="flex items-center">
-                                    <span>{{ __('Notifications') }}</span>
-                                    @if($this->unreadNotificationsCount > 0)
-                                        <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
-                                            {{ $this->unreadNotificationsCount > 9 ? '9+' : $this->unreadNotificationsCount }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </x-dropdown-link>
+                            @if(\App\Support\Navigation::isRouteAccessible('notifications'))
+                                <x-dropdown-link href="{{ route('notifications') }}" :active="$this->isNotificationsActive">
+                                    <div class="flex items-center">
+                                        <span>{{ __('Notifications') }}</span>
+                                        @if($this->unreadNotificationsCount > 0)
+                                            <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                                {{ $this->unreadNotificationsCount > 9 ? '9+' : $this->unreadNotificationsCount }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </x-dropdown-link>
+                            @endif
 
                             <!-- System Administration -->
                             @if($this->isImpersonating)
@@ -444,16 +452,18 @@
                     {{ __('Security') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link href="{{ route('notifications') }}" :active="$this->isNotificationsActive">
-                    <div class="flex items-center">
-                        <span>{{ __('Notifications') }}</span>
-                        @if($this->unreadNotificationsCount > 0)
-                            <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
-                                {{ $this->unreadNotificationsCount > 9 ? '9+' : $this->unreadNotificationsCount }}
-                            </span>
-                        @endif
-                    </div>
-                </x-responsive-nav-link>
+                @if(\App\Support\Navigation::isRouteAccessible('notifications'))
+                    <x-responsive-nav-link href="{{ route('notifications') }}" :active="$this->isNotificationsActive">
+                        <div class="flex items-center">
+                            <span>{{ __('Notifications') }}</span>
+                            @if($this->unreadNotificationsCount > 0)
+                                <span class="ml-2 inline-flex items-center justify-center h-4 w-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {{ $this->unreadNotificationsCount > 9 ? '9+' : $this->unreadNotificationsCount }}
+                                </span>
+                            @endif
+                        </div>
+                    </x-responsive-nav-link>
+                @endif
 
                 @if($this->isImpersonating)
                     <div class="border-t border-gray-200 dark:border-gray-600"></div>
@@ -504,12 +514,16 @@
 
                     <!-- Entity Settings -->
                     @if($this->user->currentTeam)
-                        <x-responsive-nav-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="$this->isTeamsInformationActive">
-                            Details
-                        </x-responsive-nav-link>
-                        <x-responsive-nav-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="$this->isTeamsMembersActive">
-                            Members
-                        </x-responsive-nav-link>
+                        @if(\App\Support\Navigation::isRouteAccessible('teams.information'))
+                            <x-responsive-nav-link href="{{ route('teams.information', $this->user->currentTeam->id) }}" :active="$this->isTeamsInformationActive">
+                                Details
+                            </x-responsive-nav-link>
+                        @endif
+                        @if(\App\Support\Navigation::isRouteAccessible('teams.members'))
+                            <x-responsive-nav-link href="{{ route('teams.members', $this->user->currentTeam->id) }}" :active="$this->isTeamsMembersActive">
+                                Members
+                            </x-responsive-nav-link>
+                        @endif
 
                         @foreach (App\Support\TeamNavigation::items('after-members') as $teamNavItem)
                             @php
@@ -540,9 +554,11 @@
                         @endforeach
 
                         @can('update', $this->user->currentTeam)
-                            <x-responsive-nav-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
-                                System Settings
-                            </x-responsive-nav-link>
+                            @if(\App\Support\Navigation::isRouteAccessible('teams.system-settings'))
+                                <x-responsive-nav-link href="{{ route('teams.system-settings', $this->user->currentTeam->id) }}" :active="$this->isTeamSystemSettingsActive">
+                                    System Settings
+                                </x-responsive-nav-link>
+                            @endif
                         @endcan
 
                         @foreach (App\Support\TeamNavigation::items('after-system-settings') as $teamNavItem)
@@ -573,7 +589,7 @@
                         @endforeach
                     @endif
 
-                    @if($this->canCreateTeam())
+                    @if($this->canCreateTeam() && \App\Support\Navigation::isRouteAccessible('teams.create'))
                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                         <x-responsive-nav-link href="{{ route('teams.create') }}" :active="$this->isTeamsCreateActive">

@@ -40,6 +40,9 @@ class TeamNavigation
 
                 return true;
             })
+            ->filter(function ($item) {
+                return Navigation::isRouteAccessible($item['route'] ?? null);
+            })
             ->map(function ($item) {
                 if (isset($item['route_params']) && is_callable($item['route_params'])) {
                     $item['route_params'] = $item['route_params']();
