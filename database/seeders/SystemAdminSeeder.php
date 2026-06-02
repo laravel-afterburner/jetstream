@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Team;
+use App\Models\User;
+use App\Support\TeamRolePermissions;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -70,6 +71,8 @@ class SystemAdminSeeder extends Seeder
             if (! $team->users()->where('user_id', $user->id)->exists()) {
                 $team->users()->attach($user);
             }
+
+            TeamRolePermissions::seedTeam($team->id);
 
             $defaultRole = \App\Models\Role::where('is_default', true)->first();
             if ($defaultRole) {

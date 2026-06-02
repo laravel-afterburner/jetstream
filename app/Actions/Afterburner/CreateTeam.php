@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Support\Afterburner;
 use App\Support\Features;
+use App\Support\TeamRolePermissions;
 use App\Events\AddingTeam;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -52,7 +53,8 @@ class CreateTeam
         // Attach the creator to their new team
         $team->users()->attach($user);
 
-        // Assign the application's default role dynamically
+        TeamRolePermissions::seedTeam($team->id);
+
         $defaultRole = Role::where('is_default', true)->first();
         if ($defaultRole) {
             $user->assignRole($defaultRole->slug, $team->id);

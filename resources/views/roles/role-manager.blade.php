@@ -12,10 +12,10 @@
             <!-- Roles List -->
             <div class="col-span-6 space-y-4" id="roles-container" wire:ignore.self>
                 @foreach($this->roles as $role)
-                    <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg draggable-role" 
+                    <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg {{ $role->is_system ? '' : 'draggable-role' }}" 
                          data-role-id="{{ $role->id }}" 
                          data-hierarchy="{{ $role->hierarchy }}"
-                         draggable="true">
+                         @if(!$role->is_system) draggable="true" @endif>
                         <div class="flex items-center space-x-4">
 
                             <!-- Role Info -->
@@ -76,8 +76,8 @@
                                     </svg>
                                 </button>
                                 
-                                <!-- Delete Button (only for non-default roles) -->
-                                @if (!$role->is_default)
+                                <!-- Delete Button (team custom roles only) -->
+                                @if (!$role->is_default && !$role->is_system && $role->team_id === $team->id)
                                     <button 
                                         type="button"
                                         wire:click="confirmRoleDeletion({{ $role->id }})" 
@@ -223,37 +223,26 @@
             @endif
 
             <div class="space-y-4">
-                <!-- Role Name -->
                 <div>
-                    <x-label for="edit_name" value="{{ __('Role Name') }}" />
-                    <x-input id="edit_name" type="text" class="mt-1 block w-full" wire:model="editRoleForm.name" />
-                    <x-input-error for="editRoleForm.name" class="mt-2" />
-                </div>
-                
-                <!-- Role Description -->
-                <div>
-                    <x-label for="edit_description" value="{{ __('Description') }}" />
-                    <textarea id="edit_description" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model="editRoleForm.description" rows="3"></textarea>
-                    <x-input-error for="editRoleForm.description" class="mt-2" />
+                    <x-label value="{{ __('Role') }}" />
+                    <p class="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $roleBeingEdited->name }}</p>
+                    @if($roleBeingEdited->is_system)
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('System roles are permanent. You can adjust permissions and member limits for this :entity only.', ['entity' => config('afterburner.entity_label')]) }}</p>
+                    @endif
                 </div>
 
-                <!-- Badge Color and Max Members -->
-                <div class="flex space-x-4">
-                    <div class="flex-1 max-w-xs">
-                        <x-label for="edit_badge_color" value="{{ __('Badge Color') }}" />
-                        <select id="edit_badge_color" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="editRoleForm.badge_color">
-                            @foreach($this->badgeColorOptions as $key => $color)
-                                <option value="{{ $key }}">{{ $color['label'] }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error for="editRoleForm.badge_color" class="mt-2" />
+                @if(!$roleBeingEdited->is_system)
+                    <div>
+                        <x-label for="edit_description" value="{{ __('Description') }}" />
+                        <textarea id="edit_description" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model="editRoleForm.description" rows="3"></textarea>
+                        <x-input-error for="editRoleForm.description" class="mt-2" />
                     </div>
+                @endif
 
-                    <div class="flex-1 max-w-xs">
-                        <x-label for="edit_max_members" value="{{ __('Member Limit (Optional)') }}" />
-                        <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" />
-                        <x-input-error for="editRoleForm.max_members" class="mt-2" />
-                    </div>
+                <div class="max-w-xs">
+                    <x-label for="edit_max_members" value="{{ __('Member Limit (Optional)') }}" />
+                    <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" />
+                    <x-input-error for="editRoleForm.max_members" class="mt-2" />
                 </div>
 
                 <!-- Permissions -->
@@ -301,7 +290,7 @@
 
             <x-slot name="content">
                 <div class="text-sm text-gray-600 dark:text-gray-400">
-                    Are you sure you want to delete this role? This action cannot be undone and will remove the role from all users who currently have it assigned.
+                    Are you sure you want to delete this role? This action cannot be undone and will remove the role from members of this {{ config('afterburner.entity_label') }} only.
                 </div>
                 
                 @if($roleBeingDeleted)

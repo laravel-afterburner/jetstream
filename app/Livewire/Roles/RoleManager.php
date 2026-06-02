@@ -6,39 +6,21 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Team;
 use App\Support\PermissionGroups;
+use App\Support\TeamRolePermissions;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class RoleManager extends Component
 {
-    /**
-     * The team instance.
-     *
-     * @var mixed
-     */
     public $team;
 
-
-    /**
-     * Indicates if the application is editing a role.
-     *
-     * @var bool
-     */
     public $editingRole = false;
 
-    /**
-     * The role being edited.
-     *
-     * @var mixed
-     */
     public $roleBeingEdited = null;
 
-    /**
-     * The "create role" form state.
-     *
-     * @var array
-     */
     public $createRoleForm = [
         'name' => '',
         'description' => '',
@@ -47,57 +29,22 @@ class RoleManager extends Component
         'permissions' => [],
     ];
 
-    /**
-     * Indicates if the application is copying a role.
-     *
-     * @var bool
-     */
     public $copyingRole = false;
 
-    /**
-     * The role being copied.
-     *
-     * @var mixed
-     */
     public $roleBeingCopied = null;
 
-    /**
-     * The "edit role" form state.
-     *
-     * @var array
-     */
     public $editRoleForm = [
-        'name' => '',
-        'slug' => '',
         'description' => '',
-        'badge_color' => 'gray',
         'max_members' => null,
         'permissions' => [],
     ];
 
-    /**
-     * Indicates if the application is confirming role deletion.
-     *
-     * @var bool
-     */
     public $confirmingRoleDeletion = false;
 
-    /**
-     * The role being deleted.
-     *
-     * @var mixed
-     */
     public $roleBeingDeleted = null;
 
-    /**
-     * Mount the component.
-     *
-     * @param  mixed  $team
-     * @return void
-     */
     public function mount($team)
     {
-        // Handle both model instances and ID strings
         if (is_string($team) || is_numeric($team)) {
             $this->team = Team::findOrFail($team);
         } else {
@@ -105,54 +52,38 @@ class RoleManager extends Component
         }
     }
 
-    /**
-     * Generate slug from role name.
-     *
-     * @param string $name
-     * @return string
-     */
-    public function generateSlug($name)
+    public function generateSlug(string $name): string
     {
         $baseSlug = str_replace('-', '_', \Str::slug($name));
         $slug = $baseSlug;
         $counter = 1;
 
-        // Check for uniqueness and add counter if needed
-        while (Role::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '_' . $counter;
+        while ($this->slugExistsForTeam($slug)) {
+            $slug = $baseSlug.'_'.$counter;
             $counter++;
         }
 
         return $slug;
     }
 
-    /**
-     * Update the slug when the role name changes.
-     *
-     * @return void
-     */
-    public function updatedCreateRoleFormName()
+    protected function slugExistsForTeam(string $slug): bool
+    {
+        if (in_array($slug, TeamRolePermissions::systemRoleSlugs(), true)) {
+            return true;
+        }
+
+        return Role::query()
+            ->where('team_id', $this->team->id)
+            ->where('slug', $slug)
+            ->exists();
+    }
+
+    public function updatedCreateRoleFormName(): void
     {
         $this->createRoleForm['slug'] = $this->generateSlug($this->createRoleForm['name']);
     }
 
-    /**
-     * Update the slug when the role name changes in edit form.
-     *
-     * @return void
-     */
-    public function updatedEditRoleFormName()
-    {
-        // Auto-generate slug from name for edit form (snake_case)
-        $this->editRoleForm['slug'] = str_replace('-', '_', \Str::slug($this->editRoleForm['name']));
-    }
-
-    /**
-     * Create a new role.
-     *
-     * @return void
-     */
-    public function createRole()
+    public function createRole(): void
     {
         $this->resetErrorBag();
 
@@ -160,109 +91,82 @@ class RoleManager extends Component
             return;
         }
 
-        // Auto-generate slug from name
         $slug = $this->generateSlug($this->createRoleForm['name']);
 
         $this->validate([
-            'createRoleForm.name' => 'required|string|max:255|unique:roles,name',
+            'createRoleForm.name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'name')->where(fn ($q) => $q->where('team_id', $this->team->id)),
+            ],
             'createRoleForm.description' => 'nullable|string|max:500',
             'createRoleForm.badge_color' => 'required|string',
             'createRoleForm.max_members' => 'nullable|integer|min:1',
-        ], [
-            'createRoleForm.name.unique' => 'This role name has already been taken.',
-            'createRoleForm.name.required' => 'The role name field is required.',
-            'createRoleForm.name.max' => 'The role name may not be greater than 255 characters.',
-            'createRoleForm.description.max' => 'The description may not be greater than 500 characters.',
-            'createRoleForm.badge_color.required' => 'The badge color field is required.',
-            'createRoleForm.max_members.integer' => 'The member limit must be a number.',
-            'createRoleForm.max_members.min' => 'The member limit must be at least 1.',
         ]);
 
-        // Set hierarchy to the end of the list
-        $maxHierarchy = Role::max('hierarchy') ?? 0;
-        
+        $maxHierarchy = Role::query()
+            ->forTeam($this->team->id)
+            ->max('hierarchy') ?? 0;
+
         $role = Role::create([
             'name' => $this->createRoleForm['name'],
             'slug' => $slug,
             'description' => $this->createRoleForm['description'],
             'badge_color' => $this->createRoleForm['badge_color'],
             'hierarchy' => $maxHierarchy + 1,
-            'max_members' => $this->createRoleForm['max_members'],
             'is_default' => false,
+            'is_system' => false,
+            'team_id' => $this->team->id,
         ]);
 
-        // Assign permissions
-        if (!empty($this->createRoleForm['permissions'])) {
-            $role->permissions()->sync($this->createRoleForm['permissions']);
-        }
+        TeamRolePermissions::syncForRole($role, $this->team->id, $this->createRoleForm['permissions']);
+        TeamRolePermissions::setMaxMembers($role, $this->team->id, $this->createRoleForm['max_members']);
 
         $this->resetCreateRoleForm();
-
         $this->dispatch('saved');
     }
 
-    /**
-     * Edit a role.
-     *
-     * @param  int  $roleId
-     * @return void
-     */
-    public function editRole($roleId)
+    public function editRole($roleId): void
     {
         $role = Role::findOrFail($roleId);
 
         if (! Gate::check('updateRole', [$this->team, $role])) {
             return;
         }
+
         $this->roleBeingEdited = $role;
         $this->editRoleForm = [
-            'name' => $role->name,
-            'slug' => $role->slug,
             'description' => $role->description,
-            'badge_color' => $role->badge_color ?: 'gray',
-            'max_members' => $role->max_members,
-            'permissions' => $role->permissions->pluck('id')->toArray(),
+            'max_members' => TeamRolePermissions::maxMembersForRole($role, $this->team->id),
+            'permissions' => TeamRolePermissions::permissionIdsForRole($role, $this->team->id),
         ];
 
         $this->editingRole = true;
     }
 
-    /**
-     * Copy a role to create a new one.
-     *
-     * @param  int  $roleId
-     * @return void
-     */
-    public function copyRole($roleId)
+    public function copyRole($roleId): void
     {
         $role = Role::findOrFail($roleId);
 
         if (! Gate::check('viewRole', [$this->team, $role])) {
             return;
         }
+
         $this->roleBeingCopied = $role;
-        
-        // Populate the create form with the role's data
         $this->createRoleForm = [
-            'name' => $role->name . ' (Copy)',
+            'name' => $role->name.' (Copy)',
             'description' => $role->description,
             'badge_color' => $role->badge_color ?: 'gray',
-            'max_members' => $role->max_members,
-            'permissions' => $role->permissions->pluck('id')->toArray(),
+            'max_members' => TeamRolePermissions::maxMembersForRole($role, $this->team->id),
+            'permissions' => TeamRolePermissions::permissionIdsForRole($role, $this->team->id),
         ];
 
         $this->copyingRole = true;
-        
-        // Scroll to the create role form
         $this->dispatch('scroll-to-create-form');
     }
 
-    /**
-     * Cancel role copying.
-     *
-     * @return void
-     */
-    public function cancelCopyRole()
+    public function cancelCopyRole(): void
     {
         $this->resetErrorBag();
         $this->resetCreateRoleForm();
@@ -270,12 +174,7 @@ class RoleManager extends Component
         $this->roleBeingCopied = null;
     }
 
-    /**
-     * Update the role being edited.
-     *
-     * @return void
-     */
-    public function updateRole()
+    public function updateRole(): void
     {
         $this->resetErrorBag();
 
@@ -283,62 +182,44 @@ class RoleManager extends Component
             return;
         }
 
-        // Generate new slug from the updated name (snake_case)
-        $newSlug = str_replace('-', '_', \Str::slug($this->editRoleForm['name']));
+        $role = $this->roleBeingEdited;
 
-        $this->validate([
-            'editRoleForm.name' => 'required|string|max:255|unique:roles,name,' . $this->roleBeingEdited->id,
-            'editRoleForm.description' => 'nullable|string|max:500',
-            'editRoleForm.badge_color' => 'required|string',
-            'editRoleForm.max_members' => 'nullable|integer|min:1',
-        ], [
-            'editRoleForm.name.unique' => 'This role name has already been taken.',
-            'editRoleForm.name.required' => 'The role name field is required.',
-            'editRoleForm.name.max' => 'The role name may not be greater than 255 characters.',
-            'editRoleForm.description.max' => 'The description may not be greater than 500 characters.',
-            'editRoleForm.badge_color.required' => 'The badge color field is required.',
-            'editRoleForm.max_members.integer' => 'The member limit must be a number.',
-            'editRoleForm.max_members.min' => 'The member limit must be at least 1.',
-        ]);
+        if ($role->isSystemRole()) {
+            $this->validate([
+                'editRoleForm.max_members' => 'nullable|integer|min:1',
+            ]);
+        } else {
+            $this->validate([
+                'editRoleForm.description' => 'nullable|string|max:500',
+                'editRoleForm.max_members' => 'nullable|integer|min:1',
+            ]);
 
-        // Prepare update data
-        $updateData = [
-            'name' => $this->editRoleForm['name'],
-            'slug' => $newSlug,
-            'description' => $this->editRoleForm['description'],
-            'badge_color' => $this->editRoleForm['badge_color'],
-            'max_members' => $this->editRoleForm['max_members'],
-        ];
+            $role->update([
+                'description' => $this->editRoleForm['description'],
+            ]);
+        }
 
-        // Never allow changing the is_default flag
-        // (it's not in the form, but just to be safe)
-        $this->roleBeingEdited->update($updateData);
-
-        // Update permissions
-        $this->roleBeingEdited->permissions()->sync($this->editRoleForm['permissions']);
+        TeamRolePermissions::syncForRole($role, $this->team->id, $this->editRoleForm['permissions']);
+        TeamRolePermissions::setMaxMembers($role, $this->team->id, $this->editRoleForm['max_members']);
 
         $this->resetEditRoleForm();
         $this->editingRole = false;
-
         $this->dispatch('saved');
     }
 
-    /**
-     * Confirm role deletion.
-     *
-     * @param  int  $roleId
-     * @return void
-     */
-    public function confirmRoleDeletion($roleId)
+    public function confirmRoleDeletion($roleId): void
     {
         $role = Role::findOrFail($roleId);
 
         if (! Gate::check('deleteRole', [$this->team, $role])) {
             return;
         }
-        
-        // Don't allow deleting default roles
-        if ($role->is_default) {
+
+        if ($role->is_system || $role->is_default) {
+            return;
+        }
+
+        if ($role->team_id !== $this->team->id) {
             return;
         }
 
@@ -346,57 +227,37 @@ class RoleManager extends Component
         $this->confirmingRoleDeletion = true;
     }
 
-    /**
-     * Delete the role.
-     *
-     * @return void
-     */
-    public function deleteRole()
+    public function deleteRole(): void
     {
         if (! Gate::check('deleteRole', [$this->team, $this->roleBeingDeleted])) {
             return;
         }
 
-        if ($this->roleBeingDeleted) {
-            $this->roleBeingDeleted->delete();
+        $role = $this->roleBeingDeleted;
+
+        if ($role && ! $role->is_system && $role->team_id === $this->team->id) {
+            $role->delete();
         }
 
         $this->confirmingRoleDeletion = false;
         $this->roleBeingDeleted = null;
-
         $this->dispatch('saved');
     }
 
-
-    /**
-     * Cancel role editing.
-     *
-     * @return void
-     */
-    public function cancelEditRole()
+    public function cancelEditRole(): void
     {
         $this->resetErrorBag();
         $this->resetEditRoleForm();
         $this->editingRole = false;
     }
 
-    /**
-     * Cancel role deletion.
-     *
-     * @return void
-     */
-    public function cancelRoleDeletion()
+    public function cancelRoleDeletion(): void
     {
         $this->confirmingRoleDeletion = false;
         $this->roleBeingDeleted = null;
     }
 
-    /**
-     * Reset the create role form.
-     *
-     * @return void
-     */
-    public function resetCreateRoleForm()
+    public function resetCreateRoleForm(): void
     {
         $this->resetErrorBag();
         $this->createRoleForm = [
@@ -410,128 +271,93 @@ class RoleManager extends Component
         $this->roleBeingCopied = null;
     }
 
-    /**
-     * Reset the edit role form.
-     *
-     * @return void
-     */
-    public function resetEditRoleForm()
+    public function resetEditRoleForm(): void
     {
         $this->editRoleForm = [
-            'name' => '',
-            'slug' => '',
             'description' => '',
-            'badge_color' => 'gray',
             'max_members' => null,
             'permissions' => [],
         ];
         $this->roleBeingEdited = null;
     }
 
-    /**
-     * Get the current user of the application.
-     *
-     * @return mixed
-     */
     public function getUserProperty()
     {
         return Auth::user();
     }
 
-    /**
-     * Get the available roles.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getRolesProperty()
+    public function getRolesProperty(): Collection
     {
-        return Role::orderBy('hierarchy')->get();
+        return TeamRolePermissions::rolesForTeam($this->team->id)
+            ->map(function (Role $role) {
+                $role->setAttribute(
+                    'max_members',
+                    TeamRolePermissions::maxMembersForRole($role, $this->team->id)
+                );
+
+                return $role;
+            });
     }
 
-    /**
-     * Get the available permissions grouped for the UI.
-     *
-     * @return array<string, \Illuminate\Support\Collection>
-     */
-    public function getGroupedPermissionsProperty()
+    public function getGroupedPermissionsProperty(): array
     {
         return PermissionGroups::group($this->permissions);
     }
 
-    /**
-     * Get the available permissions.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getPermissionsProperty()
+    public function getPermissionsProperty(): Collection
     {
         return Permission::orderBy('name')->get();
     }
 
-    /**
-     * Get the badge color options.
-     *
-     * @return array
-     */
-    public function getBadgeColorOptionsProperty()
+    public function getBadgeColorOptionsProperty(): array
     {
         return config('badge-colors.options', []);
     }
 
-    /**
-     * Get the badge color class for a role.
-     */
-    public function getRoleBadgeColor($roleSlug)
+    public function getRoleBadgeColor($roleSlug): string
     {
-        $storedValue = Role::where('slug', $roleSlug)->value('badge_color');
+        $role = TeamRolePermissions::resolveRoleSlug($roleSlug, $this->team->id)
+            ?? Role::where('slug', $roleSlug)->first();
 
-        // Default classes if nothing stored
+        $storedValue = $role?->badge_color;
+
         $default = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
 
         if (! $storedValue) {
             return $default;
         }
 
-        // If it's a palette key, resolve via config
         if (config("badge-colors.options.$storedValue.classes")) {
             return config("badge-colors.options.$storedValue.classes");
         }
 
-        // Otherwise treat as stored class string
         return $storedValue ?: $default;
     }
 
-    /**
-     * Update role hierarchy based on drag and drop order.
-     *
-     * @param array $hierarchyData
-     * @return void
-     */
     public function updateRoleHierarchy(array $hierarchyData): void
     {
         if (! Gate::check('updateRoleHierarchy', $this->team)) {
             return;
         }
 
-        // Validate input structure
         $validated = \Validator::make($hierarchyData, [
             '*.role_id' => 'required|integer|exists:roles,id',
             '*.hierarchy' => 'required|integer|min:1',
         ])->validate();
 
         foreach ($validated as $data) {
-            Role::where('id', $data['role_id'])
-                ->update(['hierarchy' => $data['hierarchy']]);
+            $role = Role::find($data['role_id']);
+
+            if (! $role || $role->is_system || $role->team_id !== $this->team->id) {
+                continue;
+            }
+
+            $role->update(['hierarchy' => $data['hierarchy']]);
         }
 
         $this->dispatch('saved');
     }
 
-    /**
-     * Render the component.
-     *
-     * @return \Illuminate\View\View
-     */
     public function render()
     {
         return view('roles.role-manager');

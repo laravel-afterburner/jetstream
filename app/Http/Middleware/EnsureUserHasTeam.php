@@ -37,7 +37,10 @@ class EnsureUserHasTeam
         if ($user->current_team_id) {
             $currentTeam = $user->currentTeam;
 
-            if (! $currentTeam || ! $user->belongsToTeam($currentTeam)) {
+            $mayUseTeamWithoutMembership = $user->isSystemAdmin()
+                && ($request->session()->get('role_impersonating') || $request->session()->get('impersonating'));
+
+            if (! $currentTeam || (! $user->belongsToTeam($currentTeam) && ! $mayUseTeamWithoutMembership)) {
                 $user->forceFill(['current_team_id' => null])->save();
             }
         }
@@ -71,6 +74,10 @@ class EnsureUserHasTeam
         $routes = [
             'logout',
             'impersonate.stop',
+            'impersonate.start',
+            'impersonate-role.stop',
+            'impersonate-role.start',
+            'impersonate-role.start.global',
             'profile.show',
             'security.show',
             'user-profile-information.update',

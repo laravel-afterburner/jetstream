@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use App\Models\Role;
 use App\Support\Features;
+use App\Support\RoleImpersonation;
+use App\Support\TeamRolePermissions;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 trait HasAfterburnerRoles
@@ -24,47 +26,51 @@ trait HasAfterburnerRoles
      */
     public function hasPermission(string $permissionSlug, ?int $teamId = null): bool
     {
-        // If teams feature is disabled, use global roles (null team_id)
         if (! Features::hasTeamFeatures()) {
             $teamId = null;
         } else {
             $teamId = $teamId ?? $this->currentTeam?->id;
         }
 
-        // For teams-enabled, require team_id
-        if (Features::hasTeamFeatures() && !$teamId) {
+        if (Features::hasTeamFeatures() && ! $teamId) {
             return false;
         }
 
-        // Team owners have full access within their team
-        if (Features::hasTeamFeatures() && $teamId && $this->ownsTeamById($teamId)) {
+        if (RoleImpersonation::isActive() && RoleImpersonation::teamId() === $teamId) {
+            return TeamRolePermissions::impersonatedRoleHasPermission($permissionSlug);
+        }
+
+        if (Features::hasTeamFeatures() && $teamId && ! RoleImpersonation::shouldBypassOwnerPrivileges() && $this->ownsTeamById($teamId)) {
             return true;
         }
 
-        return $this->roles()
+        $roleIds = $this->roles()
             ->where('team_id', $teamId)
-            ->whereHas('permissions', function ($query) use ($permissionSlug) {
-                $query->where('slug', $permissionSlug);
-            })
-            ->exists();
+            ->pluck('roles.id');
+
+        return TeamRolePermissions::userHasPermissionViaRoles($roleIds, $permissionSlug, $teamId);
     }
 
     /**
      * Check if user has a specific role within a team context.
-     * Supports global roles (null team_id) when teams feature is disabled.
      */
     public function hasRole(string $roleSlug, ?int $teamId = null): bool
     {
-        // If teams feature is disabled, use global roles (null team_id)
         if (! Features::hasTeamFeatures()) {
             $teamId = null;
         } else {
             $teamId = $teamId ?? $this->currentTeam?->id;
         }
 
-        // For teams-enabled, require team_id
-        if (Features::hasTeamFeatures() && !$teamId) {
+        if (Features::hasTeamFeatures() && ! $teamId) {
             return false;
+        }
+
+        if (RoleImpersonation::isActive()
+            && RoleImpersonation::teamId() === $teamId) {
+            $impersonated = Role::find(RoleImpersonation::roleId());
+
+            return $impersonated?->slug === $roleSlug;
         }
 
         return $this->roles()
@@ -75,58 +81,78 @@ trait HasAfterburnerRoles
 
     /**
      * Get all permissions for the user within a team context.
-     * Supports global roles (null team_id) when teams feature is disabled.
      */
     public function getPermissions(?int $teamId = null): \Illuminate\Support\Collection
     {
-        // If teams feature is disabled, use global roles (null team_id)
         if (! Features::hasTeamFeatures()) {
             $teamId = null;
         } else {
             $teamId = $teamId ?? $this->currentTeam?->id;
         }
 
-        // For teams-enabled, require team_id
-        if (Features::hasTeamFeatures() && !$teamId) {
+        if (Features::hasTeamFeatures() && ! $teamId) {
             return collect();
         }
 
-        return $this->roles()
+        if (RoleImpersonation::isActive() && RoleImpersonation::teamId() === $teamId) {
+            $roleId = RoleImpersonation::roleId();
+
+            if (! $roleId) {
+                return collect();
+            }
+
+            $permissionIds = TeamRolePermissions::permissionIdsForRole(Role::findOrFail($roleId), $teamId);
+
+            return \App\Models\Permission::query()->whereIn('id', $permissionIds)->get();
+        }
+
+        $roleIds = $this->roles()
             ->where('team_id', $teamId)
-            ->with('permissions')
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->unique('id');
+            ->pluck('roles.id');
+
+        if ($roleIds->isEmpty()) {
+            return collect();
+        }
+
+        $permissionIds = collect();
+
+        foreach ($roleIds as $roleId) {
+            $role = Role::find($roleId);
+
+            if ($role) {
+                $permissionIds = $permissionIds->merge(
+                    TeamRolePermissions::permissionIdsForRole($role, $teamId)
+                );
+            }
+        }
+
+        return \App\Models\Permission::query()
+            ->whereIn('id', $permissionIds->unique()->all())
+            ->get();
     }
 
-    /**
-     * Assign a role to the user for a specific team.
-     * When teams are disabled, teamId should be null for global roles.
-     */
     public function assignRole(string $roleSlug, ?int $teamId): void
     {
-        $role = Role::where('slug', $roleSlug)->firstOrFail();
-        
-        // Check if the role is already assigned to avoid duplicates
+        $role = TeamRolePermissions::resolveRoleSlug($roleSlug, $teamId);
+
+        if (! $role) {
+            return;
+        }
+
         $exists = $this->roles()
             ->wherePivot('team_id', $teamId)
             ->where('roles.id', $role->id)
             ->exists();
-            
-        if (!$exists) {
+
+        if (! $exists) {
             $this->roles()->attach($role->id, ['team_id' => $teamId]);
         }
     }
 
-    /**
-     * Remove a role from the user for a specific team.
-     * When teams are disabled, teamId should be null for global roles.
-     */
     public function removeRole(string $roleSlug, ?int $teamId): void
     {
-        $role = Role::where('slug', $roleSlug)->first();
-        
+        $role = TeamRolePermissions::resolveRoleSlug($roleSlug, $teamId);
+
         if ($role) {
             $this->roles()
                 ->wherePivot('team_id', $teamId)
@@ -134,21 +160,15 @@ trait HasAfterburnerRoles
         }
     }
 
-    /**
-     * Get formatted role names for display in a specific team.
-     * Supports global roles (null team_id) when teams feature is disabled.
-     */
     public function roleNamesForTeam(?int $teamId = null): string
     {
-        // If teams feature is disabled, use global roles (null team_id)
         if (! Features::hasTeamFeatures()) {
             $teamId = null;
         } else {
             $teamId = $teamId ?? $this->currentTeam?->id;
         }
 
-        // For teams-enabled, require team_id
-        if (Features::hasTeamFeatures() && !$teamId) {
+        if (Features::hasTeamFeatures() && ! $teamId) {
             return '';
         }
 
@@ -158,4 +178,3 @@ trait HasAfterburnerRoles
             ->join(', ');
     }
 }
-

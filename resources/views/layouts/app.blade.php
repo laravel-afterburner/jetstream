@@ -141,6 +141,7 @@
     </head>
     <body class="font-sans antialiased">
         <x-impersonation-banner />
+        <x-role-impersonation-banner />
         <x-banner />
         @if(App\Support\Afterburner::hasUserTimezoneManagement())
             @persist('timezone-banner')
@@ -154,6 +155,7 @@
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @livewire('navigation-menu')
             @livewire('impersonation')
+            @livewire('role-impersonation')
 
             <!-- Page Heading -->
             @if (isset($header))

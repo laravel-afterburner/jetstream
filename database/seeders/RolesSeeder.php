@@ -3,67 +3,45 @@
 namespace Database\Seeders;
 
 use App\Support\RoleTemplates;
+use App\Support\TeamRolePermissions;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class RolesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     * 
-     * @param string|null $template The role template to use. Can be set via: $this->call(RolesSeeder::class, false, ['template' => 'team']);
-     *                              Defaults to config('afterburner.entity_label').
-     */
     public function run(?string $template = null): void
     {
         $template = $template ?? config('afterburner.entity_label', 'company');
-        
+
         $templateData = RoleTemplates::get($template);
 
-        if (!$templateData) {
+        if (! $templateData) {
             if (isset($this->command)) {
-                $this->command->error("Role template '{$template}' not found. Available templates: " . implode(', ', RoleTemplates::keys()));
+                $this->command->error("Role template '{$template}' not found. Available templates: ".implode(', ', RoleTemplates::keys()));
             }
+
             return;
         }
 
         $now = Carbon::now();
 
-        // Insert roles
-        $roles = $templateData['roles'];
-        DB::table('roles')->insert(array_map(fn($r) => $r + ['created_at' => $now, 'updated_at' => $now], $roles));
+        $roles = array_map(fn (array $role) => $role + [
+            'is_system' => true,
+            'team_id' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $templateData['roles']);
 
-        // Insert permissions (deduplicate by slug)
+        DB::table('roles')->insert($roles);
+
         $permissions = collect($templateData['permissions'])->unique('slug')->values()->all();
-        DB::table('permissions')->insert(array_map(fn($p) => $p + ['created_at' => $now, 'updated_at' => $now], $permissions));
+        DB::table('permissions')->insert(array_map(fn ($p) => $p + ['created_at' => $now, 'updated_at' => $now], $permissions));
 
-        // Map permissions to roles
-        $roleIds = DB::table('roles')->pluck('id', 'slug');
-        $permissionIds = DB::table('permissions')->pluck('id', 'slug');
-
-        foreach ($templateData['permission_map'] as $roleSlug => $permissionSlugs) {
-            if (!isset($roleIds[$roleSlug])) {
-                continue;
-            }
-
-            foreach ($permissionSlugs as $permissionSlug) {
-                if (!isset($permissionIds[$permissionSlug])) {
-                    continue;
-                }
-
-                // Use insertOrIgnore to avoid duplicate entries if seeder is run multiple times
-                DB::table('role_permission')->insertOrIgnore([
-                    'role_id' => $roleIds[$roleSlug],
-                    'permission_id' => $permissionIds[$permissionSlug],
-                ]);
-            }
-        }
+        TeamRolePermissions::applyTemplate(null, $templateData);
 
         if (isset($this->command)) {
             $this->command->info("Seeded roles and permissions for template: {$template}");
         }
     }
 }
-
-

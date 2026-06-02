@@ -282,6 +282,18 @@
                                         {{ __('Stop Impersonating') }}
                                     </x-dropdown-link>
                                 </form>
+                            @elseif($this->isImpersonatingRole)
+                                <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                                <div class="block px-4 py-2 text-xs text-gray-400">
+                                    {{ __('System Administration') }}
+                                </div>
+                                <form method="POST" action="{{ route('impersonate-role.stop') }}" x-data>
+                                    @csrf
+                                    <x-dropdown-link href="{{ route('impersonate-role.stop') }}"
+                                             @click.prevent="$root.submit();" class="text-violet-600 dark:text-violet-400">
+                                        {{ __('Stop Impersonating Role') }}
+                                    </x-dropdown-link>
+                                </form>
                             @elseif($this->isSystemAdmin)
                                 <div class="border-t border-gray-200 dark:border-gray-600"></div>
                                 <div class="block px-4 py-2 text-xs text-gray-400">
@@ -289,6 +301,9 @@
                                 </div>
                                 <x-dropdown-link href="#" wire:click="$dispatch('open-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
                                     {{ __('Impersonate User') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link href="#" wire:click="$dispatch('open-role-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
+                                    {{ __('Impersonate Role') }}
                                 </x-dropdown-link>
                                 @foreach (App\Support\SystemAdminNavigation::items() as $adminNavItem)
                                     @php
@@ -474,10 +489,22 @@
                             {{ __('Stop Impersonating') }}
                         </x-responsive-nav-link>
                     </form>
+                @elseif($this->isImpersonatingRole)
+                    <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                    <form method="POST" action="{{ route('impersonate-role.stop') }}" x-data>
+                        @csrf
+                        <x-responsive-nav-link href="{{ route('impersonate-role.stop') }}"
+                                 @click.prevent="$root.submit();" class="text-violet-600 dark:text-violet-400">
+                            {{ __('Stop Impersonating Role') }}
+                        </x-responsive-nav-link>
+                    </form>
                 @elseif($this->isSystemAdmin)
                     <div class="border-t border-gray-200 dark:border-gray-600"></div>
                     <x-responsive-nav-link href="#" wire:click="$dispatch('open-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
                         {{ __('Impersonate User') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link href="#" wire:click="$dispatch('open-role-impersonation-modal')" class="text-orange-600 dark:text-orange-400">
+                        {{ __('Impersonate Role') }}
                     </x-responsive-nav-link>
                     @foreach (App\Support\SystemAdminNavigation::items() as $adminNavItem)
                         @php

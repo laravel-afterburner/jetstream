@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DeleteTeamController;
 use App\Http\Controllers\ImpersonationController;
+use App\Http\Controllers\RoleImpersonationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\SystemSettingsController;
@@ -110,8 +111,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Impersonation
     Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
+    Route::post('/impersonate-role/stop', [RoleImpersonationController::class, 'stop'])->name('impersonate-role.stop');
     Route::middleware('system.admin')->group(function () {
         Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
+        Route::post('/impersonate-role/teams/{team}/{role}', [RoleImpersonationController::class, 'start'])->name('impersonate-role.start');
+        Route::post('/impersonate-role/{role}', [RoleImpersonationController::class, 'startWithoutTeam'])->name('impersonate-role.start.global');
     });
 
     // Audit Trail (System Admin only)

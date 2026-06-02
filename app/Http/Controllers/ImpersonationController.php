@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Support\Features;
+use App\Support\RoleImpersonation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -14,9 +15,12 @@ class ImpersonationController extends Controller
      */
     public function start(User $user)
     {
-        // Only allow system admins to impersonate
-        if (!Auth::user()->isSystemAdmin()) {
+        if (! Auth::user()->isSystemAdmin()) {
             abort(403);
+        }
+
+        if (RoleImpersonation::isActive()) {
+            abort(403, 'Stop role impersonation before impersonating a user.');
         }
 
         // Store original user ID in session

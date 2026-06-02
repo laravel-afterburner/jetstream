@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\User;
 use App\Support\Afterburner;
+use App\Support\RoleImpersonation;
 use App\Support\NavigationActive;
 use App\Support\Features;
 use Illuminate\Support\Facades\Auth;
@@ -246,6 +247,18 @@ class NavigationMenu extends Component
     public function isImpersonating(): bool
     {
         return Session::has('impersonating');
+    }
+
+    #[Computed]
+    public function isImpersonatingRole(): bool
+    {
+        return RoleImpersonation::isActive();
+    }
+
+    #[Computed]
+    public function isImpersonatingAny(): bool
+    {
+        return $this->isImpersonating || $this->isImpersonatingRole;
     }
 
     /**

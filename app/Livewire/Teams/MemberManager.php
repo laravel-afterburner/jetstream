@@ -522,12 +522,12 @@ class MemberManager extends Component
      */
     public function getRolesProperty()
     {
-        return Role::orderBy('hierarchy')
-            ->get()
+        return \App\Support\TeamRolePermissions::rolesForTeam($this->team->id)
             ->map(function ($role) {
                 $isAtMaxCapacity = $role->hasReachedMaxMembers($this->team->id);
                 $availableSlots = $role->getAvailableSlots($this->team->id);
-                
+                $maxMembers = \App\Support\TeamRolePermissions::maxMembersForRole($role, $this->team->id);
+
                 return (object) [
                     'key' => $role->slug,
                     'name' => $role->name,
@@ -535,7 +535,7 @@ class MemberManager extends Component
                     'is_default' => $role->is_default,
                     'is_at_max_capacity' => $isAtMaxCapacity,
                     'available_slots' => $availableSlots,
-                    'max_members' => $role->max_members,
+                    'max_members' => $maxMembers,
                 ];
             });
     }
