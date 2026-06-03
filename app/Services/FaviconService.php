@@ -262,10 +262,36 @@ class FaviconService
         $disk = Storage::disk('public');
         
         if ($disk->exists($faviconPath)) {
-            return $disk->url($faviconPath);
+            return $this->versionedUrl($disk->url($faviconPath), $disk, $faviconPath);
         }
-        
-        // Fall back to default favicon
-        return asset($defaultFilename);
+
+        return $this->versionedUrl(asset($defaultFilename), null, public_path($defaultFilename));
+    }
+
+    /**
+     * Append a cache-busting query string so browsers and CDNs fetch updated favicons
+     * after logo changes (favicon paths stay stable under teams/{id}/).
+     */
+    protected function versionedUrl(string $url, $disk = null, ?string $path = null): string
+    {
+        $version = null;
+
+        if ($disk !== null && $path !== null) {
+            try {
+                $version = $disk->lastModified($path);
+            } catch (\Throwable) {
+                $version = null;
+            }
+        } elseif ($path !== null && is_string($path) && file_exists($path)) {
+            $version = filemtime($path) ?: null;
+        }
+
+        if ($version === null) {
+            return $url;
+        }
+
+        $separator = str_contains($url, '?') ? '&' : '?';
+
+        return $url.$separator.'v='.$version;
     }
 }
