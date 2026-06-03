@@ -50,7 +50,7 @@ class TeamInvitationNotification extends Notification implements ShouldQueue
         $teamName = $team->name;
         $entityLabel = config('afterburner.entity_label');
 
-        $mailMessage = (new MailMessage)
+        $mailMessage = team_mail_message($team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($team->name), $inviter->name ?? $team->name)
             ->subject("You've been invited to join {$teamName}");
 

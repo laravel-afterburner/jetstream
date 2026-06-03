@@ -46,7 +46,6 @@ class TeamInvitation extends Mailable implements ShouldQueue
         )->markdown('emails.team-invitation', [
             'acceptUrl' => route('team-invitations.accept', $this->invitation),
             'team' => $team,
-            'teamLogo' => $team->getLogoUrl(),
             'primaryColor' => $team->primary_color,
         ])->subject(__('Team Invitation'));
     }

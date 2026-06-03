@@ -88,6 +88,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Notification Mail Message
+    |--------------------------------------------------------------------------
+    |
+    | The MailMessage class used for notification emails. TeamMailMessage adds
+    | company logo branding via forTeam() / team_mail_message().
+    |
+    */
+
+    'mail_message' => \App\Mail\TeamMailMessage::class,
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Session Middleware
     |--------------------------------------------------------------------------
     |

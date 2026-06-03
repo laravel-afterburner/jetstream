@@ -45,7 +45,7 @@ class TeamMemberLeft extends Notification implements ShouldQueue
         
         $rolesText = empty($this->memberRoles) ? 'No specific roles' : implode(', ', $this->memberRoles);
 
-        return (new MailMessage)
+        return team_mail_message($this->team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)
             ->subject("Team member left {$teamName}")
             ->greeting("Hello {$notifiable->name},")

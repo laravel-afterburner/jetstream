@@ -1,9 +1,4 @@
 @component('mail::message', ['team' => $team])
-@if(isset($teamLogo) && $teamLogo && isset($team) && $team->logo_url)
-@component('mail::header', ['url' => config('app.url'), 'team' => $team, 'teamLogo' => $teamLogo])
-<img src="{{ $teamLogo }}" alt="{{ $team->name }}" style="max-height: 60px;">
-@endcomponent
-@endif
 
 You have been invited to join {{ $team->name }}!
 

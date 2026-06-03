@@ -152,6 +152,25 @@ if (! function_exists('public_storage_url')) {
     }
 }
 
+if (! function_exists('team_mail_message')) {
+    /**
+     * Create a notification mail message with optional team logo branding.
+     */
+    function team_mail_message(?object $team = null): \Illuminate\Notifications\Messages\MailMessage
+    {
+        $class = config('afterburner.mail_message', \Illuminate\Notifications\Messages\MailMessage::class);
+
+        /** @var \Illuminate\Notifications\Messages\MailMessage $message */
+        $message = new $class;
+
+        if ($team !== null && method_exists($message, 'forTeam')) {
+            $message->forTeam($team);
+        }
+
+        return $message;
+    }
+}
+
 if (! function_exists('format_date_superscript')) {
     /**
      * Format a date with the ordinal suffix in a <sup> tag for HTML display.

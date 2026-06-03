@@ -55,7 +55,7 @@ class TeamInvitationRegistrationRequired extends Notification implements ShouldQ
             'invitation' => $this->invitation->id
         ]);
 
-        $mailMessage = (new MailMessage)
+        $mailMessage = team_mail_message($team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($team->name), $inviter->name ?? $team->name)
             ->subject("You've been invited to join {$teamName}")
             ->greeting('Hello!')

@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail::message :team="$team ?? null">
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}

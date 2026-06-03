@@ -27,7 +27,7 @@ class VerifyEmail extends BaseVerifyEmail
         $fromAddress = config('afterburner.mail_from_address', 'hello@example.com');
         $fromName = config('afterburner.mail_from_name', 'Example');
 
-        return (new MailMessage)
+        return team_mail_message()
             ->from($fromAddress, $fromName)
             ->subject(__('Verify Email Address'))
             ->line(__('Please click the button below to verify your email address.'))

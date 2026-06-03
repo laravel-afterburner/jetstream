@@ -39,7 +39,7 @@ class TeamDeleted extends Notification implements ShouldQueue
         $teamName = $this->team->name;
         $entityLabel = config('afterburner.entity_label');
 
-        return (new MailMessage)
+        return team_mail_message($this->team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)
             ->subject("The {$teamName} {$entityLabel} has been deleted")
             ->greeting("Hello {$notifiable->name},")
