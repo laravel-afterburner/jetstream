@@ -1,30 +1,27 @@
 <div>
-    <!-- Entity Name Section -->
-    <x-form-section submit="updateTeamName">
-        <x-slot name="title">
-            Name
-        </x-slot>
+    @if (Gate::check('update', $team))
+        <x-form-section submit="updateTeamName">
+            <x-slot name="title">
+                Name
+            </x-slot>
 
-        <x-slot name="description">
-            The {{ config('afterburner.entity_label') }}'s name.
-        </x-slot>
+            <x-slot name="description">
+                The {{ config('afterburner.entity_label') }}'s name.
+            </x-slot>
 
-        <x-slot name="form">
-            <!-- Entity Name -->
-            <div class="col-span-6 sm:col-span-4">
-                <x-label for="name" value="Name" />
+            <x-slot name="form">
+                <div class="col-span-6 sm:col-span-4">
+                    <x-label for="name" value="Name" />
 
-                <x-input id="name"
-                            type="text"
-                            class="mt-1 block w-full"
-                            wire:model="updateTeamNameForm.name"
-                            :disabled="! Gate::check('update', $team)" />
+                    <x-input id="name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                wire:model="updateTeamNameForm.name" />
 
-                <x-input-error for="updateTeamNameForm.name" class="mt-2" />
-            </div>
-        </x-slot>
+                    <x-input-error for="updateTeamNameForm.name" class="mt-2" />
+                </div>
+            </x-slot>
 
-        @if (Gate::check('update', $team))
             <x-slot name="actions">
                 <x-action-message class="me-3" on="saved">
                     {{ __('Saved.') }}
@@ -34,10 +31,10 @@
                     {{ __('Save') }}
                 </x-button>
             </x-slot>
-        @endif
-    </x-form-section>
+        </x-form-section>
 
-    <x-section-border />
+        <x-section-border />
+    @endif
 
     <!-- Entity Ownership Section -->
     <x-action-section>

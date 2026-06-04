@@ -98,7 +98,7 @@
                                     {{ __('Saved Timezone') }}
                                 </p>
                                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1">
-                                    {{ $this->savedTimezoneDisplay }} 
+                                    {{ \App\Support\TimezoneDisplay::label($savedTimezone) }} 
                                     <span class="font-mono text-xs">({{ $savedTimezone }})</span>
                                 </p>
                             </div>

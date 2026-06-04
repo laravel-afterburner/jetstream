@@ -358,6 +358,7 @@ The template includes several utility classes in `App\Support`:
 - `Role` - Support class for role definitions
 - `PermissionGroups` - Groups permissions for the role manager UI
 - `PermissionGroupsRegistry` - Register permission groups from packages for the role manager UI
+- `PermissionCatalog` (optional, host app) - Canonical permission slugs, bundles, and role maps; when present, Afterburner packages delegate authorization through `TeamPermissionGate`
 - `PackageSeederRegistry` - Register package seeders for `afterburner:install` and `db:seed`
 - `SystemSettings` - Register Livewire sections on the team System Settings page
 - `TeamNavigation` - Register items in the team dropdown navigation menu
@@ -408,6 +409,8 @@ PermissionGroupsRegistry::register('Communications', [
 // Package permission seeders (called by afterburner:install and DatabaseSeeder)
 PackageSeederRegistry::register(\Afterburner\Voting\Database\Seeders\VotingPermissionsSeeder::class);
 ```
+
+When the host app provides `App\Support\PermissionCatalog`, package `TeamPermissionGate` helpers and `*PermissionDefinitions` classes delegate to it for bundle-aware authorization. Without a catalog, packages use their built-in permission definitions and seeders.
 
 ## Documentation (coming soon)
 

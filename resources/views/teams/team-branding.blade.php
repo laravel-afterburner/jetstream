@@ -66,13 +66,12 @@
                                    id="primary_color"
                                    wire:model.live="brandingForm.primary_color"
                                    class="h-10 w-20 flex-shrink-0 rounded border border-gray-300 dark:border-gray-700 cursor-pointer"
-                                   :disabled="! Gate::check('update', $team)" />
+                                   />
                             <x-input id="primary_color_text"
                                      type="text"
                                      class="flex-1 min-w-0"
                                      wire:model.live="brandingForm.primary_color"
-                                     placeholder="#000000"
-                                     :disabled="! Gate::check('update', $team)" />
+                                     placeholder="#000000" />
                         </div>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Used for primary buttons, links, and accents.</p>
                         <x-input-error for="brandingForm.primary_color" class="mt-2" />
@@ -86,13 +85,12 @@
                                    id="secondary_color"
                                    wire:model.live="brandingForm.secondary_color"
                                    class="h-10 w-20 flex-shrink-0 rounded border border-gray-300 dark:border-gray-700 cursor-pointer"
-                                   :disabled="! Gate::check('update', $team)" />
+                                   />
                             <x-input id="secondary_color_text"
                                      type="text"
                                      class="flex-1 min-w-0"
                                      wire:model.live="brandingForm.secondary_color"
-                                     placeholder="#000000"
-                                     :disabled="! Gate::check('update', $team)" />
+                                     placeholder="#000000" />
                         </div>
                         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Used for secondary elements and highlights.</p>
                         <x-input-error for="brandingForm.secondary_color" class="mt-2" />
@@ -101,16 +99,14 @@
             </div>
         </x-slot>
 
-        @if (Gate::check('update', $team))
-            <x-slot name="actions">
-                <x-action-message class="me-3" on="saved">
-                    {{ __('Saved.') }}
-                </x-action-message>
+        <x-slot name="actions">
+            <x-action-message class="me-3" on="saved">
+                {{ __('Saved.') }}
+            </x-action-message>
 
-                <x-button>
-                    {{ __('Save') }}
-                </x-button>
-            </x-slot>
-        @endif
+            <x-button>
+                {{ __('Save') }}
+            </x-button>
+        </x-slot>
     </x-form-section>
 </div>

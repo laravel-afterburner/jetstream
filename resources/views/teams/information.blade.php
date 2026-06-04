@@ -7,21 +7,41 @@
 
     <div>
         <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-            @livewire('teams.team-information', ['team' => $team])
-
             @if (Gate::check('update', $team))
+                @livewire('teams.team-information', ['team' => $team])
+
                 <x-section-border />
 
                 <div class="mt-10 sm:mt-0">
                     @livewire('teams.team-branding', ['team' => $team])
                 </div>
-            @endif
 
-            @if (\App\Support\Features::hasTeamTimezoneManagement())
+                @if (\App\Support\Features::hasTeamTimezoneManagement())
+                    <x-section-border />
+
+                    <div class="mt-10 sm:mt-0">
+                        @livewire('teams.update-team-timezone-form', ['team' => $team])
+                    </div>
+                @endif
+            @else
+                <x-action-section>
+                    <x-slot name="title">
+                        {{ $entityLabel }} details
+                    </x-slot>
+
+                    <x-slot name="description">
+                        {{ __('Name, logo, branding, and timezone for this :entity.', ['entity' => config('afterburner.entity_label')]) }}
+                    </x-slot>
+
+                    <x-slot name="content">
+                        @include('teams.partials.team-details-summary', ['team' => $team])
+                    </x-slot>
+                </x-action-section>
+
                 <x-section-border />
 
                 <div class="mt-10 sm:mt-0">
-                    @livewire('teams.update-team-timezone-form', ['team' => $team])
+                    @livewire('teams.team-information', ['team' => $team])
                 </div>
             @endif
 
