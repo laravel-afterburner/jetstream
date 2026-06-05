@@ -9,6 +9,9 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './config/badge-colors.php',
+        './vendor/laravel-afterburner/*/resources/views/**/*.blade.php',
+        './vendor/laravel-afterburner/*/src/**/*.php',
+        './resources/views/vendor/afterburner-*/**/*.blade.php',
     ],
 
     theme: {
