@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Events\TeamMemberAdded;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\DB;
 
 class AcceptTeamInvitation
@@ -49,6 +50,11 @@ class AcceptTeamInvitation
             }
 
             TeamMemberAdded::dispatch($team, $user);
+
+            // Same trust as invitation-based registration: the invite targets this email.
+            if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+                $user->markEmailAsVerified();
+            }
         });
     }
 }

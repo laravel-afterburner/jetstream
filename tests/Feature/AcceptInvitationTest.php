@@ -63,6 +63,25 @@ class AcceptInvitationTest extends TestCase
         // Invitation removed
         $this->assertDatabaseMissing($invitation->getTable(), ['id' => $invitation->id]);
     }
+
+    public function test_accepting_invitation_marks_unverified_email_as_verified(): void
+    {
+        $seeder = new \Database\Seeders\RolesSeeder();
+        $seeder->run('strata');
+
+        $owner = User::factory()->withPersonalTeam()->create();
+        $team = $owner->currentTeam;
+
+        $team->teamInvitations()->create([
+            'email' => 'invitee@example.com',
+        ]);
+
+        $invitee = User::factory()->unverified()->create(['email' => 'invitee@example.com']);
+
+        app(AcceptTeamInvitation::class)->add($invitee, $team, $invitee->email, null);
+
+        $this->assertTrue($invitee->fresh()->hasVerifiedEmail());
+    }
 }
 
 

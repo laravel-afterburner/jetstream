@@ -9,6 +9,7 @@ use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Support\Afterburner;
 use App\Support\Features;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -188,5 +189,10 @@ class CreateNewUser implements CreatesNewUsers
         // Set the current team to the invited team
         $user->current_team_id = $team->id;
         $user->save();
+
+        // Invitation proves email ownership; skip Fortify's post-registration verification email.
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
     }
 }

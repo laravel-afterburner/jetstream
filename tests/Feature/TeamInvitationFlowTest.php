@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\TeamInvitation;
+use App\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features as FortifyFeatures;
@@ -97,6 +98,8 @@ class TeamInvitationFlowTest extends TestCase
         // Seed roles for the test
         $this->seed(\Database\Seeders\RolesSeeder::class);
 
+        Notification::fake();
+
         $teamOwner = User::factory()->withPersonalTeam()->create();
         $invitation = TeamInvitation::factory()->create([
             'team_id' => $teamOwner->currentTeam->id,
@@ -130,6 +133,9 @@ class TeamInvitationFlowTest extends TestCase
 
         // Check that user's current team is set to the invited team
         $this->assertEquals($teamOwner->currentTeam->id, $user->current_team_id);
+
+        $this->assertNotNull($user->fresh()->email_verified_at, 'Invited registration should mark email verified.');
+        Notification::assertNotSentTo($user, VerifyEmail::class);
     }
 
     public function test_notification_page_displays_invitations(): void
