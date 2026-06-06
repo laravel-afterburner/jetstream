@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Role;
 use App\Models\TeamInvitation;
 use Illuminate\Bus\Queueable;
@@ -48,7 +49,7 @@ class TeamInvitationRegistrationRequired extends Notification implements ShouldQ
         $team = $this->invitation->team;
         $inviter = $team->owner;
         $teamName = $team->name;
-        $entityLabel = config('afterburner.entity_label');
+        $entityLabel = EntityLabel::singular();
         
         // Create signed URL for registration with invitation token
         $registrationUrl = route('register', [

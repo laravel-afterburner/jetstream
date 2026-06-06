@@ -2,6 +2,7 @@
 
 namespace App\Actions\Afterburner;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Team;
 use App\Models\User;
 use App\Notifications\TeamMemberLeft;
@@ -68,7 +69,7 @@ class RemoveTeamMember
     {
         if ($teamMember->id === $team->owner->id) {
             throw ValidationException::withMessages([
-                'team' => [__('You may not leave a :entity that you created. You must first assign a new owner.', ['entity' => config('afterburner.entity_label')])],
+                'team' => [__('You may not leave a :entity that you created. You must first assign a new owner.', ['entity' => EntityLabel::singular()])],
             ])->errorBag('removeTeamMember');
         }
     }
@@ -82,7 +83,7 @@ class RemoveTeamMember
         
         if ($teamMemberCount <= 1) {
             throw ValidationException::withMessages([
-                'team' => [__('You cannot leave the :entity as you are the only member. Add other members first.', ['entity' => config('afterburner.entity_label')])],
+                'team' => [__('You cannot leave the :entity as you are the only member. Add other members first.', ['entity' => EntityLabel::singular()])],
             ])->errorBag('removeTeamMember');
         }
     }

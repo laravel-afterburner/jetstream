@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Team;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,7 +38,7 @@ class TeamDeleted extends Notification implements ShouldQueue
     {
         $ownerName = $this->team->owner->name;
         $teamName = $this->team->name;
-        $entityLabel = config('afterburner.entity_label');
+        $entityLabel = EntityLabel::singular();
 
         return team_mail_message($this->team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($teamName), $teamName)

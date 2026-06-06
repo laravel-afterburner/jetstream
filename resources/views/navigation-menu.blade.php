@@ -174,7 +174,7 @@
                                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            Switch {{ Str::plural(Str::title(config('afterburner.entity_label'))) }}
+                                            Switch {{ entity_plural_title() }}
                                         </div>
 
                                         @foreach ($this->allTeams as $team)
@@ -186,7 +186,7 @@
                                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                                         <x-dropdown-link href="{{ route('teams.create') }}" :active="$this->isTeamsCreateActive">
-                                            Create {{ Str::title(config('afterburner.entity_label')) }}
+                                            Create {{ entity_title() }}
                                         </x-dropdown-link>
                                     @endif
                                 </div>
@@ -608,7 +608,7 @@
                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                         <div class="block px-4 py-2 text-xs text-gray-400">
-                            Switch {{ Str::plural(Str::title(config('afterburner.entity_label'))) }}
+                            Switch {{ entity_plural_title() }}
                         </div>
 
                         @foreach ($this->allTeams as $team)
@@ -620,7 +620,7 @@
                         <div class="border-t border-gray-200 dark:border-gray-600"></div>
 
                         <x-responsive-nav-link href="{{ route('teams.create') }}" :active="$this->isTeamsCreateActive">
-                            Create {{ Str::title(config('afterburner.entity_label')) }}
+                            Create {{ entity_title() }}
                         </x-responsive-nav-link>
                     @endif
                 @endif

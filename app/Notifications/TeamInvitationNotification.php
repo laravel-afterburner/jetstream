@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Role;
 use App\Models\TeamInvitation;
 use Illuminate\Bus\Queueable;
@@ -48,7 +49,7 @@ class TeamInvitationNotification extends Notification implements ShouldQueue
         $team = $this->invitation->team;
         $inviter = $team->owner;
         $teamName = $team->name;
-        $entityLabel = config('afterburner.entity_label');
+        $entityLabel = EntityLabel::singular();
 
         $mailMessage = team_mail_message($team)
             ->from('donotreply@' . $this->sanitizeEmailDomain($team->name), $inviter->name ?? $team->name)
@@ -105,7 +106,7 @@ class TeamInvitationNotification extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
-        $entityLabel = config('afterburner.entity_label');
+        $entityLabel = EntityLabel::singular();
         
         return [
             'type' => 'team_invitation',

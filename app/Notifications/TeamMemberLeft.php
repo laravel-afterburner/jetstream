@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -41,7 +42,7 @@ class TeamMemberLeft extends Notification implements ShouldQueue
     {
         $teamName = $this->team->name;
         $memberName = $this->memberWhoLeft->name;
-        $entityLabel = config('afterburner.entity_label');
+        $entityLabel = EntityLabel::singular();
         
         $rolesText = empty($this->memberRoles) ? 'No specific roles' : implode(', ', $this->memberRoles);
 

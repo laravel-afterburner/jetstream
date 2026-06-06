@@ -1,10 +1,10 @@
 <x-form-section submit="createTeam">
     <x-slot name="title">
-        {{ Str::title(config('afterburner.entity_label')) }} Details
+        {{ entity_title() }} Details
     </x-slot>
 
     <x-slot name="description">
-        Create a new account to manage your {{ config('afterburner.entity_label') }}
+        Create a new account to manage your {{ entity_label() }}
     </x-slot>
 
     <x-slot name="form">

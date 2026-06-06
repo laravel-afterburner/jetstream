@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use Afterburner\Support\EntityLabel;
 use App\Events\TeamMemberAdded;
 use App\Models\Role;
 use App\Models\Team;
@@ -96,7 +97,7 @@ class CreateNewUser implements CreatesNewUsers
 
         $teamData = [
             'user_id' => $user->id,
-            'name' => explode(' ', $user->name, 2)[0]."'s ".ucfirst(config('afterburner.entity_label')),
+            'name' => explode(' ', $user->name, 2)[0]."'s ".EntityLabel::singularTitle(),
         ];
 
         // Set personal_team flag based on feature state

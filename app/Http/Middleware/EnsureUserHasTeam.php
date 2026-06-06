@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Afterburner\Support\EntityLabel;
 use App\Support\Features;
 use Closure;
 use Illuminate\Http\Request;
@@ -139,7 +140,7 @@ class EnsureUserHasTeam
 
         if ($unreadInvitations->count() > 0) {
             $firstInvitation = $unreadInvitations->first();
-            $teamName = $firstInvitation->data['team_name'] ?? 'a '.config('afterburner.entity_label');
+            $teamName = $firstInvitation->data['team_name'] ?? 'a '.EntityLabel::singular();
 
             return redirect()->route('notifications')->banner(
                 __('You have been invited to join :teamName! Please check your notifications to accept the invitation.', [
@@ -150,11 +151,11 @@ class EnsureUserHasTeam
 
         if ($readPendingInvitations->count() > 0) {
             $firstInvitation = $readPendingInvitations->first();
-            $teamName = $firstInvitation->data['team_name'] ?? 'a '.config('afterburner.entity_label');
+            $teamName = $firstInvitation->data['team_name'] ?? 'a '.EntityLabel::singular();
 
             return redirect()->route('teams.create')->warningBanner(
                 __('Please create a :entity to continue, or accept the invitation to :teamName in your notifications.', [
-                    'entity' => config('afterburner.entity_label'),
+                    'entity' => EntityLabel::singular(),
                     'teamName' => $teamName,
                 ])
             );
@@ -162,7 +163,7 @@ class EnsureUserHasTeam
 
         return redirect()->route('teams.create')->warningBanner(
             __('Please create a :entity to continue.', [
-                'entity' => config('afterburner.entity_label'),
+                'entity' => EntityLabel::singular(),
             ])
         );
     }

@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="description">
-        Permanently delete this {{ config('afterburner.entity_label') }}.
+        Permanently delete this {{ entity_label() }}.
     </x-slot>
 
     <x-slot name="content">
@@ -18,28 +18,28 @@
                     </div>
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                            Personal {{ Str::title(config('afterburner.entity_label')) }}
+                            Personal {{ entity_title() }}
                         </h3>
                         <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                            <p>You cannot delete your personal {{ config('afterburner.entity_label') }}. This is your primary {{ config('afterburner.entity_label') }} and is required for your account to function properly.</p>
+                            <p>You cannot delete your personal {{ entity_label() }}. This is your primary {{ entity_label() }} and is required for your account to function properly.</p>
                         </div>
                     </div>
                 </div>
             </div>
         @else
             <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
-                Once a {{ config('afterburner.entity_label') }} is deleted, all of its resources and data will be permanently deleted. Before deleting this {{ config('afterburner.entity_label') }}, please download any data or information regarding this {{ config('afterburner.entity_label') }} that you wish to retain.
+                Once a {{ entity_label() }} is deleted, all of its resources and data will be permanently deleted. Before deleting this {{ entity_label() }}, please download any data or information regarding this {{ entity_label() }} that you wish to retain.
             </div>
         @endif
 
         <div class="mt-5">
             @if($this->isPersonalTeam)
                 <x-danger-button disabled class="opacity-50 cursor-not-allowed">
-                    Delete {{ Str::title(config('afterburner.entity_label')) }}
+                    Delete {{ entity_title() }}
                 </x-danger-button>
             @else
                 <x-danger-button wire:click="$toggle('confirmingTeamDeletion')" wire:loading.attr="disabled">
-                    Delete {{ Str::title(config('afterburner.entity_label')) }}
+                    Delete {{ entity_title() }}
                 </x-danger-button>
             @endif
         </div>
@@ -48,11 +48,11 @@
         @if (!$this->isPersonalTeam)
             <x-confirmation-modal wire:model.live="confirmingTeamDeletion">
                 <x-slot name="title">
-                    Delete {{ Str::title(config('afterburner.entity_label')) }}
+                    Delete {{ entity_title() }}
                 </x-slot>
 
                 <x-slot name="content">
-                    Are you sure you want to delete this {{ config('afterburner.entity_label') }}? Once a {{ config('afterburner.entity_label') }} is deleted, all of its resources and data will be permanently deleted.
+                    Are you sure you want to delete this {{ entity_label() }}? Once a {{ entity_label() }} is deleted, all of its resources and data will be permanently deleted.
                 </x-slot>
 
                 <x-slot name="footer">
@@ -61,7 +61,7 @@
                     </x-secondary-button>
 
                     <x-danger-button class="ms-3" wire:click="deleteTeam" wire:loading.attr="disabled">
-                        Delete {{ Str::title(config('afterburner.entity_label')) }}
+                        Delete {{ entity_title() }}
                     </x-danger-button>
                 </x-slot>
             </x-confirmation-modal>

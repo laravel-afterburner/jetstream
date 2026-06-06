@@ -5,7 +5,7 @@
         </x-slot>
 
         <x-slot name="description">
-            Create and manage roles for this {{ config('afterburner.entity_label') }}. Roles define what permissions users have within the system.
+            Create and manage roles for this {{ entity_label() }}. Roles define what permissions users have within the system.
         </x-slot>
 
         <x-slot name="content">
@@ -121,7 +121,7 @@
                     @if($copyingRole && $roleBeingCopied)
                         You are copying the "{{ $roleBeingCopied->name }}" role. Modify the details below and create a new role with these settings.
                     @else
-                        Create a new role for this {{ config('afterburner.entity_label') }}. Roles define what permissions users have within the system.
+                        Create a new role for this {{ entity_label() }}. Roles define what permissions users have within the system.
                     @endif
                 </x-slot>
 
@@ -224,7 +224,7 @@
                     <x-label value="{{ __('Role') }}" />
                     <p class="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $roleBeingEdited->name }}</p>
                     @if($roleBeingEdited->is_system)
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('System roles are permanent. You can adjust permissions and member limits for this :entity only.', ['entity' => config('afterburner.entity_label')]) }}</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('System roles are permanent. You can adjust permissions and member limits for this :entity only.', ['entity' => entity_label()]) }}</p>
                     @endif
                 </div>
 
@@ -279,7 +279,7 @@
 
             <x-slot name="content">
                 <div class="text-sm text-gray-600 dark:text-gray-400">
-                    Are you sure you want to delete this role? This action cannot be undone and will remove the role from members of this {{ config('afterburner.entity_label') }} only.
+                    Are you sure you want to delete this role? This action cannot be undone and will remove the role from members of this {{ entity_label() }} only.
                 </div>
                 
                 @if($roleBeingDeleted)

@@ -1,4 +1,4 @@
-@php($entityLabel = Str::title(config('afterburner.entity_label')))
+@php($entityLabel = entity_title())
 
 <x-app-layout :title="\App\Support\PageHeader::make($entityLabel, detail: 'Role management')">
     <x-slot name="header">

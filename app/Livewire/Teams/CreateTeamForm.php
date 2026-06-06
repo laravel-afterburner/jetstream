@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Teams;
 
+use Afterburner\Support\EntityLabel;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Afterburner\CreateTeam;
 use App\Traits\RedirectsActions;
@@ -70,7 +71,7 @@ class CreateTeamForm extends Component
         session()->flash('flash', [
             'bannerStyle' => 'success',
             'banner' => __('The :entity ":name" has been created.', [
-                'entity' => config('afterburner.entity_label'),
+                'entity' => EntityLabel::singular(),
                 'name' => $team->name,
             ]),
         ]);

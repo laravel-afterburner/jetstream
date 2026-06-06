@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a7ff3f5544473aca0816ea7b2c188dd8",
+    "content-hash": "ba93d3dbe3d48ec6f66a278ba9c8b60a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1362,6 +1362,49 @@
             ],
             "abandoned": "laravel/passkeys",
             "time": "2026-01-19T17:57:17+00:00"
+        },
+        {
+            "name": "laravel-afterburner/support",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../afterburner-support",
+                "reference": "2d0ecdefd35bc8a030f606fa350fe35b3c706852"
+            },
+            "require": {
+                "illuminate/support": "^11.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Afterburner\\Support\\": "src/"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Afterburner\\Support\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Shared support utilities for Afterburner applications and packages",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "laravel/fortify",

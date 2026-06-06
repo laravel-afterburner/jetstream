@@ -6,7 +6,7 @@
         </x-slot>
 
         <x-slot name="description">
-            Customize your {{ config('afterburner.entity_label') }} branding with a logo and colors. The logo will be displayed in the navigation bar and emails, and colors will be applied to the interface and emails.
+            Customize your {{ entity_label() }} branding with a logo and colors. The logo will be displayed in the navigation bar and emails, and colors will be applied to the interface and emails.
         </x-slot>
 
         <x-slot name="form">

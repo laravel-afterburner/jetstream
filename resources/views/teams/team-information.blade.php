@@ -6,7 +6,7 @@
             </x-slot>
 
             <x-slot name="description">
-                The {{ config('afterburner.entity_label') }}'s name.
+                The {{ entity_label() }}'s name.
             </x-slot>
 
             <x-slot name="form">
@@ -43,7 +43,7 @@
         </x-slot>
 
         <x-slot name="description">
-            The {{ config('afterburner.entity_label') }} owner information.
+            The {{ entity_label() }} owner information.
         </x-slot>
 
         <x-slot name="content">
@@ -96,12 +96,12 @@
     <!-- Entity Owner Change Modal -->
     <x-dialog-modal wire:model.live="confirmingTeamOwnerChange">
         <x-slot name="title">
-            Change {{ Str::title(config('afterburner.entity_label')) }} Owner
+            Change {{ entity_title() }} Owner
         </x-slot>
 
         <x-slot name="content">
             <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Select a new owner for this {{ config('afterburner.entity_label') }}. The new owner will have full control over the {{ config('afterburner.entity_label') }}.
+                Select a new owner for this {{ entity_label() }}. The new owner will have full control over the {{ entity_label() }}.
             </div>
 
             <div class="space-y-3">

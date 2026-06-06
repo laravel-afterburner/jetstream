@@ -25,7 +25,7 @@
                                         <button type="button"
                                                 wire:click="backToTeams"
                                                 class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 mb-2">
-                                            {!! '&larr;' !!} Back to {{ Str::plural(config('afterburner.entity_label')) }}
+                                            {!! '&larr;' !!} Back to {{ entity_plural() }}
                                         </button>
                                     @endif
                                     <label for="role-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -66,12 +66,12 @@
                             @else
                                 <div class="mb-4">
                                     <label for="team-search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Search {{ Str::title(config('afterburner.entity_label')) }}
+                                        Search {{ entity_title() }}
                                     </label>
                                     <input type="text"
                                            wire:model.live.debounce.300ms="searchQuery"
                                            id="team-search"
-                                           placeholder="Type to search {{ Str::plural(config('afterburner.entity_label')) }}..."
+                                           placeholder="Type to search {{ entity_plural() }}..."
                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-900 dark:text-gray-300 sm:text-sm">
                                 </div>
 
@@ -83,7 +83,7 @@
                                             {{ $team->name }}
                                         </button>
                                     @empty
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 px-4 py-2">No {{ Str::plural(config('afterburner.entity_label')) }} found.</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 px-4 py-2">No {{ entity_plural() }} found.</p>
                                     @endforelse
                                 </div>
                             @endif

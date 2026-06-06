@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\User;
 use App\Models\Team;
 use App\Models\Role;
@@ -69,7 +70,7 @@ class TestDataSeeder extends Seeder
         if (\App\Support\Features::hasTeamFeatures()) {
             // Check if personal teams feature is enabled
             $hasPersonalTeams = \App\Support\Features::hasPersonalTeams();
-            $entityLabel = ucfirst(config('afterburner.entity_label'));
+            $entityLabel = EntityLabel::singularTitle();
             
             // Determine teams based on whether personal teams are enabled
             if ($hasPersonalTeams) {
@@ -312,7 +313,7 @@ class TestDataSeeder extends Seeder
             // Create a personal team for the user
             $teamData = [
                 'user_id' => $user->id,
-                'name' => explode(' ', $user->name, 2)[0]."'s ".ucfirst(config('afterburner.entity_label')),
+                'name' => explode(' ', $user->name, 2)[0]."'s ".EntityLabel::singularTitle(),
                 'personal_team' => true,
             ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Afterburner;
 
+use Afterburner\Support\EntityLabel;
 use App\Events\InvitingTeamMember;
 use App\Models\Role;
 use App\Models\Team;
@@ -129,7 +130,7 @@ class InviteTeamMember
             $validator->errors()->addIf(
                 $team->hasUserWithEmail($email),
                 'email',
-                __('This user already belongs to the :entity.', ['entity' => config('afterburner.entity_label')])
+                __('This user already belongs to the :entity.', ['entity' => EntityLabel::singular()])
             );
         };
     }

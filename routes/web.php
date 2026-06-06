@@ -17,6 +17,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Models\Team;
 use App\Support\Afterburner;
 
+
 Route::get('/php-info', function () {
     return phpinfo();
 });
@@ -74,23 +75,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Entity routes (households, teams, companies, etc. - based on entity_url_slug)
     if (Afterburner::hasTeamFeatures()) {
-        $entitySlug = config('afterburner.entity_url_slug');
-        Route::get("/{$entitySlug}/create", [TeamController::class, 'create'])->name('teams.create');
+        Route::get('/' . entity_url_slug() . '/create', [TeamController::class, 'create'])->name('teams.create');
         Route::put('/current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
         Route::delete('/team-invitations/{invitation}', [TeamInvitationController::class, 'destroy'])
             ->name('team-invitations.destroy');
-        Route::delete("/{$entitySlug}/{team}", [DeleteTeamController::class, 'destroy'])
+        Route::delete('/' . entity_url_slug() . '/{team}', [DeleteTeamController::class, 'destroy'])
             ->name('teams.destroy');
-        Route::get("/{$entitySlug}/{team}/information", function (Team $team) {
+        Route::get('/' . entity_url_slug() . '/{team}/information', function (Team $team) {
             return view('teams.information', ['team' => $team]);
         })->name('teams.information');
-        Route::get("/{$entitySlug}/{team}/members", function (Team $team) {
+        Route::get('/' . entity_url_slug() . '/{team}/members', function (Team $team) {
             return view('teams.members', ['team' => $team]);
         })->name('teams.members');
-        Route::get("/{$entitySlug}/{team}/roles", function (Team $team) {
+        Route::get('/' . entity_url_slug() . '/{team}/roles', function (Team $team) {
             return view('roles.show', ['team' => $team]);
         })->middleware('can:createRole,team')->name('roles.show');
-        Route::get("/{$entitySlug}/{team}/system-settings", SystemSettingsController::class)
+        Route::get('/' . entity_url_slug() . '/{team}/system-settings', SystemSettingsController::class)
             ->name('teams.system-settings')
             ->middleware('can:update,team');
     }
@@ -114,7 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/impersonate-role/stop', [RoleImpersonationController::class, 'stop'])->name('impersonate-role.stop');
     Route::middleware('system.admin')->group(function () {
         Route::post('/impersonate/{user}', [ImpersonationController::class, 'start'])->name('impersonate.start');
-        Route::post('/impersonate-role/teams/{team}/{role}', [RoleImpersonationController::class, 'start'])->name('impersonate-role.start');
+        Route::post('/impersonate-role/' . entity_url_slug() . '/{team}/{role}', [RoleImpersonationController::class, 'start'])->name('impersonate-role.start');
         Route::post('/impersonate-role/{role}', [RoleImpersonationController::class, 'startWithoutTeam'])->name('impersonate-role.start.global');
     });
 

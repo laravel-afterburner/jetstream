@@ -1,4 +1,4 @@
-@php($entityLabel = Str::title(config('afterburner.entity_label')))
+@php($entityLabel = entity_title())
 
 <x-app-layout :title="\App\Support\PageHeader::make($entityLabel, detail: 'Details')">
     <x-slot name="header">
@@ -30,7 +30,7 @@
                     </x-slot>
 
                     <x-slot name="description">
-                        {{ __('Name, logo, branding, and timezone for this :entity.', ['entity' => config('afterburner.entity_label')]) }}
+                        {{ __('Name, logo, branding, and timezone for this :entity.', ['entity' => entity_label()]) }}
                     </x-slot>
 
                     <x-slot name="content">

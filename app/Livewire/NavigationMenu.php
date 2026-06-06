@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\User;
 use App\Support\Afterburner;
 use App\Support\RoleImpersonation;
@@ -95,7 +96,7 @@ class NavigationMenu extends Component
         }
 
         if (! $this->user || ! $this->user->currentTeam) {
-            return 'No '.Str::title(config('afterburner.entity_label'));
+            return 'No '.EntityLabel::singularTitle();
         }
 
         return $this->user->currentTeam->name;

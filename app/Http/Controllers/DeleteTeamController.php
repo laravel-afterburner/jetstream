@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class DeleteTeamController extends Controller
 
             return redirect()->route('dashboard')->banner(
                 __('The :entity ":name" has been deleted. Switched to :current.', [
-                    'entity' => config('afterburner.entity_label'),
+                    'entity' => EntityLabel::singular(),
                     'name' => $teamName,
                     'current' => $nextTeam->name,
                 ])
@@ -53,7 +54,7 @@ class DeleteTeamController extends Controller
             if (! \App\Support\Features::allowsTeamCreation()) {
                 return redirect()->route('profile.show')->banner(
                     __('The :entity ":name" has been deleted.', [
-                        'entity' => config('afterburner.entity_label'),
+                        'entity' => EntityLabel::singular(),
                         'name' => $teamName,
                     ])
                 );
@@ -61,11 +62,11 @@ class DeleteTeamController extends Controller
 
             if ($unreadInvitations->count() > 0) {
                 $firstInvitation = $unreadInvitations->first();
-                $invitedTeamName = $firstInvitation->data['team_name'] ?? 'a '.config('afterburner.entity_label');
+                $invitedTeamName = $firstInvitation->data['team_name'] ?? 'a '.EntityLabel::singular();
 
                 return redirect()->route('notifications')->banner(
                     __('The :entity ":name" has been deleted. You have been invited to join :invitedTeamName! Please check your notifications.', [
-                        'entity' => config('afterburner.entity_label'),
+                        'entity' => EntityLabel::singular(),
                         'name' => $teamName,
                         'invitedTeamName' => $invitedTeamName,
                     ])
@@ -74,7 +75,7 @@ class DeleteTeamController extends Controller
 
             return redirect()->route('teams.create')->banner(
                 __('The :entity ":name" has been deleted.', [
-                    'entity' => config('afterburner.entity_label'),
+                    'entity' => EntityLabel::singular(),
                     'name' => $teamName,
                 ])
             );

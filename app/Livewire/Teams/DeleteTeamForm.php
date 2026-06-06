@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Teams;
 
+use Afterburner\Support\EntityLabel;
 use App\Support\Features;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Afterburner\ValidateTeamDeletion;
@@ -58,7 +59,7 @@ class DeleteTeamForm extends Component
         session()->flash('flash', [
             'bannerStyle' => 'success',
             'banner' => __('The :entity ":name" has been deleted.', [
-                'entity' => config('afterburner.entity_label'),
+                'entity' => EntityLabel::singular(),
                 'name' => $teamName,
             ]),
         ]);

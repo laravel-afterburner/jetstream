@@ -10,6 +10,7 @@
         "laragear/webauthn": "^4.0",
         "laravel/fortify": "^1.20",
         "laravel/framework": "^11.31",
+        "laravel-afterburner/support": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.6.4",
@@ -84,6 +85,10 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": {
+        "afterburner-support": {
+            "type": "path",
+            "url": "../afterburner-support"
+        },
         "afterburner-documents": {
             "type": "path",
             "url": "../afterburner-documents"

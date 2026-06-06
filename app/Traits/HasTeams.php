@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Afterburner\Support\EntityLabel;
 use App\Models\Role;
 use App\Models\Team;
 use App\Support\Afterburner;
@@ -110,7 +111,7 @@ trait HasTeams
 
         $teamData = [
             'user_id' => $this->id,
-            'name' => explode(' ', $this->name, 2)[0]."'s ".ucfirst(config('afterburner.entity_label')),
+            'name' => explode(' ', $this->name, 2)[0]."'s ".EntityLabel::singularTitle(),
         ];
 
         // Set personal_team flag based on feature state

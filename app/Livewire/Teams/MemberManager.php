@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Teams;
 
+use Afterburner\Support\EntityLabel;
 use App\Actions\Afterburner\InviteTeamMember;
 use App\Actions\Afterburner\RemoveTeamMember;
 use App\Models\Role;
@@ -724,11 +725,11 @@ class MemberManager extends Component
         $user = $this->getUserProperty();
         
         if ($this->team->users()->count() <= 1) {
-            return 'You cannot leave the ' . config('afterburner.entity_label') . ' as you are the only member. Add other members first, or delete the ' . config('afterburner.entity_label') . '.';
+            return 'You cannot leave the ' . EntityLabel::singular() . ' as you are the only member. Add other members first, or delete the ' . EntityLabel::singular() . '.';
         }
         
         if ($user->ownsTeam($this->team)) {
-            return 'You cannot leave the ' . config('afterburner.entity_label') . ' that you own, you must first assign a new owner.';
+            return 'You cannot leave the ' . EntityLabel::singular() . ' that you own, you must first assign a new owner.';
         }
         
         return null;

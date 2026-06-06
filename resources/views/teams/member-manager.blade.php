@@ -7,7 +7,7 @@
             </x-slot>
 
             <x-slot name="description">
-                All of the people that are part of this {{ config('afterburner.entity_label') }}.
+                All of the people that are part of this {{ entity_label() }}.
             </x-slot>
 
             <!-- Entity Member List -->
@@ -124,7 +124,7 @@
                 </x-slot>
 
                 <x-slot name="description">
-                    These people have been invited to your {{ config('afterburner.entity_label') }} and have been sent an invitation email. They may join the {{ config('afterburner.entity_label') }} by accepting the email invitation.
+                    These people have been invited to your {{ entity_label() }} and have been sent an invitation email. They may join the {{ entity_label() }} by accepting the email invitation.
                 </x-slot>
 
                 <x-slot name="content">
@@ -241,7 +241,7 @@
         <x-slot name="content">
             <div class="space-y-4">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Add a new member to your {{ config('afterburner.entity_label') }}. All members automatically receive basic user access, and you may optionally assign additional roles.
+                    Add a new member to your {{ entity_label() }}. All members automatically receive basic user access, and you may optionally assign additional roles.
                 </p>
 
                 <div>
@@ -397,11 +397,11 @@
     <!-- Leave Entity Confirmation Modal -->
     <x-confirmation-modal wire:model.live="confirmingLeavingTeam">
         <x-slot name="title">
-            Leave {{ Str::title(config('afterburner.entity_label')) }}
+            Leave {{ entity_title() }}
         </x-slot>
 
         <x-slot name="content">
-            Are you sure you would like to leave this {{ config('afterburner.entity_label') }}?
+            Are you sure you would like to leave this {{ entity_label() }}?
         </x-slot>
 
         <x-slot name="footer">
@@ -418,11 +418,11 @@
     <!-- Remove Entity Member Confirmation Modal -->
     <x-confirmation-modal wire:model.live="confirmingTeamMemberRemoval">
         <x-slot name="title">
-            Remove {{ Str::title(config('afterburner.entity_label')) }} Member
+            Remove {{ entity_title() }} Member
         </x-slot>
 
         <x-slot name="content">
-            Are you sure you would like to remove this person from the {{ config('afterburner.entity_label') }}?
+            Are you sure you would like to remove this person from the {{ entity_label() }}?
         </x-slot>
 
         <x-slot name="footer">
@@ -550,11 +550,11 @@
     <!-- Cancel Team Invitation Confirmation Modal -->
     <x-confirmation-modal wire:model.live="confirmingInvitationCancellation">
         <x-slot name="title">
-            Cancel {{ Str::title(config('afterburner.entity_label')) }} Invitation
+            Cancel {{ entity_title() }} Invitation
         </x-slot>
 
         <x-slot name="content">
-            Are you sure you would like to cancel this {{ config('afterburner.entity_label') }} invitation? The person will no longer be able to join the {{ config('afterburner.entity_label') }} using this invitation.
+            Are you sure you would like to cancel this {{ entity_label() }} invitation? The person will no longer be able to join the {{ entity_label() }} using this invitation.
         </x-slot>
 
         <x-slot name="footer">

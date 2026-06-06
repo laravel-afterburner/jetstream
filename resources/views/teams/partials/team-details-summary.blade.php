@@ -2,7 +2,7 @@
     use App\Support\Features;
     use App\Support\TimezoneDisplay;
 
-    $entityLabel = Str::title(config('afterburner.entity_label'));
+    $entityLabel = entity_title();
     $timezone = $team->timezone ?? config('app.timezone', 'UTC');
     $currentTime = now()->setTimezone($timezone);
     $primaryColor = $team->primary_color ?? '#4f46e5';
@@ -28,7 +28,7 @@
                     {{ $team->name }}
                 </p>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    {{ __('Core profile and branding for this :entity.', ['entity' => config('afterburner.entity_label')]) }}
+                    {{ __('Core profile and branding for this :entity.', ['entity' => entity_label()]) }}
                 </p>
             </div>
         </div>

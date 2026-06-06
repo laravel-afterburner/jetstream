@@ -55,7 +55,7 @@
                                             @endif
 
                                             <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                {{ Str::title(config('afterburner.entity_label')) }} Invitation
+                                                {{ entity_title() }} Invitation
                                             </h4>
                                         </div>
                                         
