@@ -38,6 +38,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
         'password',
         'is_system_admin',
         'timezone',
+        'color_scheme',
     ];
 
     /**

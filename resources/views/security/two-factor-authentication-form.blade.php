@@ -38,7 +38,7 @@
                     </p>
                 </div>
 
-                <div class="mt-4 p-2 inline-block bg-white">
+                <div class="mt-4 inline-block bg-white p-2 dark:bg-gray-900">
                     {!! $this->user->twoFactorQrCodeSvg() !!}
                 </div>
 

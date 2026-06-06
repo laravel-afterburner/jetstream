@@ -11,6 +11,12 @@
                 <x-section-border />
             @endif
 
+            <div class="mt-10 sm:mt-0">
+                @livewire('profile.update-color-scheme-form')
+            </div>
+
+            <x-section-border />
+
             @if (App\Support\Afterburner::hasUserTimezoneManagement())
                 <div class="mt-10 sm:mt-0">
                     @livewire('profile.update-timezone-form')
