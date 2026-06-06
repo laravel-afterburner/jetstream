@@ -146,55 +146,36 @@
                         <x-input-error for="createRoleForm.description" class="mt-2" />
                     </div>
 
-                    <!-- Badge Color, Member Limit, and Directory Council -->
+                    <!-- Badge Color and Max Members -->
+                    <div class="col-span-6 sm:col-span-3">
+                        <x-label for="create_badge_color" value="{{ __('Badge Color') }}" />
+                        <select id="create_badge_color" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="createRoleForm.badge_color">
+                            @foreach($this->badgeColorOptions as $key => $color)
+                                <option value="{{ $key }}">{{ $color['label'] }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error for="createRoleForm.badge_color" class="mt-2" />
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-3">
+                        <x-label for="create_max_members" value="{{ __('Member Limit (Optional)') }}" />
+                        <x-input id="create_max_members" type="number" class="mt-1 block w-full" wire:model="createRoleForm.max_members" />
+                        <x-input-error for="createRoleForm.max_members" class="mt-2" />
+                    </div>
+
                     <div class="col-span-6">
-                        <div class="flex flex-wrap items-end gap-4">
-                            <div class="w-36 sm:w-40">
-                                <x-label for="create_badge_color" value="{{ __('Badge Color') }}" />
-                                <select id="create_badge_color" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="createRoleForm.badge_color">
-                                    @foreach($this->badgeColorOptions as $key => $color)
-                                        <option value="{{ $key }}">{{ $color['label'] }}</option>
-                                    @endforeach
-                                </select>
-                                <x-input-error for="createRoleForm.badge_color" class="mt-2" />
-                            </div>
-
-                            <div class="w-28 sm:w-32">
-                                <x-label for="create_max_members" value="{{ __('Member Limit') }}" />
-                                <x-input id="create_max_members" type="number" class="mt-1 block w-full" wire:model="createRoleForm.max_members" placeholder="No limit" />
-                                <x-input-error for="createRoleForm.max_members" class="mt-2" />
-                            </div>
-
-                            <label class="flex min-w-[12rem] flex-1 items-center gap-2 pb-2">
-                                <x-checkbox wire:model="createRoleForm.show_in_directory_council" id="create_show_in_directory_council" />
-                                <span class="text-sm text-gray-700 dark:text-gray-300">
-                                    Show in resident directory council section
-                                </span>
-                            </label>
-                        </div>
+                        <label class="flex items-center gap-2">
+                            <x-checkbox wire:model="createRoleForm.show_in_directory_council" id="create_show_in_directory_council" />
+                            <span class="text-sm text-gray-700 dark:text-gray-300">
+                                Council Role
+                            </span>
+                        </label>
                     </div>
 
                     <!-- Permissions -->
                     <div class="col-span-6">
                         <x-label value="{{ __('Permissions') }}" />
-                        <div class="mt-2 space-y-4 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                            @foreach($this->groupedPermissions as $groupLabel => $groupPermissions)
-                                <div>
-                                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __($groupLabel) }}</p>
-                                    <div class="mt-2 space-y-2">
-                                        @foreach($groupPermissions as $permission)
-                                            <label class="flex items-center">
-                                                <input type="checkbox"
-                                                       class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
-                                                       wire:model="createRoleForm.permissions"
-                                                       value="{{ $permission->id }}">
-                                                <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                        @include('roles.partials.permissions-panel', ['form' => 'createRoleForm'])
                         <x-input-error for="createRoleForm.permissions" class="mt-2" />
                     </div>
                 </x-slot>
@@ -255,44 +236,25 @@
                     </div>
                 @endif
 
-                <div class="flex flex-wrap items-end gap-4">
-                    <div class="w-28 sm:w-32">
-                        <x-label for="edit_max_members" value="{{ __('Member Limit') }}" />
-                        <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" placeholder="No limit" />
-                        <x-input-error for="editRoleForm.max_members" class="mt-2" />
-                    </div>
-
-                    @unless ($roleBeingEdited?->is_default)
-                        <label class="flex min-w-[12rem] flex-1 items-center gap-2 pb-2">
-                            <x-checkbox wire:model="editRoleForm.show_in_directory_council" id="edit_show_in_directory_council" />
-                            <span class="text-sm text-gray-700 dark:text-gray-300">
-                                Show in resident directory council section
-                            </span>
-                        </label>
-                    @endunless
+                <div class="max-w-xs">
+                    <x-label for="edit_max_members" value="{{ __('Member Limit (Optional)') }}" />
+                    <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" />
+                    <x-input-error for="editRoleForm.max_members" class="mt-2" />
                 </div>
+
+                @unless ($roleBeingEdited?->is_default)
+                    <label class="flex items-center gap-2">
+                        <x-checkbox wire:model="editRoleForm.show_in_directory_council" id="edit_show_in_directory_council" />
+                        <span class="text-sm text-gray-700 dark:text-gray-300">
+                            Council Role
+                        </span>
+                    </label>
+                @endunless
 
                 <!-- Permissions -->
                 <div>
                     <x-label value="{{ __('Permissions') }}" />
-                    <div class="mt-2 space-y-4 max-h-60 overflow-y-auto">
-                        @foreach($this->groupedPermissions as $groupLabel => $groupPermissions)
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __($groupLabel) }}</p>
-                                <div class="mt-2 space-y-2">
-                                    @foreach($groupPermissions as $permission)
-                                        <label class="flex items-center">
-                                            <input type="checkbox"
-                                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
-                                                wire:model="editRoleForm.permissions"
-                                                value="{{ $permission->id }}">
-                                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ $permission->name }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                    @include('roles.partials.permissions-panel', ['form' => 'editRoleForm'])
                 </div>
             </div>
         </x-slot>

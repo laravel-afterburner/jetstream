@@ -13,6 +13,8 @@ return [
     | Council role slugs (discussion scope: council)
     |--------------------------------------------------------------------------
     */
+    'council_role_resolver' => \App\Support\CouncilRoles::class,
+
     'council_role_slugs' => [
         'president',
         'treasurer',

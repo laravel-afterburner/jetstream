@@ -3,15 +3,15 @@
 namespace Tests\Unit;
 
 use App\Models\Role;
-use App\Support\DirectoryCouncilRoles;
+use App\Support\CouncilRoles;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class DirectoryCouncilRolesTest extends TestCase
+class CouncilRolesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_role_ids_include_only_roles_marked_for_directory_council(): void
+    public function test_role_ids_include_only_roles_marked_as_council(): void
     {
         $council = Role::query()->create([
             'name' => 'Vice President',
@@ -23,12 +23,12 @@ class DirectoryCouncilRolesTest extends TestCase
         Role::query()->create([
             'name' => 'Strata Owner',
             'slug' => 'strata_owner',
-            'hierarchy' => 5,
+            'hierarchy' => 6,
             'is_default' => true,
             'show_in_directory_council' => false,
         ]);
 
-        $this->assertSame([$council->id], DirectoryCouncilRoles::roleIds()->all());
-        $this->assertSame(['vice_president'], DirectoryCouncilRoles::slugs());
+        $this->assertSame([$council->id], CouncilRoles::roleIds()->all());
+        $this->assertSame(['vice_president'], CouncilRoles::slugs());
     }
 }

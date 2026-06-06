@@ -8,6 +8,8 @@ return [
 
     'eligibility_resolver' => DefaultUserVoterEligibilityResolver::class,
 
+    'council_role_resolver' => \App\Support\CouncilRoles::class,
+
     'council_role_slugs' => [
         'president',
         'treasurer',

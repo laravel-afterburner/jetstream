@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('hierarchy')->default(999); // Lower = higher priority
             $table->string('badge_color')->default('bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300');
             $table->integer('max_members')->nullable();
+            $table->boolean('show_in_directory_council')->default(false);
             $table->timestamps();
         });
 

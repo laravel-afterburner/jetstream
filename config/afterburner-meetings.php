@@ -53,6 +53,8 @@ return [
     | they were not marked present at the meeting.
     |
     */
+    'council_role_resolver' => \App\Support\CouncilRoles::class,
+
     'council_position_role_slugs' => [
         'president',
         'vice_president',

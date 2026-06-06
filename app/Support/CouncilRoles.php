@@ -5,10 +5,10 @@ namespace App\Support;
 use App\Models\Role;
 use Illuminate\Support\Collection;
 
-class DirectoryCouncilRoles
+class CouncilRoles
 {
     /**
-     * Role IDs shown in the resident directory council section.
+     * Role IDs flagged as council roles in role management.
      *
      * @return Collection<int, int>
      */
@@ -20,7 +20,7 @@ class DirectoryCouncilRoles
     }
 
     /**
-     * Role slugs shown in the resident directory council section.
+     * Role slugs flagged as council roles in role management.
      *
      * @return array<int, string>
      */
