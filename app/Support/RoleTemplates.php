@@ -216,6 +216,7 @@ class RoleTemplates
                     'hierarchy' => 1,
                     'badge_color' => 'amber',
                     'max_members' => 1,
+                    'show_in_directory_council' => true,
                 ],
                 [
                     'name' => 'Treasurer',
@@ -225,6 +226,7 @@ class RoleTemplates
                     'hierarchy' => 2,
                     'badge_color' => 'emerald',
                     'max_members' => 1,
+                    'show_in_directory_council' => true,
                 ],
                 [
                     'name' => 'Secretary',
@@ -234,6 +236,7 @@ class RoleTemplates
                     'hierarchy' => 3,
                     'badge_color' => 'blue',
                     'max_members' => 1,
+                    'show_in_directory_council' => true,
                 ],
                 [
                     'name' => 'Council Member',
@@ -243,6 +246,7 @@ class RoleTemplates
                     'hierarchy' => 4,
                     'badge_color' => 'indigo',
                     'max_members' => null,
+                    'show_in_directory_council' => true,
                 ],
                 [
                     'name' => 'Strata Owner',
@@ -252,6 +256,7 @@ class RoleTemplates
                     'hierarchy' => 5,
                     'badge_color' => 'gray',
                     'max_members' => null,
+                    'show_in_directory_council' => false,
                 ],
             ],
             'permissions' => [

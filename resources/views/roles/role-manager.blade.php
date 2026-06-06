@@ -45,6 +45,11 @@
                                             {{ $role->name }}
                                         </span>
                                     </div>
+                                    @if ($role->show_in_directory_council)
+                                        <div class="text-xs text-indigo-600 dark:text-indigo-400">
+                                            Directory: Council
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -141,21 +146,32 @@
                         <x-input-error for="createRoleForm.description" class="mt-2" />
                     </div>
 
-                    <!-- Badge Color and Max Members -->
-                    <div class="col-span-6 sm:col-span-3">
-                        <x-label for="create_badge_color" value="{{ __('Badge Color') }}" />
-                        <select id="create_badge_color" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="createRoleForm.badge_color">
-                            @foreach($this->badgeColorOptions as $key => $color)
-                                <option value="{{ $key }}">{{ $color['label'] }}</option>
-                            @endforeach
-                        </select>
-                        <x-input-error for="createRoleForm.badge_color" class="mt-2" />
-                    </div>
+                    <!-- Badge Color, Member Limit, and Directory Council -->
+                    <div class="col-span-6">
+                        <div class="flex flex-wrap items-end gap-4">
+                            <div class="w-36 sm:w-40">
+                                <x-label for="create_badge_color" value="{{ __('Badge Color') }}" />
+                                <select id="create_badge_color" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" wire:model.live="createRoleForm.badge_color">
+                                    @foreach($this->badgeColorOptions as $key => $color)
+                                        <option value="{{ $key }}">{{ $color['label'] }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error for="createRoleForm.badge_color" class="mt-2" />
+                            </div>
 
-                    <div class="col-span-6 sm:col-span-3">
-                        <x-label for="create_max_members" value="{{ __('Member Limit (Optional)') }}" />
-                        <x-input id="create_max_members" type="number" class="mt-1 block w-full" wire:model="createRoleForm.max_members" />
-                        <x-input-error for="createRoleForm.max_members" class="mt-2" />
+                            <div class="w-28 sm:w-32">
+                                <x-label for="create_max_members" value="{{ __('Member Limit') }}" />
+                                <x-input id="create_max_members" type="number" class="mt-1 block w-full" wire:model="createRoleForm.max_members" placeholder="No limit" />
+                                <x-input-error for="createRoleForm.max_members" class="mt-2" />
+                            </div>
+
+                            <label class="flex min-w-[12rem] flex-1 items-center gap-2 pb-2">
+                                <x-checkbox wire:model="createRoleForm.show_in_directory_council" id="create_show_in_directory_council" />
+                                <span class="text-sm text-gray-700 dark:text-gray-300">
+                                    Show in resident directory council section
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Permissions -->
@@ -239,10 +255,21 @@
                     </div>
                 @endif
 
-                <div class="max-w-xs">
-                    <x-label for="edit_max_members" value="{{ __('Member Limit (Optional)') }}" />
-                    <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" />
-                    <x-input-error for="editRoleForm.max_members" class="mt-2" />
+                <div class="flex flex-wrap items-end gap-4">
+                    <div class="w-28 sm:w-32">
+                        <x-label for="edit_max_members" value="{{ __('Member Limit') }}" />
+                        <x-input id="edit_max_members" type="number" class="mt-1 block w-full" wire:model="editRoleForm.max_members" placeholder="No limit" />
+                        <x-input-error for="editRoleForm.max_members" class="mt-2" />
+                    </div>
+
+                    @unless ($roleBeingEdited?->is_default)
+                        <label class="flex min-w-[12rem] flex-1 items-center gap-2 pb-2">
+                            <x-checkbox wire:model="editRoleForm.show_in_directory_council" id="edit_show_in_directory_council" />
+                            <span class="text-sm text-gray-700 dark:text-gray-300">
+                                Show in resident directory council section
+                            </span>
+                        </label>
+                    @endunless
                 </div>
 
                 <!-- Permissions -->

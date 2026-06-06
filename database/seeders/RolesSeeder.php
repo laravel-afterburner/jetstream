@@ -27,6 +27,7 @@ class RolesSeeder extends Seeder
         $now = Carbon::now();
 
         $roles = array_map(fn (array $role) => $role + [
+            'show_in_directory_council' => $role['show_in_directory_council'] ?? false,
             'is_system' => true,
             'team_id' => null,
             'created_at' => $now,

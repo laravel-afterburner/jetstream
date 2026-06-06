@@ -24,11 +24,13 @@ class Role extends Model
         'hierarchy',
         'badge_color',
         'max_members',
+        'show_in_directory_council',
     ];
 
     protected $casts = [
         'is_default' => 'boolean',
         'is_system' => 'boolean',
+        'show_in_directory_council' => 'boolean',
     ];
 
     public function team(): BelongsTo

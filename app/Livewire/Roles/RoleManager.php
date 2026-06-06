@@ -26,6 +26,7 @@ class RoleManager extends Component
         'description' => '',
         'badge_color' => 'gray',
         'max_members' => null,
+        'show_in_directory_council' => false,
         'permissions' => [],
     ];
 
@@ -36,6 +37,7 @@ class RoleManager extends Component
     public $editRoleForm = [
         'description' => '',
         'max_members' => null,
+        'show_in_directory_council' => false,
         'permissions' => [],
     ];
 
@@ -103,6 +105,7 @@ class RoleManager extends Component
             'createRoleForm.description' => 'nullable|string|max:500',
             'createRoleForm.badge_color' => 'required|string',
             'createRoleForm.max_members' => 'nullable|integer|min:1',
+            'createRoleForm.show_in_directory_council' => 'boolean',
         ]);
 
         $maxHierarchy = Role::query()
@@ -115,6 +118,7 @@ class RoleManager extends Component
             'description' => $this->createRoleForm['description'],
             'badge_color' => $this->createRoleForm['badge_color'],
             'hierarchy' => $maxHierarchy + 1,
+            'show_in_directory_council' => (bool) $this->createRoleForm['show_in_directory_council'],
             'is_default' => false,
             'is_system' => false,
             'team_id' => $this->team->id,
@@ -139,6 +143,7 @@ class RoleManager extends Component
         $this->editRoleForm = [
             'description' => $role->description,
             'max_members' => TeamRolePermissions::maxMembersForRole($role, $this->team->id),
+            'show_in_directory_council' => $role->show_in_directory_council,
             'permissions' => TeamRolePermissions::permissionIdsForRole($role, $this->team->id),
         ];
 
@@ -159,6 +164,7 @@ class RoleManager extends Component
             'description' => $role->description,
             'badge_color' => $role->badge_color ?: 'gray',
             'max_members' => TeamRolePermissions::maxMembersForRole($role, $this->team->id),
+            'show_in_directory_council' => $role->show_in_directory_council,
             'permissions' => TeamRolePermissions::permissionIdsForRole($role, $this->team->id),
         ];
 
@@ -187,15 +193,23 @@ class RoleManager extends Component
         if ($role->isSystemRole()) {
             $this->validate([
                 'editRoleForm.max_members' => 'nullable|integer|min:1',
+                'editRoleForm.show_in_directory_council' => 'boolean',
             ]);
         } else {
             $this->validate([
                 'editRoleForm.description' => 'nullable|string|max:500',
                 'editRoleForm.max_members' => 'nullable|integer|min:1',
+                'editRoleForm.show_in_directory_council' => 'boolean',
             ]);
 
             $role->update([
                 'description' => $this->editRoleForm['description'],
+            ]);
+        }
+
+        if (! $role->is_default) {
+            $role->update([
+                'show_in_directory_council' => (bool) $this->editRoleForm['show_in_directory_council'],
             ]);
         }
 
@@ -265,6 +279,7 @@ class RoleManager extends Component
             'description' => '',
             'badge_color' => 'gray',
             'max_members' => null,
+            'show_in_directory_council' => false,
             'permissions' => [],
         ];
         $this->copyingRole = false;
@@ -276,6 +291,7 @@ class RoleManager extends Component
         $this->editRoleForm = [
             'description' => '',
             'max_members' => null,
+            'show_in_directory_council' => false,
             'permissions' => [],
         ];
         $this->roleBeingEdited = null;
