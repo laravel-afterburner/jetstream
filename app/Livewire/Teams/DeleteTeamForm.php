@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Teams;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Support\Features;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Afterburner\ValidateTeamDeletion;

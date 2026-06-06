@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Models\User;
 use App\Support\Afterburner;
 use App\Support\RoleImpersonation;

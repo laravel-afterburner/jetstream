@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Teams;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use Illuminate\Support\Facades\Auth;
 use App\Actions\Afterburner\CreateTeam;
 use App\Traits\RedirectsActions;

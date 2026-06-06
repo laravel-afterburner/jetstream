@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

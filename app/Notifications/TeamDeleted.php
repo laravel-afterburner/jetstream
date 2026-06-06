@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Models\Team;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Teams;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Actions\Afterburner\InviteTeamMember;
 use App\Actions\Afterburner\RemoveTeamMember;
 use App\Models\Role;

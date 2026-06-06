@@ -2,7 +2,7 @@
 
 namespace App\Actions\Afterburner;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Events\InvitingTeamMember;
 use App\Models\Role;
 use App\Models\Team;

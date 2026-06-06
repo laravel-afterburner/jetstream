@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Models\Role;
 use App\Models\Team;
 use App\Support\Afterburner;

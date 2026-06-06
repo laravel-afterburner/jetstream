@@ -2,7 +2,7 @@
 
 namespace App\Actions\Fortify;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Events\TeamMemberAdded;
 use App\Models\Role;
 use App\Models\Team;

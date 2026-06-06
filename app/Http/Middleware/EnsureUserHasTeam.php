@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use Afterburner\Support\EntityLabel;
+use App\Support\EntityLabel;
 use App\Support\Features;
 use Closure;
 use Illuminate\Http\Request;
