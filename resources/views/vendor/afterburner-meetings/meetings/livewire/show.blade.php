@@ -165,7 +165,7 @@
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Meeting minutes</h4>
                 @if ($meeting->minutes_finalized_at)
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Finalized {{ $meeting->minutes_finalized_at->timezone(\Afterburner\Meetings\Support\TeamDateTime::teamTimezone($team))->format('M j, Y g:i A') }}
+                        Finalized {{ $meeting->minutes_finalized_at->timezone(\App\Support\TeamDateTime::teamTimezone($team))->format('M j, Y g:i A') }}
                         @if ($meeting->minutesFinalizedBy)
                             by {{ $meeting->minutesFinalizedBy->name }}
                         @endif

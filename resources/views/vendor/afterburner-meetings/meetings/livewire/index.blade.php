@@ -67,7 +67,7 @@
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                             @if ($meeting->scheduled_at)
-                                {!! \Afterburner\Meetings\Support\TeamDateTime::formatDisplay($team, $meeting->scheduled_at) !!}
+                                {!! \App\Support\TeamDateTime::formatDisplay($team, $meeting->scheduled_at) !!}
                             @else
                                 —
                             @endif

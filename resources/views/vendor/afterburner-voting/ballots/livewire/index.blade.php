@@ -77,13 +77,13 @@
                                     @if ($ballot->opens_at)
                                         <div>
                                             <span class="text-xs text-gray-400 dark:text-gray-500">Opens</span>
-                                            <div>{!! \Afterburner\Voting\Support\TeamDateTime::formatDisplay($team, $ballot->opens_at) !!}</div>
+                                            <div>{!! \App\Support\TeamDateTime::formatDisplay($team, $ballot->opens_at) !!}</div>
                                         </div>
                                     @endif
                                     @if ($ballot->closes_at)
                                         <div>
                                             <span class="text-xs text-gray-400 dark:text-gray-500">Closes</span>
-                                            <div>{!! \Afterburner\Voting\Support\TeamDateTime::formatDisplay($team, $ballot->closes_at) !!}</div>
+                                            <div>{!! \App\Support\TeamDateTime::formatDisplay($team, $ballot->closes_at) !!}</div>
                                         </div>
                                     @endif
                                 </div>

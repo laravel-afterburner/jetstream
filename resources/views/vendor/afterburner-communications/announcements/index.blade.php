@@ -1,6 +1,6 @@
 @php($entityLabel = entity_title())
 
-<x-app-layout :title="\Afterburner\Communications\Support\PageHeader::make($entityLabel, detail: 'Announcements')">
+<x-app-layout :title="\App\Support\PageHeader::make($entityLabel, detail: 'Announcements')">
     <x-slot name="header">
         <x-afterburner-communications::page-header :section="$entityLabel" detail="Announcements" />
     </x-slot>
