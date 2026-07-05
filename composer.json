@@ -91,23 +91,5 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true,
-    "repositories": {
-        "afterburner-documents": {
-            "type": "path",
-            "url": "../afterburner-documents"
-        },
-        "afterburner-voting": {
-            "type": "path",
-            "url": "../afterburner-voting"
-        },
-        "afterburner-meetings": {
-            "type": "path",
-            "url": "../afterburner-meetings"
-        },
-        "afterburner-communications": {
-            "type": "path",
-            "url": "../afterburner-communications"
-        }
-    }
+    "prefer-stable": true
 }

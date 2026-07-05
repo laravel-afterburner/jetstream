@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Team;
 use App\Models\User;
 use App\Support\TeamRolePermissions;
 use Illuminate\Database\Seeder;
@@ -59,8 +58,8 @@ class SystemAdminSeeder extends Seeder
         if (\App\Support\Features::hasTeamFeatures()) {
             $isPersonalTeam = \App\Support\Features::hasPersonalTeams();
 
-            $team = Team::firstOrCreate(
-                ['user_id' => $user->id, 'name' => 'System Admin'],
+            $team = $user->ownedTeams()->firstOrCreate(
+                ['name' => 'System Admin'],
                 ['personal_team' => $isPersonalTeam]
             );
 
