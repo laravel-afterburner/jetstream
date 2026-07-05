@@ -31,7 +31,7 @@ class SeedInstallCommand extends Command
 
         $template = $entity ?: config('afterburner.entity_label', 'company');
 
-        $this->call(RolesSeeder::class, false, ['template' => $template]);
+        $this->runSeeder(RolesSeeder::class, ['template' => $template]);
 
         if (! $this->option('skip-admin')) {
             if (app()->environment('production')) {
@@ -42,7 +42,7 @@ class SeedInstallCommand extends Command
                     $this->option('admin-email')
                 );
 
-                $this->call(SystemAdminSeeder::class);
+                $this->runSeeder(SystemAdminSeeder::class);
 
                 SystemAdminSeeder::configureInstall(null, null);
             }
@@ -50,14 +50,23 @@ class SeedInstallCommand extends Command
 
         if (! $this->option('skip-packages')) {
             foreach (PackageSeederRegistry::all() as $seederClass) {
-                if (class_exists($seederClass)) {
-                    $this->call($seederClass);
-                }
+                $this->runSeeder($seederClass);
             }
         }
 
         $this->components->info('Afterburner install seeding complete.');
 
         return Command::SUCCESS;
+    }
+
+    protected function runSeeder(string $seederClass, array $parameters = []): void
+    {
+        if (! class_exists($seederClass)) {
+            return;
+        }
+
+        $seeder = new $seederClass;
+        $seeder->setCommand($this);
+        $seeder->__invoke($parameters);
     }
 }
